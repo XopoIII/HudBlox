@@ -1,0 +1,15 @@
+name = "xopoiii/hudblox"
+version = "0.1.0"
+description = "HUD capsules and round buttons that look like Roblox's own top bar, placed by the device's real safe zones"
+authors = ["XopoIII"]
+repository = "https://github.com/XopoIII/HudBlox"
+license = "MIT"
+includes = ["src/**", "pesde.toml", "README.md", "LICENSE"]
+
+[target]
+environment = "roblox"
+lib = "src/init.luau"
+build_files = ["src"]
+
+[indices]
+default = "https://github.com/pesde-pkg/index"
