@@ -147,6 +147,26 @@ type ButtonOptions = {
 
 It squashes to 0.9 on press and has no hover state. Connect `Activated`.
 
+### Badge: a count on a button
+
+`Badge.pin(button: GuiObject, theme, options: BadgeOptions): BadgeHandle`
+
+```lua
+type BadgeOptions = {
+	colour: Color3,    -- the disc's colour: the kit owns none
+	ink: Color3?,      -- the digit's colour; the theme's text colour when left out
+	leading: boolean?, -- the upper leading corner, for a button a right-to-left layout mirrored
+}
+type BadgeHandle = { set: (count: number?) -> (), frame: Frame }
+```
+
+A small disc on the button's upper trailing corner, above its icon, like the one Roblox's chat
+button wears. `set(3)` shows "3", `set(12)` shows "9+", and `set(0)` or `set(nil)` hides it. It
+shows nothing until it is given a count.
+
+- `Badge.text(count: number?): string?`: what a badge reads for a count, nil for no badge.
+- `Badge.width(text: string): number`: the disc's width for that text.
+
 ### SafeArea: the screen
 
 | | |
