@@ -5,6 +5,37 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.4.0 - 2026-10-07
+
+The backpack, the last of what the first game kept beside the kit.
+
+### Added
+
+- `Backpack.mount(player, config)`: a hotbar and the inventory above it in Roblox's stock layout,
+  with drag and drop, tap then tap, a double tap, the keys and a gamepad. What a Tool is
+  (`describe`), its picture (`draw`), the filters, every word (`text`), a pinned first slot
+  (`pinned`) and a counter of how it is used (`used`) are the game's.
+- `Backpack.Order`, `Backpack.Moves`, `Backpack.Press`: the pure parts, specified rule by rule.
+- `HotbarCover`: hides a hotbar while something covers it, keyed by reason, and switches Roblox's
+  own backpack off.
+
+### Changed from the game's own copy
+
+- The first slot belonged to one named thing. It belongs to `pinned` now, and with nothing pinned
+  it is a slot like the rest.
+- A slot's rim took its colour from the thing's rarity. The game hands the colour in, and a slot
+  with no rim keeps the colour it had: a rim that is not drawn has none to show.
+- What a press has become was worked out from a Vector2. It is plain numbers now (`Press`), so it
+  runs in the specs.
+- `HotbarCover.onChange` takes a function in place of a BindableEvent, and tells its listeners at
+  once.
+
+### Not done
+
+- `Backpack.mount`, `Gesture`, `Slot`, `Bar`, `Grid`, `Paint`, `Pad`, `Keys` and `Items` build
+  Instances or read input, and are checked by the type gate only in this repository. They are ported
+  line for line from a live game, whose own migration compares its interface before and after.
+
 ## 0.3.0 - 2026-10-07
 
 The dialog and the gamepad's focus, which the first game still kept beside the kit.

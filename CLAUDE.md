@@ -27,7 +27,8 @@ This is the reason the package exists, and the rule a change is checked against 
   Roblox's measured plate are **arguments**: a theme, an option, a function. What there is one of
   for the whole client (the reader's direction, the pad counter) is said once through `Host`. No
   module requires anything outside `src/`, reads an attribute a game sets, or names a game's
-  Instance. The two attributes the kit itself defines are its own: `ModalsOpen` on PlayerGui
+  Instance, and what a Tool is comes from the game's `describe`. The two attributes the kit itself
+  defines are its own: `ModalsOpen` on PlayerGui
   (`Dialog`) and, in Studio, `PadCheck` on Workspace (`PadInput`).
 - Nothing touches `game` at require time. Services are fetched inside the function that needs
   them, and a module that changes the engine (`Focus`, which switches auto-selection off) does it
@@ -84,6 +85,9 @@ that "looks right" is not a measurement.
 - `Dialog` over `DialogGeometry` (arithmetic): a whole dialog. `Focus` over `Stack` and `Pick`
   (plain data) with `Ring`: a gamepad's selection. `PadInput`, `PadGlyph`, `PadMenu`,
   `TouchControls`: the pad and the touch controls.
+- `Backpack/`: a hotbar and an inventory for the game's own Tools. `Order`, `Moves`, `Press` are
+  plain data and arithmetic; `Items`, `Gesture`, `Keys`, `Pad` read the engine; `Slot`, `Bar`,
+  `Grid`, `Paint` draw; `Mount` wires them. `HotbarCover` hides the bar under a dialog.
 - `init.luau` exposes the modules and re-exports their types.
 
 ## Distribution

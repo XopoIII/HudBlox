@@ -193,8 +193,15 @@ const MUTANTS: { Mutant } = {
 	},
 }
 
--- The dialog's geometry and the gamepad's focus keep theirs in files of their own.
-for _, list in { require("./slips/Dialog"), require("./slips/Focus") } :: { { Mutant } } do
+-- The dialog's geometry, the gamepad's focus and the backpack keep theirs in files of their own.
+const MORE: { { Mutant } } = {
+	require("./slips/Dialog"),
+	require("./slips/Focus"),
+	require("./slips/BackpackOrder"),
+	require("./slips/BackpackOrderMoves"),
+	require("./slips/BackpackTaps"),
+}
+for _, list in MORE do
 	table.move(list, 1, #list, #MUTANTS + 1, MUTANTS)
 end
 
