@@ -14,6 +14,7 @@ const Items = require("./Items")
 const Native = require("../Native")
 const Rtl = require("../Rtl")
 const Slot = require("./Slot")
+const Tabs = require("../Tabs")
 
 const Grid = {}
 
@@ -40,7 +41,7 @@ export type Words = {
 }
 
 --- One filter's button: `kind` is the `Items.Item.kind` it shows alone, nil for the one that shows
---- everything.
+--- everything. The first is the one that is on when the inventory is made.
 export type Filter = { kind: string?, label: string }
 
 export type Grid = {
@@ -123,28 +124,8 @@ function Grid.new(parent: Instance, bottom: number, text: Words, filters: { Filt
 		box.TextXAlignment = Enum.TextXAlignment.Right
 	end
 
-	const chips = Instance.new("Frame")
-	chips.Name = "Filters"
-	chips.BackgroundTransparency = 1
-	chips.Position = UDim2.fromOffset(PAD, TITLE_H)
-	chips.Size = UDim2.new(1, -PAD * 2, 0, FILTER_H)
-	chips.Parent = frame
-	const chipRow = Instance.new("UIListLayout")
-	chipRow.FillDirection = Enum.FillDirection.Horizontal
-	chipRow.SortOrder = Enum.SortOrder.LayoutOrder
-	chipRow.Padding = UDim.new(0, 6)
-	chipRow.HorizontalAlignment = if rtl then Enum.HorizontalAlignment.Right else Enum.HorizontalAlignment.Left
-	chipRow.Parent = chips
 	-- The kind shown alone; nil shows everything.
-	local filter: string? = nil
-	const chipOf: { [TextButton]: Filter } = {}
-	const function paintChips()
-		for chip, entry in chipOf do
-			const on = entry.kind == filter
-			chip.BackgroundColor3 = if on then Native.PRIMARY else Native.TEXT
-			chip.BackgroundTransparency = if on then 0 else 0.9
-		end
-	end
+	local filter: string? = if filters[1] then filters[1].kind else nil
 
 	const scroller = Instance.new("ScrollingFrame")
 	scroller.Name = "Slots"
@@ -196,21 +177,31 @@ function Grid.new(parent: Instance, bottom: number, text: Words, filters: { Filt
 	clear.Activated:Connect(function()
 		box.Text = ""
 	end)
-	for i, entry in filters do
-		const chip = Native.button(chips, entry.label, "secondary")
-		chip.Name = entry.kind or "all"
-		chip.LayoutOrder = reader.slot(i)
-		chip.TextSize = 15
-		chip.Size = UDim2.fromOffset(FILTER_W, FILTER_H)
-		chipOf[chip] = entry
-		chip.Activated:Connect(function()
-			filter = entry.kind
-			paintChips()
-			scroller.CanvasPosition = Vector2.zero
-			searched:Fire()
-		end)
+	-- The filters are a tab strip of the kit's own, a chip's size: a tab is called by its kind, and
+	-- the one that shows everything "all".
+	if #filters > 0 then
+		const kindOf: { [string]: Filter } = {}
+		const entries: { Tabs.Entry } = {}
+		for _, entry in filters do
+			const key = entry.kind or "all"
+			kindOf[key] = entry
+			table.insert(entries, { key = key, label = entry.label })
+		end
+		const chips = Tabs.mount(frame, entries, {
+			name = "Filters",
+			height = FILTER_H,
+			width = FILTER_W,
+			gap = 6,
+			text = 15,
+			picked = function(key: string)
+				filter = kindOf[key].kind
+				scroller.CanvasPosition = Vector2.zero
+				searched:Fire()
+			end,
+		})
+		chips.frame.Position = UDim2.fromOffset(PAD, TITLE_H)
+		chips.frame.Size = UDim2.new(1, -PAD * 2, 0, FILTER_H)
 	end
-	paintChips()
 
 	return {
 		frame = frame,

@@ -9,8 +9,8 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **Status: 0.4.0.** The placement arithmetic and the backpack's order and taps are proven by specs
-> that run on every push, and each of 140 small slips in them makes the suite fail
+> **Status: 0.6.0.** The placement arithmetic and the backpack's order and taps are proven by specs
+> that run on every push, and each of 166 small slips in them makes the suite fail
 > (`tests/Mutate.luau`). The modules that build
 > Instances are checked against the Roblox API by the type gate, under both type solvers, and were
 > ported from code that runs in a live game; as a package they have not yet been run in a game or
@@ -26,7 +26,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.4.0", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.6.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -166,6 +166,61 @@ shows nothing until it is given a count.
 
 - `Badge.text(count: number?): string?`: what a badge reads for a count, nil for no badge.
 - `Badge.width(text: string): number`: the disc's width for that text.
+
+### Tabs: a strip of tabs
+
+`Tabs.mount(parent: Instance, entries: { TabsEntry }, options: TabsOptions?): TabsHandle`
+
+```lua
+type TabsEntry = { key: string, label: string }
+type TabsOptions = {
+	picked: ((key: string) -> ())?, -- told each time a tab is put on, by a press or by `pick`
+	first: string?,                 -- the tab that is on at first; the first one when left out
+	name: string?,                  -- the strip's name in the tree, "Tabs" when left out
+	height: number?, width: number?, gap: number?, text: number?, -- TabFit's when left out
+}
+type TabsHandle = {
+	frame: Frame,                       -- as wide as its parent, one tab high; the game places it
+	buttons: { [string]: TextButton },  -- each tab by its key, to pin a Badge to one
+	pick: (key: string) -> boolean,     -- puts a tab on; false for a key that is no tab's
+	on: () -> string,                   -- the key of the tab that is on
+}
+```
+
+A row of the menu's buttons of which one wears the blue. The strip fills from the reader's own
+side (`Host`), and when it is narrower than its tabs ask for they share it evenly. What stands
+under a tab is the game's: `picked` shows it. `picked` is not called at mount.
+
+- `TabFit.width(span, count, gap, most): number`: how wide each of `count` tabs is in a strip
+  `span` wide. `TabFit.HEIGHT` 40, `WIDTH` 150, `GAP` 8, `TEXT` 20, `NARROWEST` 44.
+
+The backpack's filters are this strip, a chip's size.
+
+### Flight: a reward flying to its counter
+
+```lua
+const layer = Flight.layer(playerGui)
+Flight.send(layer, {
+	from = Flight.centre(claimButton),   -- or any point in AbsolutePosition's space
+	to = wallet.segments[1].lead,        -- what the icons fly into
+	count = 8,                           -- FlightPath.count of it flies: at most 12
+	draw = function(frame, index) ... end, -- fills one icon's frame
+	landed = function(index, count) Flight.pulse(walletScale) end,
+})
+```
+
+Each icon leaves a thirty-second of a second after the one before, steps out to its own place on
+a ring round the source, then flies into the target, shrinking, and is gone. The target is read
+every frame. `landed` is called as each icon lands, which is when a game writes the new number;
+a target that leaves the tree lands every icon still in the air at once, so nothing is lost.
+
+- `Flight.layer(playerGui, name?): ScreenGui`: where they fly, ten layers over a dialog; made once.
+- `Flight.centre(object): Vector2`: the middle of a GuiObject, for `from`.
+- `Flight.pulse(scale: UIScale, peak: number?)`: swells a counter and settles it. `TopBar`'s
+  `addPill` returns the capsule's `UIScale` for this.
+- `FlightPath.count`, `leaves`, `lasts`, `ring`, `place`: the times and the path as arithmetic.
+
+A point in the world is turned into `from` by the game (`Camera:WorldToScreenPoint`).
 
 ### SafeArea: the screen
 
