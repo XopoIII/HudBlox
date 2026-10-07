@@ -7,9 +7,9 @@ HudBlox draws a game's counters as the dark capsules Roblox draws its own menu a
 on the same line, in the same plate, at the same sizes. It puts them where the device and Roblox
 leave room: never under a notch, never under Roblox's buttons, never under the thumbstick. The
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
-in the game Grabby Pit before it became a package.
+in a live game before it became a package.
 
-> **Status: 0.1.0.** The placement arithmetic is proven by specs that run on every push, and each
+> **Status: 0.2.0.** The placement arithmetic is proven by specs that run on every push, and each
 > of 31 small slips in it makes the suite fail (`tests/Mutate.luau`). The modules that build
 > Instances are checked against the Roblox API by the type gate, under both type solvers, and were
 > ported from code that runs in a live game; as a package they have not yet been run in a game or
@@ -25,7 +25,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.1.0", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.2.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.

@@ -5,9 +5,22 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.2.0 - 2026-10-07
+
+### Changed
+
+- `Native.BACKDROP_T` is 0.5 (it was 1): a dialog dims the world behind it. The package carried the
+  number the first game had before its owner played two weeks with it and asked for the change.
+- No file names a game any more.
+
+### Added
+
+- `Native.MODAL_T` (0.06): the transparency of a dialog's own panel, nearly solid, for a panel with
+  text to read on it. `Native.SURFACE_T` (0.3) stays for a strip over the world.
+
 ## 0.1.0 - 2026-10-05
 
-The HUD kit of Grabby Pit as a package: the same capsules, the same measured numbers, with every
+The HUD kit of a live game as a package: the same capsules, the same measured numbers, with every
 seam to the game cut. A kit module reads nothing of the game it is in.
 
 ### Added
@@ -35,7 +48,7 @@ seam to the game cut. A kit module reads nothing of the game it is in.
 - `Layout`, `Clearance`, `Measure`: the arithmetic and the measured numbers, free of Instances, so a
   game can put its own worst-case row in a spec (`Layout.top`, `Layout.pillWidth`, `Layout.fits`).
 
-### Changed from Grabby Pit's copy
+### Changed from the game's own copy
 
 - `Pill.build` and `Row.addPill` take a list of parts and return a `Capsule` table, in place of
   positional `lead, emoji, tappable` arguments and three return values.
@@ -61,7 +74,7 @@ seam to the game cut. A kit module reads nothing of the game it is in.
   does not rearrange the row.
 - With no left buttons the right row may begin exactly where Roblox's buttons end, without the gap
   a left button keeps; below the chrome line it may reach the screen's left edge. Both are as in
-  Grabby Pit and only decide where wrapping begins.
+  that game and only decide where wrapping begins.
 - `Layout.pillWidth` is derived from the properties `Pill` sets, not measured on a client.
 - Not ported: the dialog (`NativeModal`, `ModalGeometry`), hiding the touch controls under a dialog
   (`TouchControls`), the gamepad focus family (`Focus`, `PadInput`, `PadMenu`, `PadGlyph`) and the

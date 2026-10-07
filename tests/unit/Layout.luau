@@ -1,5 +1,5 @@
 --!strict
---- The top line's arithmetic. The screens are the ones the numbers were measured on in Grabby Pit:
+--- The top line's arithmetic. The screens are the ones the numbers were measured on in a live game:
 --- a phone on its side at 801 x 392 and at 705 x 338, where Roblox's strip is 58 tall and its own
 --- buttons end at x = 208.
 const Layout = require("@hudblox/Layout")
@@ -49,7 +49,7 @@ Spec.test("the free span is measured in the gui's own coordinates", function()
 end)
 
 Spec.test("the right row takes what the chrome and the left buttons leave", function()
-	-- No left buttons: the two widths recorded in Grabby Pit, 577 and 481.
+	-- No left buttons: the two widths recorded in that game, 577 and 481.
 	Spec.equal(Layout.top(over(801), INSET, 0), { onChromeLine = true, lefts = {}, rowLeft = 208, rowWidth = 577 })
 	Spec.equal(Layout.top(over(705), INSET, 0).rowWidth, 481, "705 wide")
 	-- One left button, 216..260, and the row begins 8 past it.

@@ -23,8 +23,12 @@ Native.TEXT = Color3.fromRGB(247, 247, 248)
 Native.BODY = Color3.fromRGB(213, 215, 221)
 Native.DIVIDER = Color3.fromRGB(208, 217, 251)
 Native.DIVIDER_T = 0.84
---- The menu leaves the world outside its panel undimmed.
-Native.BACKDROP_T = 1
+--- A dialog dims the world behind it, and its own panel is nearly solid. The Escape menu itself
+--- leaves the world undimmed behind a panel at `SURFACE_T`, and a dialog built that way was played
+--- for two weeks in the first game: the world showed through so far that the text swam. A strip
+--- with no text to read on it (a bar over the world) keeps `SURFACE_T`.
+Native.BACKDROP_T = 0.5
+Native.MODAL_T = 0.06
 
 Native.CORNER = 10
 Native.BUTTON_CORNER = 8
