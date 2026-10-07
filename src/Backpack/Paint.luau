@@ -8,6 +8,7 @@ const Bar = require("./Bar")
 const Grid = require("./Grid")
 const Items = require("./Items")
 const Order = require("./Order")
+const Rest = require("./Rest")
 const Slot = require("./Slot")
 
 const Paint = {}
@@ -22,6 +23,9 @@ export type State = {
 	picked: string?,
 	hidden: boolean,
 	inHand: () -> Tool?,
+	--- The things that cannot be used again yet, by id, and the clock they are kept on.
+	rests: Rest.Rests,
+	clock: () -> number,
 	--- Makes an inventory slot and binds its gesture.
 	newSlot: (index: number) -> Slot.Slot,
 }
@@ -78,6 +82,7 @@ function Paint.all(state: State)
 		if not (id and byId[id]) then
 			slot.setHeld(false)
 			slot.setPicked(false)
+			slot.setRest(0, 0)
 		end
 	end
 	const barWidth = state.bar.layout(state.open)
@@ -103,6 +108,7 @@ function Paint.all(state: State)
 	end
 
 	const inHand = state.inHand()
+	const now = state.clock()
 	local kept = 0
 	for id, item in byId do
 		kept += if item.counted then 1 else 0
@@ -110,6 +116,7 @@ function Paint.all(state: State)
 		if slot then
 			slot.setHeld(item.tool == inHand)
 			slot.setPicked(state.open and state.picked == id)
+			slot.setRest(Rest.of(state.rests, id, now))
 		end
 	end
 	state.grid.setCount(kept, #order.grid)

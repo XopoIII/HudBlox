@@ -7,10 +7,12 @@
 --- stays a true square, and the name is the bar's tip.
 ---
 --- Two outlines sit over it, both white: solid while the thing is in hand, pulsing while it is picked
---- up to be moved.
+--- up to be moved. A dark shade stands over a thing that cannot be used again yet and empties
+--- downward as its rest runs out (`Rest`).
 const Items = require("./Items")
 const Native = require("../Native")
 const Order = require("./Order")
+const Rest = require("./Rest")
 
 const Slot = {}
 
@@ -20,6 +22,7 @@ Slot.GAP = 5
 
 const TILE_T = 0.35
 const EMPTY_T = 0.6
+const SHADE_T = 0.45
 const RING = Color3.new(1, 1, 1)
 const PULSE = TweenInfo.new(0.45, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 
@@ -37,6 +40,8 @@ export type Slot = {
 	setPicked: (on: boolean) -> (),
 	setLifted: (on: boolean) -> (),
 	setNumber: (text: string?) -> (),
+	--- Shades the slot for a thing with `left` of `total` seconds of rest to go; 0 clears it.
+	setRest: (left: number, total: number) -> (),
 	--- A copy to follow the pointer during a drag.
 	ghost: () -> GuiObject,
 	destroy: () -> (),
@@ -91,8 +96,24 @@ function Slot.new(parent: Instance, place: Order.Place, draw: Draw): Slot
 	stroke.Transparency = 1
 	stroke.Parent = ring
 
+	-- Over the picture and under the number: it stands on the slot's foot and empties downward.
+	const shade = Instance.new("Frame")
+	shade.Name = "Rest"
+	shade.AnchorPoint = Vector2.new(0, 1)
+	shade.Position = UDim2.fromScale(0, 1)
+	shade.Size = UDim2.fromScale(1, 0)
+	shade.BackgroundColor3 = Color3.new(0, 0, 0)
+	shade.BackgroundTransparency = SHADE_T
+	shade.BorderSizePixel = 0
+	shade.ZIndex = 2
+	shade.Visible = false
+	shade.Parent = frame
+	const shadeCorner = corner:Clone()
+	shadeCorner.Parent = shade
+
 	local held, picked = false, false
 	local pulse: Tween? = nil
+	local emptying: Tween? = nil
 
 	const function outline()
 		if pulse then
@@ -161,6 +182,27 @@ function Slot.new(parent: Instance, place: Order.Place, draw: Draw): Slot
 			number.Text = text or ""
 			number.Visible = text ~= nil
 		end,
+		setRest = function(left: number, total: number)
+			if emptying then
+				emptying:Cancel()
+				emptying = nil
+			end
+			const share = Rest.share(left, total)
+			shade.Visible = share > 0
+			if share <= 0 then
+				return
+			end
+			shade.Size = UDim2.fromScale(1, share)
+			const tween = game:GetService("TweenService")
+				:Create(shade, TweenInfo.new(left, Enum.EasingStyle.Linear), { Size = UDim2.fromScale(1, 0) })
+			tween.Completed:Connect(function(state: Enum.PlaybackState)
+				if state == Enum.PlaybackState.Completed then
+					shade.Visible = false
+				end
+			end)
+			tween:Play()
+			emptying = tween
+		end,
 		ghost = function(): GuiObject
 			const copy = frame:Clone()
 			copy.Name = "Ghost"
@@ -180,6 +222,9 @@ function Slot.new(parent: Instance, place: Order.Place, draw: Draw): Slot
 		destroy = function()
 			if pulse then
 				pulse:Cancel()
+			end
+			if emptying then
+				emptying:Cancel()
 			end
 			frame:Destroy()
 		end,
