@@ -2,7 +2,7 @@
 --- The measured numbers of Roblox's own top bar, and nothing else.
 ---
 --- THE NUMBERS ARE THE ASSET, not the code around them. Each was read off a live client (CoreGui's
---- `TopBarApp`, last on 2026-09-22 and 2026-09-23 in Grabby Pit), and a retyped approximation of one
+--- `TopBarApp`, last on 2026-09-22 and 2026-09-23 in a live game), and a retyped approximation of one
 --- is worth nothing. Change one only against a new measurement, and say where it was read.
 ---
 --- Plain numbers only, so the arithmetic that uses them (`Layout`, `Clearance`) runs without Roblox.

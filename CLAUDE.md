@@ -1,7 +1,7 @@
 # HudBlox - working notes
 
 HudBlox is a HUD kit for Roblox: dark capsules and round buttons that look like Roblox's own top-bar
-buttons, placed by the device's real safe zones. It was extracted from the game Grabby Pit and is
+buttons, placed by the device's real safe zones. It was extracted from a live game and is
 used by the owner's games as a pinned pesde package (`xopoiii/hudblox`, target `roblox`).
 
 ## Everything here is written in English

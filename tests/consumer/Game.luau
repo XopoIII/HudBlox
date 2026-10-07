@@ -110,7 +110,12 @@ const rtl: HudBlox.RtlReader = HudBlox.Rtl.reader(function(): boolean
 end)
 const panel = Instance.new("Frame")
 panel.BackgroundColor3 = HudBlox.Native.SURFACE
-panel.BackgroundTransparency = HudBlox.Native.SURFACE_T
+panel.BackgroundTransparency = HudBlox.Native.MODAL_T
+const dim = Instance.new("Frame")
+dim.BackgroundColor3 = HudBlox.Native.SURFACE
+dim.BackgroundTransparency = HudBlox.Native.BACKDROP_T
+const strip = Instance.new("Frame")
+strip.BackgroundTransparency = HudBlox.Native.SURFACE_T
 const _title = HudBlox.Native.text(panel, "Shop", HudBlox.Native.TITLE_SIZE, { align = rtl.start() })
 const buy = HudBlox.Native.button(panel, "Buy", "primary")
 const leave = HudBlox.Native.button(panel, "Close", "secondary")
