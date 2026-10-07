@@ -60,6 +60,11 @@ HudBlox.Pill.pinWidth(extra.value, { "00:00" })
 HudBlox.Pill.measure(HudBlox.Theme.font(byFunction), HudBlox.Measure.TEXT, { "0" }, function(_widest: number) end)
 const rail = HudBlox.Button.round(gui, theme, "shop", { name = "Rail", size = 56, iconFraction = 0.74 })
 rail.Position = UDim2.new(0, HudBlox.Measure.EDGE, HudBlox.SafeArea.y(gui, 0.5).Scale, 0)
+const waiting: HudBlox.BadgeHandle = HudBlox.Badge.pin(rail, theme, { colour = Color3.fromRGB(0, 120, 255) })
+waiting.set(3)
+waiting.set(nil)
+const mirrored: HudBlox.BadgeOptions = { colour = Color3.new(1, 0, 0), ink = Color3.new(1, 1, 1), leading = true }
+HudBlox.Badge.pin(rail, theme, mirrored).frame.Visible = HudBlox.Badge.text(12) == "9+"
 
 -- The screen, read and as arithmetic.
 const screen: HudBlox.Screen = HudBlox.SafeArea.measure(gui)

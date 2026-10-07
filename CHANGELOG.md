@@ -5,6 +5,21 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.5.0 - 2026-10-07
+
+### Added
+
+- `Badge.pin(button, theme, options)`: a count on a button's upper trailing corner, above its icon,
+  like the disc Roblox's chat button wears. `set(count)` shows a digit up to 9, "9+" past it, and
+  hides the disc for nothing. The colour is the game's; `leading` puts it on the other corner for a
+  mirrored layout.
+- `Badge.text` and `Badge.width`: the pure parts, specified.
+
+### Not done
+
+- The disc itself is built from Instances and is not run by the suite: it is type-checked through
+  `tests/consumer/Game.luau` and was looked at in a game.
+
 ## 0.4.0 - 2026-10-07
 
 The backpack, the last of what the first game kept beside the kit.

@@ -14,6 +14,7 @@
 --- reader reads, who counts a gamepad's presses) is said once through `Host`. Nothing touches
 --- `game` when it is required. See README.md for the whole API.
 const Backpack = require("@self/Backpack")
+const Badge = require("@self/Badge")
 const Band = require("@self/Band")
 const Button = require("@self/Button")
 const Clearance = require("@self/Clearance")
@@ -49,6 +50,8 @@ export type Segment = Pill.Segment
 export type Capsule = Pill.Capsule
 export type Row = TopBar.Row
 export type ButtonOptions = Button.Options
+export type BadgeOptions = Badge.Options
+export type BadgeHandle = Badge.Handle
 export type Screen = Layout.Screen
 export type Top = Layout.Top
 export type Control = Clearance.Control
@@ -80,6 +83,7 @@ return {
 	--- A capsule on its own.
 	Pill = Pill,
 	--- A round button on its own.
+	Badge = Badge,
 	Button = Button,
 	--- Builds a theme's `icon` from a table of asset ids.
 	Icons = Icons,
