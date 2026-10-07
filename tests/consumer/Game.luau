@@ -127,6 +127,71 @@ rtl.flipEdge(close)
 rtl.apply(panel)
 panel.Parent = gui
 
+-- What there is one of for the whole client is said once.
+const hooks: HudBlox.HostHooks = {
+	rtl = rtl,
+	padUsed = function(_act: HudBlox.PadAct) end,
+}
+HudBlox.Host.set(hooks)
+const _reader: HudBlox.RtlReader = HudBlox.Host.rtl()
+HudBlox.Host.padUsed("Panel")
+
+-- A whole dialog, over the game's own hotbar.
+const bar: HudBlox.DialogBottom = { band = 82, room = 360 }
+const dialogOptions: HudBlox.DialogOptions = {
+	bottom = bar,
+	cover = function(_covered: boolean) end,
+}
+const shopDialog: HudBlox.DialogHandle = HudBlox.Dialog.new(playerGui, "Shop", "Shop", 620, 600, dialogOptions)
+const plain: HudBlox.DialogHandle = HudBlox.Dialog.new(playerGui, "Help", "Help", 460, 330)
+HudBlox.Native.button(shopDialog.footer, "Buy").Activated:Connect(function()
+	shopDialog.toggle()
+end)
+shopDialog.changed.Event:Connect(function(_open: boolean) end)
+shopDialog.setOpen(true)
+plain.setOpen(false)
+const _parts: { Instance } = { shopDialog.gui, shopDialog.panel, shopDialog.title, shopDialog.body }
+const frame: HudBlox.DialogFrame = HudBlox.DialogGeometry.layout(801, 392, 58, 620, 600, bar)
+const _covers: boolean = not frame.clearsBottom
+const _box: { number } = { frame.width, frame.height, frame.top, HudBlox.DialogGeometry.TOP_ROW_BOTTOM }
+const _attribute: string = HudBlox.Dialog.OPEN_ATTRIBUTE
+
+-- A gamepad's selection: a panel of the game's own, the ring, and the pure parts.
+HudBlox.Focus.start()
+const focusOptions: HudBlox.FocusOptions = {
+	back = function() end,
+	first = function(): GuiObject?
+		return buy
+	end,
+}
+HudBlox.Focus.push("panel", panel, focusOptions)
+const _held: boolean = HudBlox.Focus.open()
+HudBlox.Focus.pop("panel")
+buy.SelectionImageObject = HudBlox.Ring.square()
+close.SelectionImageObject = HudBlox.Ring.round()
+const targets: { HudBlox.PickTarget } = { { x = 10, y = 10, order = 0, shown = true, selectable = true } }
+const _first: number? = HudBlox.Pick.first(targets, false)
+const _nearest: number? = HudBlox.Pick.nearest(targets, 0, 0, rtl.active())
+const scopes: { entries: { { name: string, value: number } } } = { entries = {} }
+HudBlox.Stack.push(scopes, "a", 1)
+const _size: number = HudBlox.Stack.size(scopes)
+
+-- The pad itself, and the touch controls.
+const _onPad: boolean = HudBlox.PadInput.active()
+const stopPad = HudBlox.PadInput.onChange(function(_active: boolean) end)
+const _cap: ImageLabel = HudBlox.PadGlyph.cap(buy, Enum.KeyCode.ButtonA, 18)
+const menu: HudBlox.PadMenuConfig = {
+	gui = gui,
+	buttons = { buy, leave },
+	first = buy,
+	bag = leave,
+	toggleBag = shopDialog.toggle,
+}
+HudBlox.PadMenu.bind(menu)
+HudBlox.TouchControls.set("help", true)
+HudBlox.TouchControls.set("help", false)
+stopPad()
+
 -- A surface that can be unmounted stops everything it started.
 const unbind = HudBlox.SafeArea.bind(gui, row.fit)
 unbind()

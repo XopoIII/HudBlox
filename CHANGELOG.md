@@ -5,6 +5,36 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.3.0 - 2026-10-07
+
+The dialog and the gamepad's focus, which the first game still kept beside the kit.
+
+### Added
+
+- `Dialog.new`: a whole dialog in Roblox's own look, sized by `DialogGeometry` (plain arithmetic,
+  specified rule by rule). The game's bottom furniture (`bottom`) and what hides it under a dialog
+  that covers it (`cover`) are options.
+- `Focus`, with `Ring`, `Pick` and `Stack`: a gamepad's selection, one panel at a time. Nothing in
+  the engine changes until a game calls `Focus.start` or pushes its first panel.
+- `PadInput`, `PadGlyph`, `PadMenu`, `TouchControls`.
+- `Host.set({ rtl?, padUsed? })`: which way the game's reader reads and who counts a gamepad's
+  presses, said once for the parts of the kit there is one of.
+
+### Changed
+
+- `Native.text` starts a line where the host's reader starts when `align` is left out. It was
+  always the left. A game that has not called `Host.set` sees no difference.
+- `Native.iconButton` wears the kit's round focus ring when none is handed in. It was the engine's
+  own box.
+
+### Changed from the game's own copy
+
+- A panel's header had an inset that stepped it clear of Roblox's buttons. Since panels start below
+  the top row no screen gives it a value other than zero: over 364,800 screens it never did. It is
+  not ported, and the dialog no longer follows the top-bar inset, which could only move it.
+- `PadInput` and `TouchControls` connect nothing until somebody asks, and `PadInput.onChange` takes
+  a function in place of a BindableEvent.
+
 ## 0.2.0 - 2026-10-07
 
 ### Changed
@@ -76,7 +106,7 @@ seam to the game cut. A kit module reads nothing of the game it is in.
   a left button keeps; below the chrome line it may reach the screen's left edge. Both are as in
   that game and only decide where wrapping begins.
 - `Layout.pillWidth` is derived from the properties `Pill` sets, not measured on a client.
-- Not ported: the dialog (`NativeModal`, `ModalGeometry`), hiding the touch controls under a dialog
+- (Ported in 0.3.0, all but the backpack.) Not ported: the dialog (`NativeModal`, `ModalGeometry`), hiding the touch controls under a dialog
   (`TouchControls`), the gamepad focus family (`Focus`, `PadInput`, `PadMenu`, `PadGlyph`) and the
   backpack. They are a dialog kit and an input kit, not the HUD.
 - No Wally package, no `.rbxm` and no roblox-ts typings.

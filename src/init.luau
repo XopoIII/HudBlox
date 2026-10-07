@@ -9,23 +9,35 @@
 ---     const wallet = row.addPill({ { lead = "coin", pin = { "999.9K" } } })
 ---     wallet.segments[1].value.Text = "120"
 ---
---- A kit module reads nothing of the game it is in: the icons, the locale's direction, the focus
---- ring and every colour beyond Roblox's measured plate are arguments. Nothing touches `game`
---- when it is required. See README.md for the whole API.
+--- A kit module reads nothing of the game it is in: the icons and every colour beyond Roblox's
+--- measured plate are arguments, and what there is one of for the whole client (which way the
+--- reader reads, who counts a gamepad's presses) is said once through `Host`. Nothing touches
+--- `game` when it is required. See README.md for the whole API.
 const Band = require("@self/Band")
 const Button = require("@self/Button")
 const Clearance = require("@self/Clearance")
+const Dialog = require("@self/Dialog")
+const DialogGeometry = require("@self/DialogGeometry")
+const Focus = require("@self/Focus")
+const Host = require("@self/Host")
 const Icons = require("@self/Icons")
 const Indicator = require("@self/Indicator")
 const Layout = require("@self/Layout")
 const Measure = require("@self/Measure")
 const Native = require("@self/Native")
+const PadGlyph = require("@self/PadGlyph")
+const PadInput = require("@self/PadInput")
+const PadMenu = require("@self/PadMenu")
+const Pick = require("@self/Pick")
 const Pill = require("@self/Pill")
+const Ring = require("@self/Ring")
 const Rtl = require("@self/Rtl")
 const SafeArea = require("@self/SafeArea")
+const Stack = require("@self/Stack")
 const Theme = require("@self/Theme")
 const TopBar = require("@self/TopBar")
 const TouchClearance = require("@self/TouchClearance")
+const TouchControls = require("@self/TouchControls")
 
 export type Theme = Theme.Theme
 export type Icon = Theme.Icon
@@ -41,6 +53,15 @@ export type Control = Clearance.Control
 export type Rect = Band.Rect
 export type Follow = Indicator.Follow
 export type RtlReader = Rtl.Reader
+export type HostHooks = Host.Hooks
+export type PadAct = Host.PadAct
+export type DialogOptions = Dialog.Options
+export type DialogHandle = Dialog.Dialog
+export type DialogBottom = DialogGeometry.Bottom
+export type DialogFrame = DialogGeometry.Frame
+export type FocusOptions = Focus.Options
+export type PickTarget = Pick.Target
+export type PadMenuConfig = PadMenu.Config
 
 return {
 	--- The top line: the right row and the left buttons.
@@ -65,6 +86,22 @@ return {
 	Native = Native,
 	--- The right-to-left mirror.
 	Rtl = Rtl,
+	--- What a game says of itself once: its reader's direction, its pad counter.
+	Host = Host,
+	--- A whole dialog, and the arithmetic of where it sits.
+	Dialog = Dialog,
+	DialogGeometry = DialogGeometry,
+	--- Where a gamepad's selection is, one panel at a time; its ring, and the pure parts.
+	Focus = Focus,
+	Ring = Ring,
+	Pick = Pick,
+	Stack = Stack,
+	--- Whether the player is on a gamepad, a button's picture, and the D-pad's way to the top bar.
+	PadInput = PadInput,
+	PadGlyph = PadGlyph,
+	PadMenu = PadMenu,
+	--- Hides the touch controls and holds the character under a dialog.
+	TouchControls = TouchControls,
 	--- The arithmetic, free of Instances: the top line, and the bottom corners.
 	Layout = Layout,
 	Clearance = Clearance,
