@@ -9,7 +9,7 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **Status: 0.6.0.** The placement arithmetic and the backpack's order and taps are proven by specs
+> **Status: 0.7.0.** The placement arithmetic and the backpack's order and taps are proven by specs
 > that run on every push, and each of 166 small slips in them makes the suite fail
 > (`tests/Mutate.luau`). The modules that build
 > Instances are checked against the Roblox API by the type gate, under both type solvers, and were
@@ -26,7 +26,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.6.0", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.7.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -409,6 +409,8 @@ const backpack = HudBlox.Backpack.mount(player, {
 	filters = { { label = "All" }, { kind = "tool", label = "Tools" } },
 })
 button.Activated:Connect(backpack.toggle)
+-- A thing that cannot be used again yet: its slot is shaded and empties as the seconds pass.
+backpack.rest(tool, 4)
 ```
 
 | `BackpackConfig` | |
@@ -420,9 +422,14 @@ button.Activated:Connect(backpack.toggle)
 | `pinned` | The id of the thing that owns the bar's first slot and never leaves it. |
 | `used(act)` | Called with `"Open"`, `"Drag"`, `"Double"` or `"Pair"`, for a game that counts them. |
 
-`Backpack.Order`, `Backpack.Moves` and `Backpack.Press` are the pure parts: where each thing sits
-(a thing seen before goes back where it was; a fresh one takes the slot of the one longest on a
-full bar), what a tap means, and what a press still down has become. `Backpack.Slot.SIZE`,
+The handle has `toggle()` and `rest(tool, seconds)`: a dark shade over that thing's slot, whole as
+the rest begins and emptying downward to nothing as it ends. It follows the thing if it is moved;
+nothing or less clears it. When a thing rests, and for how long, is the game's.
+
+`Backpack.Order`, `Backpack.Moves`, `Backpack.Press` and `Backpack.Rest` are the pure parts: where
+each thing sits (a thing seen before goes back where it was; a fresh one takes the slot of the one
+longest on a full bar), what a tap means, what a press still down has become, and how long a thing
+still rests. `Backpack.Slot.SIZE`,
 `Backpack.Bar.HEIGHT` and `Backpack.Bar.BOTTOM` are the layout's numbers, for a dialog that keeps
 above the bar.
 

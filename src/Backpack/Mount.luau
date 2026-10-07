@@ -14,6 +14,7 @@ const Moves = require("./Moves")
 const Order = require("./Order")
 const Pad = require("./Pad")
 const Paint = require("./Paint")
+const Rest = require("./Rest")
 const Slot = require("./Slot")
 const TouchControls = require("../TouchControls")
 
@@ -133,6 +134,8 @@ function Mount.mount(player: Player, config: Config): Handle
 		inHand = function(): Tool?
 			return if watch then watch.inHand() else nil
 		end,
+		rests = {},
+		clock = os.clock,
 		newSlot = function(index: number): Slot.Slot
 			const slot = Slot.new(grid.scroller, { zone = "grid", index = index }, config.draw)
 			slot.setNumber(nil)
@@ -279,6 +282,14 @@ function Mount.mount(player: Player, config: Config): Handle
 	return {
 		toggle = function()
 			setOpen(not state.open)
+		end,
+		rest = function(tool: Tool, seconds: number)
+			for id, item in state.byId do
+				if item.tool == tool then
+					Rest.start(state.rests, id, seconds, state.clock())
+					render()
+				end
+			end
 		end,
 	}
 end

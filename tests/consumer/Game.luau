@@ -4,7 +4,6 @@
 ---
 --- When the API changes, this file changes with it, and the README's example after it.
 const HudBlox = require("@hudblox")
-
 const Players = game:GetService("Players")
 
 -- The game's own icon ids stay in the game.
@@ -277,6 +276,7 @@ const backpackConfig: HudBlox.BackpackConfig = {
 }
 const backpack: HudBlox.BackpackHandle = HudBlox.Backpack.mount(Players.LocalPlayer, backpackConfig)
 backpack.toggle()
+backpack.rest(Instance.new("Tool"), 4 * HudBlox.Backpack.Rest.share(3, 4))
 const kept: HudBlox.BackpackOrder = HudBlox.Backpack.Order.new(10, "Sword")
 HudBlox.Backpack.Order.add(kept, "Sword", false)
 const spot: HudBlox.BackpackPlace? = HudBlox.Backpack.Order.where(kept, "Sword")

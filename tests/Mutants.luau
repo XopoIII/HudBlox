@@ -200,6 +200,7 @@ const MORE: { { Mutant } } = {
 	require("./slips/BackpackOrder"),
 	require("./slips/BackpackOrderMoves"),
 	require("./slips/BackpackTaps"),
+	require("./slips/BackpackRest"),
 	require("./slips/Badge"),
 	require("./slips/Tabs"),
 	require("./slips/Flight"),

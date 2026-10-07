@@ -5,6 +5,21 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.7.0 - 2026-10-08
+
+### Added
+
+- `BackpackHandle.rest(tool, seconds)`: a dark shade over the slot of a thing that cannot be used
+  again yet, whole as the rest begins and emptying downward as it runs out. It is kept by the
+  thing, so it follows it to another slot, and a redraw in its middle shows what is left. When a
+  thing rests and for how long is the game's; nothing or less clears it.
+- `Backpack.Rest.start`, `of` and `share`: the rest as arithmetic, specified.
+
+### Not done
+
+- The shade itself is built from Instances and is not run by the suite: it is type-checked through
+  `tests/consumer/Game.luau` and was looked at in a game.
+
 ## 0.6.0 - 2026-10-08
 
 ### Added

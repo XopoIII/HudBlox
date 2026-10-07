@@ -25,6 +25,9 @@ export type Config = {
 
 export type Handle = {
 	toggle: () -> (),
+	--- Shades `tool`'s slot for `seconds`, emptying as they pass: a thing that cannot be used again
+	--- yet. When a thing rests and for how long is the game's; nothing or less clears it.
+	rest: (tool: Tool, seconds: number) -> (),
 }
 
 return {}

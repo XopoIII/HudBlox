@@ -32,6 +32,7 @@ const Moves = require("@self/Moves")
 const Mount = require("@self/Mount")
 const Order = require("@self/Order")
 const Press = require("@self/Press")
+const Rest = require("@self/Rest")
 const Slot = require("@self/Slot")
 
 export type Config = Mount.Config
@@ -49,10 +50,12 @@ return {
 	mount = Mount.mount,
 	--- A touch screen narrower than this gets the small layout.
 	PHONE_W = Mount.PHONE_W,
-	--- The pure parts: where each thing sits, what a tap means, what a press becomes.
+	--- The pure parts: where each thing sits, what a tap means, what a press becomes, how long a
+	--- thing still rests.
 	Order = Order,
 	Moves = Moves,
 	Press = Press,
+	Rest = Rest,
 	--- The measured layout: a slot's side and gap, the bar's height and the room under it.
 	Slot = Slot,
 	Bar = Bar,
