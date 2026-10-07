@@ -6,6 +6,9 @@
 --- from a screenshot of the Escape menu on 2026-09-22. Where the alert and the menu disagree the
 --- menu wins, because it is what a player opens every session. Nothing here picks a colour of its
 --- own: a screen that needs an accent brings it.
+const Host = require("./Host")
+const Ring = require("./Ring")
+
 const Native = {}
 
 Native.FONT_FAMILY = "rbxasset://fonts/families/BuilderSans.json"
@@ -46,8 +49,8 @@ export type TextOptions = {
 	weight: Enum.FontWeight?,
 	--- `Native.TEXT` when left out.
 	color: Color3?,
-	--- The side a line starts on. Left when left out; a game with a right-to-left locale passes
-	--- its `Rtl` reader's `start()`.
+	--- The side a line starts on. Where the game's reader starts when left out (`Host`): left,
+	--- or right in a right-to-left locale.
 	align: Enum.TextXAlignment?,
 }
 
@@ -70,7 +73,7 @@ function Native.text(parent: Instance, text: string, size: number, options: Text
 	label.FontFace = Native.font(options and options.weight)
 	label.TextSize = size
 	label.TextColor3 = (options and options.color) or Native.TEXT
-	label.TextXAlignment = (options and options.align) or Enum.TextXAlignment.Left
+	label.TextXAlignment = (options and options.align) or Host.rtl().start()
 	label.TextWrapped = true
 	label.Text = text
 	label.Size = UDim2.new(1, 0, 0, size + 6)
@@ -99,7 +102,7 @@ end
 
 --> A small round button in the top bar's capsule look, showing a BuilderIcons glyph: a dialog's
 --> close button. `ring` is what it wears while a gamepad has it in focus (its
---> `SelectionImageObject`); the engine's own box when left out.
+--> `SelectionImageObject`); the kit's round white ring (`Ring.round`) when left out.
 function Native.iconButton(parent: Instance, glyph: string, ring: GuiObject?): TextButton
 	const button = Instance.new("TextButton")
 	button.AutoButtonColor = true
@@ -111,9 +114,7 @@ function Native.iconButton(parent: Instance, glyph: string, ring: GuiObject?): T
 	button.TextColor3 = Native.TEXT
 	button.Text = glyph
 	button.Size = UDim2.fromOffset(Native.ICON_BUTTON, Native.ICON_BUTTON)
-	if ring then
-		button.SelectionImageObject = ring
-	end
+	button.SelectionImageObject = ring or Ring.round()
 	corner(button, Native.ICON_BUTTON // 2)
 	button.Parent = parent
 	return button

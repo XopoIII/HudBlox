@@ -23,10 +23,15 @@ lands in the repository.
 
 This is the reason the package exists, and the rule a change is checked against first.
 
-- A game's icon ids, its locale and text direction, its focus ring, its dialogs' state and every
-  colour beyond Roblox's measured plate are **arguments**: a theme, an option, a function. No module
-  requires anything outside `src/`, reads an attribute a game sets, or names a game's Instance.
-- Nothing touches `game` at require time. Services are fetched inside the function that needs them.
+- A game's icon ids, its locale and text direction, its bottom furniture and every colour beyond
+  Roblox's measured plate are **arguments**: a theme, an option, a function. What there is one of
+  for the whole client (the reader's direction, the pad counter) is said once through `Host`. No
+  module requires anything outside `src/`, reads an attribute a game sets, or names a game's
+  Instance. The two attributes the kit itself defines are its own: `ModalsOpen` on PlayerGui
+  (`Dialog`) and, in Studio, `PadCheck` on Workspace (`PadInput`).
+- Nothing touches `game` at require time. Services are fetched inside the function that needs
+  them, and a module that changes the engine (`Focus`, which switches auto-selection off) does it
+  when a game first asks, never when it is required.
 - No game's content lands here: no icon id, no string a player reads, no game's name in code.
 
 ## The numbers are measured
@@ -75,6 +80,10 @@ that "looks right" is not a measurement.
 - `Pill`, `Button`: one capsule, one round button. `TopBar`: the row that places them.
 - `SafeArea`, `TouchClearance`: read the engine and hand the numbers to the arithmetic.
 - `Indicator`: the bottom-corner read-outs. `Native`: Roblox's menu look. `Rtl`: the mirror.
+- `Host`: the reader's direction and the pad counter, said once.
+- `Dialog` over `DialogGeometry` (arithmetic): a whole dialog. `Focus` over `Stack` and `Pick`
+  (plain data) with `Ring`: a gamepad's selection. `PadInput`, `PadGlyph`, `PadMenu`,
+  `TouchControls`: the pad and the touch controls.
 - `init.luau` exposes the modules and re-exports their types.
 
 ## Distribution

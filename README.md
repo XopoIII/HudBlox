@@ -9,8 +9,8 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **Status: 0.2.0.** The placement arithmetic is proven by specs that run on every push, and each
-> of 31 small slips in it makes the suite fail (`tests/Mutate.luau`). The modules that build
+> **Status: 0.3.0.** The placement arithmetic is proven by specs that run on every push, and each
+> of 77 small slips in it makes the suite fail (`tests/Mutate.luau`). The modules that build
 > Instances are checked against the Roblox API by the type gate, under both type solvers, and were
 > ported from code that runs in a live game; as a package they have not yet been run in a game or
 > looked at on devices. Try it in a test place first.
@@ -25,7 +25,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.2.0", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.3.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -220,16 +220,86 @@ assert(Layout.fits(top, needs))
   `BODY_SIZE`), `Native.font(weight?)`,
   `Native.text(parent, text, size, { weight?, color?, align? }?)`,
   `Native.button(parent, text, "primary" | "secondary"?)`,
-  `Native.iconButton(parent, glyph, ring: GuiObject?)`. The focus ring a gamepad shows is the game's
-  and is handed in.
+  `Native.iconButton(parent, glyph, ring: GuiObject?)`. A line starts where the game's reader
+  starts unless `align` says otherwise (`Host`), and a round button wears the kit's round focus
+  ring unless one is handed in.
 - `Rtl.reader(isRtl: () -> boolean): RtlReader`: the mirror for a right-to-left locale, switched by
   the game's own answer: `apply(root)`, `flipEdge(frame)`, `slot(index)`, `start()`, `active()`.
   The mechanics are `Rtl.flipX`, `Rtl.flipListAlign`, `Rtl.alignText`, `Rtl.mirror`.
 
+### Host: what there is one of
+
+```lua
+HudBlox.Host.set({
+	rtl = HudBlox.Rtl.reader(function() return myLocaleIsRtl end),
+	padUsed = function(act) countPadUse(act) end,
+})
+```
+
+A capsule takes its theme as an argument, because a game may draw two looks. Which way its reader
+reads and who counts a gamepad's presses are one for the whole client, and the dialog, the focus
+and `Native.text` read them here. Nothing is required: unset, the reader reads left to right and
+nobody counts. `padUsed` hears `"Panel"`, `"Back"`, `"Hud"` and `"Bag"`.
+
+### Dialog: a whole dialog
+
+```lua
+local shop = HudBlox.Dialog.new(playerGui, "Shop", "Shop", 620, 600, {
+	bottom = { band = 82, room = 360 },          -- a hotbar the panel keeps above
+	cover = function(covered) hideHotbar(covered) end,
+})
+HudBlox.Native.button(shop.footer, "Buy")
+openButton.Activated:Connect(shop.toggle)
+```
+
+`Dialog.new(playerGui, name, title, width, height, options?)` builds a ScreenGui (DisplayOrder 10)
+with a backdrop that dims the world, a nearly solid panel, a title, a close button on the left as in
+the Escape menu, a divider, a `body` to fill and a `footer` that takes a button's height once it
+holds one. It hands back `gui`, `panel`, `title`, `body`, `footer`, `setOpen(open)`, `toggle()` and
+`changed` (a BindableEvent fired with the new state).
+
+- It closes on the X, on a tap outside and on a gamepad's B, pops in and shrinks out.
+- While it is up the touch controls are hidden and the character stands (`TouchControls`), a
+  gamepad's focus stays inside the panel (`Focus`), and the PlayerGui attribute `ModalsOpen` counts
+  it (`Dialog.OPEN_ATTRIBUTE`), for whatever steps aside for a dialog.
+- Its size is `DialogGeometry.layout(width, height, strip, maxW, maxH, bottom?)`, plain arithmetic
+  with a spec for every rule: framed where the screen has room, under Roblox's strip where it is
+  short, full height on a landscape phone, never over the top row, and above the game's bottom band
+  (`bottom`) while `room` is left over it. Where it is not, `clearsBottom` is false and `cover(true)`
+  tells the game to hide the band until the dialog closes.
+
+### Focus, Ring, Pick, Stack: a gamepad's selection
+
+- `Focus.push(name, root, { back?, first? }?)` gives the pad to a panel: the selection is kept
+  inside `root`, B runs `back` for the newest panel alone, the world's prompts are off and the
+  character stands. `Focus.pop(name)` takes it back, `Focus.open()` says whether any panel has it.
+  Only while the player is on a gamepad (`PadInput`): a mouse or a finger sees no ring.
+- `Focus.start()` switches the engine's own auto-selection off and begins to follow the selection.
+  The first `push` calls it; a game that wants the engine's auto-selection off from its first frame
+  calls it as its client loads. A game that never pushes keeps the engine's own behaviour.
+- `Ring.square()` and `Ring.round()`: the white outline of the focused control, in place of the
+  engine's blue box. `Ring.install(playerGui)` (which the first `push` does) gives every control the
+  square one; a round button names the round one itself.
+- `Pick.first(targets, rtl)` and `Pick.nearest(targets, x, y, rtl)`: where focus starts in a panel
+  and where it goes when the focused control is gone. `Stack`: which panels hold the focus, a name
+  standing once. Both are plain data with specs.
+
+### PadInput, PadGlyph, PadMenu, TouchControls
+
+- `PadInput.active()` and `PadInput.onChange(fn) -> stop`: whether the player is on a gamepad now
+  (`UserInputService.PreferredInput`). In Studio only, `Workspace:SetAttribute("PadCheck", true)`
+  answers yes, for a test bridge whose pad keys arrive as a keyboard's.
+- `PadGlyph.cap(parent, keyCode, size)`: the picture of a pad's button as the player's own pad
+  draws it, shown only while they are on a pad.
+- `PadMenu.bind({ gui, buttons, first, bag, toggleBag })`: D-pad down puts the focus on a top bar's
+  buttons, D-pad right opens the game's most used panel. Both stand down while a panel has the focus.
+- `TouchControls.set(reason, hide)`: hides the thumbstick and the jump button and holds the
+  character, keyed by reason so two surfaces can overlap.
+
 ## What stays in the game
 
-Its icon ids, its locale and its text direction, its focus ring, its dialogs, and every colour
-beyond Roblox's measured plate. A kit module reads nothing of the game it is in.
+Its icon ids, its locale and its text direction, what its dialogs hold, its bottom furniture, and
+every colour beyond Roblox's measured plate. A kit module reads nothing of the game it is in.
 
 ## The measurements
 
