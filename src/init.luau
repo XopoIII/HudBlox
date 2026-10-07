@@ -20,6 +20,8 @@ const Button = require("@self/Button")
 const Clearance = require("@self/Clearance")
 const Dialog = require("@self/Dialog")
 const DialogGeometry = require("@self/DialogGeometry")
+const Flight = require("@self/Flight")
+const FlightPath = require("@self/FlightPath")
 const Focus = require("@self/Focus")
 const Host = require("@self/Host")
 const HotbarCover = require("@self/HotbarCover")
@@ -37,6 +39,8 @@ const Ring = require("@self/Ring")
 const Rtl = require("@self/Rtl")
 const SafeArea = require("@self/SafeArea")
 const Stack = require("@self/Stack")
+const TabFit = require("@self/TabFit")
+const Tabs = require("@self/Tabs")
 const Theme = require("@self/Theme")
 const TopBar = require("@self/TopBar")
 const TouchClearance = require("@self/TouchClearance")
@@ -52,6 +56,11 @@ export type Row = TopBar.Row
 export type ButtonOptions = Button.Options
 export type BadgeOptions = Badge.Options
 export type BadgeHandle = Badge.Handle
+export type TabsEntry = Tabs.Entry
+export type TabsOptions = Tabs.Options
+export type TabsHandle = Tabs.Handle
+export type FlightOptions = Flight.Options
+export type FlightPhase = FlightPath.Phase
 export type Screen = Layout.Screen
 export type Top = Layout.Top
 export type Control = Clearance.Control
@@ -82,9 +91,15 @@ return {
 	TopBar = TopBar,
 	--- A capsule on its own.
 	Pill = Pill,
-	--- A round button on its own.
-	Badge = Badge,
+	--- A round button on its own, and a count on its corner.
 	Button = Button,
+	Badge = Badge,
+	--- A strip of tabs for a dialog's body, and how wide each tab is in it.
+	Tabs = Tabs,
+	TabFit = TabFit,
+	--- A reward's icons flying into the capsule that counts it, and the path as arithmetic.
+	Flight = Flight,
+	FlightPath = FlightPath,
 	--- Builds a theme's `icon` from a table of asset ids.
 	Icons = Icons,
 	--- The theme's type and its defaults.

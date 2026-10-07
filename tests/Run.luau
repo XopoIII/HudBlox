@@ -21,5 +21,7 @@ require("./unit/BackpackOrder")
 require("./unit/BackpackMoves")
 require("./unit/HotbarCover")
 require("./unit/Badge")
+require("./unit/Tabs")
+require("./unit/Flight")
 
 Spec.finish()

@@ -66,6 +66,49 @@ waiting.set(nil)
 const mirrored: HudBlox.BadgeOptions = { colour = Color3.new(1, 0, 0), ink = Color3.new(1, 1, 1), leading = true }
 HudBlox.Badge.pin(rail, theme, mirrored).frame.Visible = HudBlox.Badge.text(12) == "9+"
 
+-- A strip of tabs, and a count on one of them.
+const tabEntries: { HudBlox.TabsEntry } = { { key = "pets", label = "Pets" }, { key = "eggs", label = "Eggs" } }
+const tabOptions: HudBlox.TabsOptions = {
+	picked = function(_key: string) end,
+	first = "eggs",
+	name = "Kinds",
+	height = HudBlox.TabFit.HEIGHT,
+	width = HudBlox.TabFit.width(712, 2, HudBlox.TabFit.GAP, HudBlox.TabFit.WIDTH),
+	gap = HudBlox.TabFit.GAP,
+	text = HudBlox.TabFit.TEXT,
+}
+const tabs: HudBlox.TabsHandle = HudBlox.Tabs.mount(gui, tabEntries, tabOptions)
+tabs.frame.Position = UDim2.fromOffset(0, HudBlox.TabFit.NARROWEST)
+if tabs.pick("pets") and tabs.on() == "pets" then
+	HudBlox.Badge.pin(tabs.buttons.pets, theme, { colour = Color3.new(0, 0, 1) }).set(2)
+end
+
+-- A reward flying into the capsule that counts it.
+const flightLayer: ScreenGui = HudBlox.Flight.layer(playerGui, "Rewards")
+const coinLead = wallet.segments[1].lead
+if coinLead then
+	const flight: HudBlox.FlightOptions = {
+		from = HudBlox.Flight.centre(rail),
+		to = coinLead,
+		count = 8,
+		draw = function(frame: Frame, _index: number)
+			theme.icon("coin", frame).Size = UDim2.fromScale(1, 1)
+		end,
+		landed = function(_index: number, _count: number)
+			HudBlox.Flight.pulse(pulse, 1.2)
+		end,
+		size = HudBlox.FlightPath.SIZE,
+		radius = HudBlox.FlightPath.RADIUS,
+	}
+	const flying: number = HudBlox.Flight.send(flightLayer, flight)
+	const _x, _y, _scale, phase = HudBlox.FlightPath.place(0.1, 1, flying, 0, 0, 100, 100, 46)
+	const landed: HudBlox.FlightPhase = "done"
+	if phase == landed or HudBlox.FlightPath.lasts(flying) < HudBlox.FlightPath.leaves(2) then
+		const x, y = HudBlox.FlightPath.ring(1, HudBlox.FlightPath.count(8), 46)
+		rail.Position = UDim2.fromOffset(x, y)
+	end
+end
+
 -- The screen, read and as arithmetic.
 const screen: HudBlox.Screen = HudBlox.SafeArea.measure(gui)
 const top: HudBlox.Top = HudBlox.Layout.top(screen, HudBlox.SafeArea.insetMinX(), 1)

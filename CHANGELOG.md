@@ -5,6 +5,32 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.6.0 - 2026-10-08
+
+### Added
+
+- `Tabs.mount(parent, entries, options)`: a strip of tabs for a dialog's body, of which one wears
+  the menu's blue. It fills from the reader's own side, and tabs that do not fit share the strip
+  evenly. `buttons` gives each tab by its key, so a `Badge` can be pinned to one.
+- `TabFit.width`: how wide each tab is in a strip, specified.
+- `Flight.send(layer, options)`: a reward's icons burst out of where it was given and fly into the
+  capsule that counts it, over every dialog. `Flight.layer`, `Flight.centre` and `Flight.pulse`
+  beside it. What an icon is, how many fly and what a landing does are the game's.
+- `FlightPath.count`, `leaves`, `lasts`, `ring` and `place`: the flight as arithmetic, specified.
+
+### Changed
+
+- The backpack's row of filters is a `Tabs` strip. The filter that is on when the inventory is
+  made is the first one given; it was the one with no `kind`, wherever it stood, and none at all
+  when every filter had a kind. Filters too many for the inventory's width now share it instead
+  of running off its end.
+- The README's status line and pin said 0.4.0 through 0.5.0.
+
+### Not done
+
+- `Tabs.mount` and `Flight.send` build Instances and are not run by the suite: they are
+  type-checked through `tests/consumer/Game.luau` and were looked at in a game.
+
 ## 0.5.0 - 2026-10-07
 
 ### Added
