@@ -30,6 +30,12 @@ The backpack, the last of what the first game kept beside the kit.
 - `HotbarCover.onChange` takes a function in place of a BindableEvent, and tells its listeners at
   once.
 
+### Fixed against the game's own copy
+
+- A double tap on a thing on the bar picks it up on the first tap and sends it to the inventory on
+  the second. The slot it left kept pulsing, empty, until something else stood there. An emptied
+  slot drops its outlines now.
+
 ### Not done
 
 - `Backpack.mount`, `Gesture`, `Slot`, `Bar`, `Grid`, `Paint`, `Pad`, `Keys` and `Items` build

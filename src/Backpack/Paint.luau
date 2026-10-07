@@ -73,6 +73,12 @@ function Paint.all(state: State)
 		const id = order.bar[index]
 		slot.place = { zone = "bar", index = index }
 		slot.set(if id then byId[id] else nil)
+		-- A slot its thing has just left keeps no outline: the thing may have been picked up (its
+		-- slot pulsing) when a double tap sent it away.
+		if not (id and byId[id]) then
+			slot.setHeld(false)
+			slot.setPicked(false)
+		end
 	end
 	const barWidth = state.bar.layout(state.open)
 
