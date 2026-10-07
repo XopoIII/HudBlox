@@ -9,8 +9,9 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **Status: 0.3.0.** The placement arithmetic is proven by specs that run on every push, and each
-> of 77 small slips in it makes the suite fail (`tests/Mutate.luau`). The modules that build
+> **Status: 0.4.0.** The placement arithmetic and the backpack's order and taps are proven by specs
+> that run on every push, and each of 140 small slips in them makes the suite fail
+> (`tests/Mutate.luau`). The modules that build
 > Instances are checked against the Roblox API by the type gate, under both type solvers, and were
 > ported from code that runs in a live game; as a package they have not yet been run in a game or
 > looked at on devices. Try it in a test place first.
@@ -25,7 +26,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.3.0", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.4.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -296,10 +297,68 @@ holds one. It hands back `gui`, `panel`, `title`, `body`, `footer`, `setOpen(ope
 - `TouchControls.set(reason, hide)`: hides the thumbstick and the jump button and holds the
   character, keyed by reason so two surfaces can overlap.
 
+### Backpack: the hotbar and the inventory
+
+Roblox's own backpack cannot be opened from a script, so a game that wants a button for its
+inventory draws the stock layout itself. `Backpack.mount` does: a hotbar of ten slots (three on a
+phone), the inventory above it with a count, a search box and the game's filters, drag and drop,
+tap then tap, a double tap, the keys 1 to 0 and the backquote, and a gamepad's focus, A, X, B and
+bumpers.
+
+```luau
+const backpack = HudBlox.Backpack.mount(player, {
+	describe = function(tool: Tool): HudBlox.BackpackItem
+		return {
+			tool = tool,
+			id = tool.Name,
+			fresh = false,
+			tip = tool.Name,
+			search = tool.Name,
+			kind = "tool",
+			counted = true,
+			picture = tool.Name,
+		}
+	end,
+	draw = function(view: ViewportFrame, item: HudBlox.BackpackItem, done: (boolean) -> ())
+		done(false)
+	end,
+	text = {
+		title = "Backpack",
+		search = "Search",
+		nothing = "Nothing here yet",
+		allOnBar = "Everything is on the bar",
+		count = function(n: number): string
+			return `Backpack ({n})`
+		end,
+	},
+	filters = { { label = "All" }, { kind = "tool", label = "Tools" } },
+})
+button.Activated:Connect(backpack.toggle)
+```
+
+| `BackpackConfig` | |
+|---|---|
+| `describe(tool): BackpackItem` | What a Tool is: its `id` (the same through a respawn), whether it is `fresh`, its `tip`, what a `search` finds it by, its `kind` for the filters, its `rim` colour, whether it is `counted`, and what its `picture` is of. The kit reads no attribute off a Tool. |
+| `draw(view, item, done)` | Puts the item's picture in the slot's ViewportFrame. |
+| `text` | The inventory's words, in the player's language. |
+| `filters` | The inventory's filter buttons; one with no `kind` shows everything. |
+| `pinned` | The id of the thing that owns the bar's first slot and never leaves it. |
+| `used(act)` | Called with `"Open"`, `"Drag"`, `"Double"` or `"Pair"`, for a game that counts them. |
+
+`Backpack.Order`, `Backpack.Moves` and `Backpack.Press` are the pure parts: where each thing sits
+(a thing seen before goes back where it was; a fresh one takes the slot of the one longest on a
+full bar), what a tap means, and what a press still down has become. `Backpack.Slot.SIZE`,
+`Backpack.Bar.HEIGHT` and `Backpack.Bar.BOTTOM` are the layout's numbers, for a dialog that keeps
+above the bar.
+
+`HotbarCover.set(reason, hide)` hides the bar while something covers it (a `Dialog`'s `cover`),
+keyed by reason; `HotbarCover.hidden()` and `HotbarCover.onChange(fn) -> stop` read it. The open
+inventory closes when a dialog opens, and reports itself to `Band` as `"hotbar"` and `"inventory"`.
+
 ## What stays in the game
 
-Its icon ids, its locale and its text direction, what its dialogs hold, its bottom furniture, and
-every colour beyond Roblox's measured plate. A kit module reads nothing of the game it is in.
+Its icon ids, its locale and its text direction, what its dialogs hold, what its Tools are and how
+they are pictured, and every colour beyond Roblox's measured plate. A kit module reads nothing of the game it is in.
 
 ## The measurements
 

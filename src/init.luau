@@ -13,6 +13,7 @@
 --- measured plate are arguments, and what there is one of for the whole client (which way the
 --- reader reads, who counts a gamepad's presses) is said once through `Host`. Nothing touches
 --- `game` when it is required. See README.md for the whole API.
+const Backpack = require("@self/Backpack")
 const Band = require("@self/Band")
 const Button = require("@self/Button")
 const Clearance = require("@self/Clearance")
@@ -20,6 +21,7 @@ const Dialog = require("@self/Dialog")
 const DialogGeometry = require("@self/DialogGeometry")
 const Focus = require("@self/Focus")
 const Host = require("@self/Host")
+const HotbarCover = require("@self/HotbarCover")
 const Icons = require("@self/Icons")
 const Indicator = require("@self/Indicator")
 const Layout = require("@self/Layout")
@@ -62,6 +64,15 @@ export type DialogFrame = DialogGeometry.Frame
 export type FocusOptions = Focus.Options
 export type PickTarget = Pick.Target
 export type PadMenuConfig = PadMenu.Config
+export type BackpackConfig = Backpack.Config
+export type BackpackHandle = Backpack.Handle
+export type BackpackItem = Backpack.Item
+export type BackpackWords = Backpack.Words
+export type BackpackFilter = Backpack.Filter
+export type BackpackDraw = Backpack.Draw
+export type BackpackAct = Backpack.Act
+export type BackpackOrder = Backpack.Order
+export type BackpackPlace = Backpack.Place
 
 return {
 	--- The top line: the right row and the left buttons.
@@ -102,6 +113,10 @@ return {
 	PadMenu = PadMenu,
 	--- Hides the touch controls and holds the character under a dialog.
 	TouchControls = TouchControls,
+	--- A hotbar and the inventory above it in the stock layout, drawn for the game's own Tools; and
+	--- what hides a hotbar while something covers it.
+	Backpack = Backpack,
+	HotbarCover = HotbarCover,
 	--- The arithmetic, free of Instances: the top line, and the bottom corners.
 	Layout = Layout,
 	Clearance = Clearance,
