@@ -2,6 +2,9 @@
 #
 # These are the same gates CI runs (.github/workflows/checks.yaml); running them here means a red
 # build is found before the push rather than after it. The tree is at zero: keep it there.
+#
+# Every gate reads src/, tests/ and demo/: the staged-file gates by their glob, the whole-tree ones
+# by what their script walks.
 pre-commit:
   parallel: true
   commands:
@@ -12,9 +15,14 @@ pre-commit:
       glob: "*.luau"
       run: selene {staged_files}
     types:
-      glob: "*.luau"
-      # Whole project: luau-lsp needs every module's requires, not the staged subset.
+      glob: ["*.luau", "*.project.json"]
+      # Whole project: luau-lsp needs every module's requires, not the staged subset. The demo is
+      # checked through a sourcemap of its rojo project, so the project file is read here too.
       run: sh scripts/type-check.sh
+    demo-place:
+      glob: ["*.luau", "*.project.json"]
+      # The demo place builds, and holds src/ and the demo's script as they are written.
+      run: sh scripts/build-demo.sh
     strict-mode:
       glob: "*.luau"
       run: sh scripts/check-strict.sh {staged_files}

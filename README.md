@@ -31,6 +31,10 @@ HudBlox = { name = "xopoiii/hudblox", version = "=0.9.0", target = "roblox" }
 
 HudBlox runs on the client. It has no dependencies.
 
+To look at the kit before installing it, [`demo/`](demo/README.md) is a place that shows it:
+`sh scripts/build-demo.sh` writes `build/demo.rbxl` to open in Studio, or `rojo serve demo` serves
+it into an open place. The demo is not part of the package.
+
 ## The top line in a minute
 
 ```lua
@@ -272,7 +276,8 @@ local refresh, stop = HudBlox.Indicator.follow({
   half as solid as a top-bar capsule; put icons and text in it (`Indicator.TEXT_SIZE`, `HEIGHT`,
   `STACK`, `PAD`).
 - `Indicator.follow(options): (refresh, stop)`: keeps a read-out placed, and hides its gui while the
-  game is `busy` or while something reported to `Band` reaches under it.
+  game is `busy` or while something reported to `Band` reaches under it. The whole gui is switched
+  off, so the read-outs stand in a ScreenGui of their own, not in the top row's.
 - `Band.set(key, rect: { left, right, top }?)`, `Band.lift(left, right, bottom): number`,
   `Band.has(key)`, `Band.onChange(changed): () -> ()`: the game's own bottom furniture (a hotbar)
   reports its rectangle; a card asks how much higher it must stand to clear it.
@@ -473,6 +478,7 @@ Read off CoreGui's `TopBarApp` in a live client (last on 2026-09-22 and 2026-09-
 rokit install                       # the pinned toolchain
 lefthook install                    # the gates, before every commit and push
 sh scripts/run-tests.sh             # the specs
+sh scripts/build-demo.sh            # the demo place, built and read back (build/demo.rbxl)
 luneblox run tests/Mutate --yes     # every slip in the arithmetic must fail the suite
 lefthook run pre-commit --all-files # every pre-commit gate over the whole tree
 ```

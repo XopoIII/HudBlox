@@ -13,3 +13,4 @@ selene = "Kampfkarren/selene@0.32.0"        # linter
 stylua = "JohnnyMorganz/StyLua@2.5.2"       # formatter
 lefthook = "evilmartians/lefthook@2.1.17"   # git hooks
 pesde = "pesde-pkg/pesde@0.7.4+registry.0.2.3"  # packs and publishes the pesde package
+rojo = "rojo-rbx/rojo@7.7.1"             # builds the demo place and the sourcemap its type gate reads (added 2026-10-09)

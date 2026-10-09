@@ -5,6 +5,38 @@ semantic versioning.
 
 ## Unreleased
 
+Nothing under `src/` has changed since 0.9.0: the package a game installs is the same 49 files.
+
+### Added
+
+- `demo/`: a place that shows the kit (`sh scripts/build-demo.sh`, or `rojo serve demo`): the top
+  line with a wallet that ticks, a reward flight on the shop button, a dialog with tabs behind a
+  button that wears a count, a corner clock that steps aside for the dialog, and the D-pad's way
+  to the top line. No assets needed: the icons are the resolver's tinted discs. It is the demo of
+  pull request #12, rewritten against today's API; as first written it would have hidden the
+  whole HUD with the clock (both stood in one ScreenGui), drawn the tabs over the body's text
+  and left the clock's label without a size.
+- The gates read `demo/`: stylua, selene, the strict-mode, file-size and English checks, and the
+  type gate, which builds a rojo sourcemap of the demo's project and checks the demo against the
+  kit under both solvers. `rojo` 7.7.1 is pinned in `rokit.toml`.
+- `scripts/build-demo.sh` (`tests/DemoPlace.luau`): builds the place and reads it back. Every file
+  of `src/` must be a ModuleScript at its place under `ReplicatedStorage.HudBlox` with that file's
+  source, nothing else may be there, and the demo must be a LocalScript in `StarterPlayerScripts`.
+- `scripts/check-package.sh` now fails when the pesde archive holds anything but `src/`,
+  `pesde.toml`, `README.md` and `LICENSE`, and when pesde writes no archive at all (it exits with
+  success when it refuses an included file). It packs a copy of every tracked file, so `demo/`,
+  `tests/` and `scripts/` are left out by `includes` and not by the copy.
+
+### Changed
+
+- The README says that `Indicator.follow` switches off the whole gui it is given, so read-outs
+  stand in a ScreenGui of their own.
+
+### Not done
+
+- The demo has not been run. It is type-checked and the place is built and read back; what it
+  looks like on a device has been seen by nobody yet.
+
 ## 0.9.0 - 2026-10-09
 
 ### Added
