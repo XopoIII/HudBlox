@@ -141,6 +141,24 @@ const MUTANTS: { { file: string, from: string, to: string, breaks: string } } = 
 		to = "\t\tif true then\n",
 		breaks = "a scope is found by its name",
 	},
+	{
+		file = "src/Stack.luau",
+		from = "return top ~= nil and top.name == name",
+		to = "return top ~= nil",
+		breaks = "a scope under another is not on top",
+	},
+	{
+		file = "src/Stack.luau",
+		from = "return top ~= nil and top.name == name",
+		to = "return find(stack, name) ~= nil",
+		breaks = "standing in the stack is not being on top of it",
+	},
+	{
+		file = "src/Stack.luau",
+		from = "const top = stack.entries[#stack.entries]\n\treturn top ~= nil",
+		to = "const top = stack.entries[1]\n\treturn top ~= nil",
+		breaks = "the scope on top is the newest, not the oldest",
+	},
 }
 
 return MUTANTS

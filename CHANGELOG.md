@@ -3,11 +3,72 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
-## Unreleased
+## 0.10.0 - 2026-10-10
 
-Nothing under `src/` has changed since 0.9.0: the package a game installs is the same 49 files.
+One press on a gamepad puts a thing of the open inventory in the hands. Until now A picked a slot up
+to move it and X sent it across; to hold a thing from the inventory a pad's player sent it to the
+bar, closed the inventory and stepped along the bar with the bumpers.
+
+With a keyboard, a mouse or a finger nothing changes. On a gamepad A, X, B, the D-pad and the
+bumpers do what they did in 0.9.0.
 
 ### Added
+
+- **Y on the focused slot of the open inventory** equips the thing and closes the inventory, for a
+  slot of the bar or of the inventory. On the thing already in the hands it puts it away and
+  closes, because that is what a press on its bar slot does with the inventory closed; on an empty
+  slot, or with the focus off the slots, nothing happens.
+- The rule is `Backpack.Hands` (`src/Backpack/Hands.luau`), pure: `press` (`"equip"`, `"stow"`,
+  `"none"` or `"pass"`, typed `HudBlox.BackpackHands`), `sinks`, `acts` and `button`. A spec for
+  every row and 18 mutants.
+- Y stays the game's own button outside the inventory. The backpack binds it as a
+  `ContextActionService` action (`BackpackEquip`) when the inventory opens, at the priority a
+  panel's B is bound at (`Host.set`'s `backPriority`, or `Focus.PRIORITY`), and unbinds it when
+  the inventory closes, however it closes: by B, by its button or key, by a dialog opening or the
+  hotbar being covered, and when the backpack's gui is destroyed. While the inventory holds the
+  pad's focus every press of it is sunk, the ones that do nothing too; with the player off a
+  gamepad, or another panel over the inventory, the press is passed on.
+- `BackpackConfig.padEquip`: the button, `Enum.KeyCode.ButtonY` when left out; another key code
+  for a game that wants one; `false` binds nothing.
+- `PadAct` gains `"Equip"`: `Host.set`'s `padUsed` hears it once for each equip or stow by the
+  button.
+- `Focus.holds(name)`: whether the panel pushed under that name holds the pad now, on top of every
+  other. `Stack.onTop(stack, name)` is its pure part, with a spec and three mutants.
+
+### Changed
+
+- **A game whose pad counter is typed to the five old acts no longer type-checks** against
+  `padUsed`, under either solver: a function that takes fewer acts than the kit reports does not
+  fit. That is how a new act has always reached a game, loudly; add `"Equip"` to the counter's
+  type and to wherever the acts are listed.
+- A backpack's gui destroyed with its inventory open now lets go of its focus scope and its
+  listener for A and X as well; before, both outlived the gui.
+- The README's status no longer says the Instance-building modules have not been run in a game.
+  It names the modules a live game calls, the ones that run inside those, and what has only been
+  type-checked.
+- `tests/consumer/Game.luau` reached the 300-line cap: its backpack part is `tests/consumer/Bag.luau`,
+  and the type gate reads the whole folder under the old solver.
+- The README lists `"Move"` among the acts `padUsed` hears; it has been reported since the
+  backpack came, and the line had never been brought up to date.
+
+### Not done
+
+- **Nothing of the button's Instance side has been run**, in a game or in the demo: the binding,
+  the sink, the unbinding on each way of closing. `src/Backpack/Pad.luau` is type-checked under
+  the new solver and the rule it follows is specified; the rest waits for a game and a pad.
+- Whether a prompt that also sits on Y (a `ProximityPrompt` with `GamepadKeyCode = ButtonY`) can
+  start from the same held press once the inventory has closed is not known. `Focus` switches the
+  prompts off while a panel holds the pad and on again a frame after it lets go.
+- No hint of Y is drawn. The inventory draws no hint for A or X either, so there was no place to
+  follow; a game that wants one pins `PadGlyph.cap` where it likes.
+- The demo place has no backpack and does not show this. The demo itself has not been run: it is
+  type-checked and the place is built and read back; what it looks like on a device has been seen
+  by nobody yet.
+
+### Around the package
+
+On main since 0.9.0 and not in the archive a game installs, which is 50 files of `src/` now (the
+49 of 0.9.0, and `Backpack/Hands.luau`).
 
 - `demo/`: a place that shows the kit (`sh scripts/build-demo.sh`, or `rojo serve demo`): the top
   line with a wallet that ticks, a reward flight on the shop button, a dialog with tabs behind a
@@ -26,16 +87,8 @@ Nothing under `src/` has changed since 0.9.0: the package a game installs is the
   `pesde.toml`, `README.md` and `LICENSE`, and when pesde writes no archive at all (it exits with
   success when it refuses an included file). It packs a copy of every tracked file, so `demo/`,
   `tests/` and `scripts/` are left out by `includes` and not by the copy.
-
-### Changed
-
 - The README says that `Indicator.follow` switches off the whole gui it is given, so read-outs
   stand in a ScreenGui of their own.
-
-### Not done
-
-- The demo has not been run. It is type-checked and the place is built and read back; what it
-  looks like on a device has been seen by nobody yet.
 
 ## 0.9.0 - 2026-10-09
 

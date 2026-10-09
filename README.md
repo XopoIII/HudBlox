@@ -9,12 +9,26 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **Status: 0.9.0.** The placement arithmetic and the backpack's order and taps are proven by specs
-> that run on every push, and each of 198 small slips in them makes the suite fail
-> (`tests/Mutate.luau`). The modules that build
-> Instances are checked against the Roblox API by the type gate, under both type solvers, and were
-> ported from code that runs in a live game; as a package they have not yet been run in a game or
-> looked at on devices. Try it in a test place first.
+> **Status: 0.10.0.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
+> the hands" button are proven by specs that run on every push, and each of 219 small slips in them
+> makes the suite fail (`tests/Mutate.luau`). The modules that build Instances cannot run off
+> Roblox, so the suite does not run them; they are checked against the Roblox API by the type gate,
+> under both type solvers.
+>
+> **Run in a game.** One live game has run the kit as this package since 0.2.0, through 0.9.0. It
+> calls `TopBar`, `Button`, `Badge`, `Tabs`, `TabFit`, `Flight`, `FlightPath`, `Icons`, `Theme`,
+> `TouchClearance`, `Band`, `Indicator`, `Native`, `Rtl`, `Host`, `Dialog`, `DialogGeometry`,
+> `Focus`, `PadInput`, `PadGlyph`, `PadMenu`, `Backpack`, `HotbarCover` and `Measure` itself, and
+> `Pill`, `SafeArea`, `Layout`, `Clearance`, `Ring`, `Pick`, `Stack` and `TouchControls` run inside
+> those.
+>
+> **Only type-checked, never run in a game.** What that game does not call: a capsule or a segment
+> built on its own (`Pill.build`, `Pill.segment`, `Pill.pinWidth`), `SafeArea`, `Layout`,
+> `Clearance`, `Pick`, `Stack` and `TouchControls` called by a game directly, `Ring.square` and
+> `Ring.round` named by a game, and whatever else of `tests/consumer/` a game of your own
+> uses differently. New in 0.10.0 and not yet run in a game: the gamepad's "in the hands" button in
+> the inventory. The demo place (`demo/`) has been built and read back, and run by nobody. Try a
+> new release in a test place first.
 
 ## Install
 
@@ -26,7 +40,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.9.0", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.10.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -329,8 +343,11 @@ HudBlox.Host.set({
 A capsule takes its theme as an argument, because a game may draw two looks. Which way its reader
 reads and who counts a gamepad's presses are one for the whole client, and the dialog, the focus
 and `Native.text` read them here. Nothing is required: unset, the reader reads left to right and
-nobody counts. `padUsed` hears `"Panel"`, `"Back"`, `"Hud"` and `"Bag"`. `backPriority` moves the
-panel's B ("back") above or below the game's own binding of B; `Focus.PRIORITY` when left out.
+nobody counts. `padUsed` hears `"Panel"`, `"Back"`, `"Hud"`, `"Bag"`, `"Move"` and `"Equip"`
+(`HudBlox.PadAct`); a counter typed to take fewer acts than the kit has does not fit, so a new act
+is a type error in the game until it is counted. `backPriority` moves the panel's B ("back"), and
+the backpack's "in the hands" button with it, above or below the game's own binding of the same
+button; `Focus.PRIORITY` when left out.
 
 ### Dialog: a whole dialog
 
@@ -363,7 +380,8 @@ holds one. It hands back `gui`, `panel`, `title`, `body`, `footer`, `setOpen(ope
 
 - `Focus.push(name, root, { back?, first? }?)` gives the pad to a panel: the selection is kept
   inside `root`, B runs `back` for the newest panel alone, the world's prompts are off and the
-  character stands. `Focus.pop(name)` takes it back, `Focus.open()` says whether any panel has it.
+  character stands. `Focus.pop(name)` takes it back, `Focus.open()` says whether any panel has it
+  and `Focus.holds(name)` whether that one does, on top of every other.
   Only while the player is on a gamepad (`PadInput`): a mouse or a finger sees no ring.
 - `Focus.start()` switches the engine's own auto-selection off and begins to follow the selection.
   The first `push` calls it; a game that wants the engine's auto-selection off from its first frame
@@ -373,8 +391,8 @@ holds one. It hands back `gui`, `panel`, `title`, `body`, `footer`, `setOpen(ope
   square one; a round button names the round one itself.
 - `Pick.first(targets, rtl)` and `Pick.nearest(targets, x, y, rtl)`: where focus starts in a panel
   and where it goes when the focused control is gone. `Stack`: which panels hold the focus, a name
-  standing once; a `push` hands back what the name stood with before. Both are plain data with
-  specs.
+  standing once; a `push` hands back what the name stood with before, and `onTop(stack, name)`
+  says whether a name is the newest. Both are plain data with specs.
 
 ### PadInput, PadGlyph, PadMenu, TouchControls
 
@@ -393,8 +411,8 @@ holds one. It hands back `gui`, `panel`, `title`, `body`, `footer`, `setOpen(ope
 Roblox's own backpack cannot be opened from a script, so a game that wants a button for its
 inventory draws the stock layout itself. `Backpack.mount` does: a hotbar of ten slots (three on a
 phone), the inventory above it with a count, a search box and the game's filters, drag and drop,
-tap then tap, a double tap, the keys 1 to 0 and the backquote, and a gamepad's focus, A, X, B and
-bumpers.
+tap then tap, a double tap, the keys 1 to 0 and the backquote, and a gamepad's focus, A, X, Y, B
+and bumpers.
 
 ```luau
 const backpack = HudBlox.Backpack.mount(player, {
@@ -437,15 +455,33 @@ backpack.rest(tool, 4)
 | `filters` | The inventory's filter buttons; one with no `kind` shows everything. |
 | `pinned` | The id of the thing that owns the bar's first slot and never leaves it. |
 | `used(act)` | Called with `"Open"`, `"Drag"`, `"Double"` or `"Pair"`, for a game that counts them. |
+| `padEquip` | The gamepad's "in the hands" button: `Enum.KeyCode.ButtonY` when left out, another key code for a game that wants one, `false` to bind nothing. |
+
+On a gamepad, with the inventory open, the focus walks the slots of the bar and the inventory:
+
+| Button | On the focused slot |
+|---|---|
+| A | Picks the thing up; on another slot, puts it there. |
+| X | Sends the thing across, bar to inventory or back. |
+| Y (`padEquip`) | Puts the thing in the hands and closes the inventory. On the thing already in the hands it puts it away, as a press on its bar slot does, and closes. On an empty slot, or off the slots, nothing happens. |
+| B | Closes the inventory. |
+| L1, R1 | Step along the bar, open or closed. |
+
+Y is a game's own button everywhere else, so the backpack takes it only while its inventory holds
+the pad's focus: a `ContextActionService` action bound as the inventory opens, at the priority a
+panel's B is bound at, and unbound as it closes. It sinks every press it takes, the ones that do
+nothing too, so a game's action on the same button at a lower priority (the default is lower) does
+not also fire. A game that reads the button off raw `UserInputService.InputBegan` still hears it:
+it checks `HudBlox.Focus.open()` first, as for every world action. `padUsed` hears `"Equip"`.
 
 The handle has `toggle()` and `rest(tool, seconds)`: a dark shade over that thing's slot, whole as
 the rest begins and emptying downward to nothing as it ends. It follows the thing if it is moved;
 nothing or less clears it. When a thing rests, and for how long, is the game's.
 
-`Backpack.Order`, `Backpack.Moves`, `Backpack.Press` and `Backpack.Rest` are the pure parts: where
-each thing sits (a thing seen before goes back where it was; a fresh one takes the slot of the one
-longest on a full bar), what a tap means, what a press still down has become, and how long a thing
-still rests. `Backpack.Slot.SIZE`,
+`Backpack.Order`, `Backpack.Moves`, `Backpack.Hands`, `Backpack.Press` and `Backpack.Rest` are the
+pure parts: where each thing sits (a thing seen before goes back where it was; a fresh one takes
+the slot of the one longest on a full bar), what a tap means, what the gamepad's "in the hands"
+button means, what a press still down has become, and how long a thing still rests. `Backpack.Slot.SIZE`,
 `Backpack.Bar.HEIGHT` and `Backpack.Bar.BOTTOM` are the layout's numbers, for a dialog that keeps
 above the bar.
 

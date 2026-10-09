@@ -42,9 +42,10 @@ luneblox setup >/dev/null
 luau-lsp analyze --flag:LuauSolverV2=true --defs globalTypes.d.luau src tests
 
 # A game may still be checked with the old solver: the public types must read the same to it.
-# tests/consumer/Game.luau is a game's use of the whole public API and must be clean there too; the
-# library's own files are the new solver's business, so they are ignored in this run.
-luau-lsp analyze --flag:LuauSolverV2=false --defs globalTypes.d.luau --ignore "src/**" tests/consumer/Game.luau
+# tests/consumer/ (Game.luau, and Bag.luau for the backpack) is a game's use of the whole public API
+# and must be clean there too; the library's own files are the new solver's business, so they are
+# ignored in this run.
+luau-lsp analyze --flag:LuauSolverV2=false --defs globalTypes.d.luau --ignore "src/**" tests/consumer
 
 # The demo place. rojo writes a sourcemap's paths relative to the project file, and luau-lsp reads
 # them relative to where it runs, so both run in demo/.

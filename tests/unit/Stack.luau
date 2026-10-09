@@ -83,4 +83,20 @@ Spec.test("popping a name that is not there changes nothing", function()
 	Spec.equal(Stack.top(stack), nil, "no top")
 end)
 
+Spec.test("only the newest scope is on top: one under another, a popped one and a stranger are not", function()
+	const stack: Stack.Stack<number> = { entries = {} }
+	Spec.equal(Stack.onTop(stack, "backpack"), false, "an empty stack")
+	Stack.push(stack, "backpack", 1)
+	Spec.equal(Stack.onTop(stack, "backpack"), true, "alone")
+	Spec.equal(Stack.onTop(stack, "modal:Shop"), false, "a name that is not there")
+	Stack.push(stack, "modal:Shop", 2)
+	Spec.equal(Stack.onTop(stack, "backpack"), false, "under another")
+	Spec.equal(Stack.onTop(stack, "modal:Shop"), true, "the one over it")
+	Stack.pop(stack, "modal:Shop")
+	Spec.equal(Stack.onTop(stack, "backpack"), true, "on top again")
+	Spec.equal(Stack.onTop(stack, "modal:Shop"), false, "the popped one")
+	Stack.pop(stack, "backpack")
+	Spec.equal(Stack.onTop(stack, "backpack"), false, "and gone")
+end)
+
 return nil

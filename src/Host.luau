@@ -14,8 +14,12 @@ const Rtl = require("./Rtl")
 const Host = {}
 
 --- What a gamepad just did, for a game that counts it: a panel took the focus, B closed one, the
---- top bar was entered, the inventory was opened by its button, a thing was moved in it.
-export type PadAct = "Panel" | "Back" | "Hud" | "Bag" | "Move"
+--- top bar was entered, the inventory was opened by its button, a thing was moved in it, a thing
+--- was put in the hands (or put away) from the open inventory.
+---
+--- A counter typed to take fewer acts than these does not fit `padUsed`, so a game that pins a
+--- release with a new act is told by its type checker, not by a count that goes missing.
+export type PadAct = "Panel" | "Back" | "Hud" | "Bag" | "Move" | "Equip"
 
 export type Hooks = {
 	--- The game's mirror (`Rtl.reader`). Left to right when left out.

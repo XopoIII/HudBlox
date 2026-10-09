@@ -49,6 +49,16 @@ export type Watch = {
 	inHand: () -> Tool?,
 }
 
+--> The id of the item that is `tool`; nil for no Tool, or one that is nobody's.
+function Items.idOf(byId: { [string]: Item }, tool: Tool?): string?
+	for id, item in byId do
+		if item.tool == tool then
+			return id
+		end
+	end
+	return nil
+end
+
 --> Follows `player`'s Tools for the session, describing each with `describe`.
 function Items.watch(player: Player, describe: Describe, hooks: Hooks): Watch
 	const items: { [Tool]: Item } = {}

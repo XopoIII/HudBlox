@@ -21,6 +21,11 @@ export type Config = {
 	pinned: string?,
 	--- Called each time the player uses one of the ways of moving things. It must not yield.
 	used: ((act: Act) -> ())?,
+	--- The gamepad's button that, with the inventory open, puts the focused thing in the hands and
+	--- closes the inventory (`Hands`). `Enum.KeyCode.ButtonY` when left out; `false` binds nothing.
+	--- The button is the backpack's only while its inventory holds the pad's focus, and is bound
+	--- where a panel's B is (`Host.set`'s `backPriority`).
+	padEquip: (Enum.KeyCode | false)?,
 }
 
 export type Handle = {
