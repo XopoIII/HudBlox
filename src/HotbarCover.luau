@@ -49,7 +49,8 @@ function HotbarCover.onChange(changed: (hidden: boolean) -> ()): () -> ()
 	end
 end
 
---> Switches Roblox's own backpack off for the session, retrying for a while.
+--> Switches Roblox's own backpack off for the session. No event says the core scripts are ready
+--> to hear it and asking too early throws, so it is retried for a while.
 function HotbarCover.disableCore()
 	task.spawn(function()
 		const starterGui = game:GetService("StarterGui")
