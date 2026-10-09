@@ -1,0 +1,18 @@
+{
+	"name": "HudBloxDemo",
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"HudBlox": {
+				"$path": "../src"
+			}
+		},
+		"StarterPlayer": {
+			"StarterPlayerScripts": {
+				"Demo": {
+					"$path": "Demo.client.luau"
+				}
+			}
+		}
+	}
+}
