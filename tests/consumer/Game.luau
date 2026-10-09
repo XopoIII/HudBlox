@@ -173,11 +173,11 @@ const close = HudBlox.Native.iconButton(panel, "x", ring)
 rtl.flipEdge(close)
 rtl.apply(panel)
 panel.Parent = gui
-
 -- What there is one of for the whole client is said once.
 const hooks: HudBlox.HostHooks = {
 	rtl = rtl,
 	padUsed = function(_act: HudBlox.PadAct) end,
+	backPriority = 2200,
 }
 HudBlox.Host.set(hooks)
 const _reader: HudBlox.RtlReader = HudBlox.Host.rtl()

@@ -5,6 +5,26 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.9.0 - 2026-10-09
+
+### Added
+
+- `Host.set`'s `backPriority`: the priority a panel's B ("back") is bound at, for a game whose own
+  binding of B must sit above or below it. `Focus.PRIORITY` when left out; read when the first
+  scope is pushed, so say it before the first panel opens.
+
+### Changed
+
+- A focus scope keeps its list of the panel's controls and re-reads it when the tree changes,
+  instead of walking every descendant at every repick. Where each control stands and whether it is
+  Selectable is still read at the pick; a control that becomes Selectable with no add or remove is
+  seen at the next one.
+
+### Not done
+
+- The cache and its watches are Instance code and are not run by the suite: they are type-checked
+  through `tests/consumer/Game.luau`, and have not been looked at in a game.
+
 ## 0.8.0 - 2026-10-09
 
 ### Added
