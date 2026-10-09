@@ -1,6 +1,6 @@
 --!strict
---- The flight's slips: each a small error in how many icons fly, when and where, and the rule it
---- breaks.
+--- The flight's slips: each a small error in how many icons fly, when and where, or in the list of
+--- flights and the pools of icons, and the rule it breaks.
 const MUTANTS = {
 	{
 		file = "src/FlightPath.luau",
@@ -97,6 +97,54 @@ const MUTANTS = {
 		from = "return toX, toY, FlightPath.LANDS_AT, DONE",
 		to = "return toX, toY, 1, DONE",
 		breaks = "an icon lands at its landing size",
+	},
+	{
+		file = "src/FlightBook.luau",
+		from = "\t\tif not spent(item) then\n\t\t\tstep(item)\n\t\tend\n",
+		to = "\t\tstep(item)\n",
+		breaks = "an item spent by another before its turn is not stepped",
+	},
+	{
+		file = "src/FlightBook.luau",
+		from = "\t\t\tlist[last] = nil\n",
+		to = "\t\t\tlist[last] = nil\n\t\t\tat += 1\n",
+		breaks = "the item swapped into a spent one's place is stepped in the same walk",
+	},
+	{
+		file = "src/FlightBook.luau",
+		from = "\t\t\tlist[at] = list[last]\n",
+		to = "\t\t\tlist[at] = list[last - 1]\n",
+		breaks = "a spent item's place is taken by the last item, and no unspent one is lost",
+	},
+	{
+		file = "src/FlightBook.luau",
+		from = "return table.remove(pool)",
+		to = "return pool[#pool]",
+		breaks = "a pooled item is handed out once",
+	},
+	{
+		file = "src/FlightBook.luau",
+		from = "return table.remove(pool)",
+		to = "return table.remove(pool, 1)",
+		breaks = "a pool hands back the last thing given",
+	},
+	{
+		file = "src/FlightBook.luau",
+		from = "\t\tpools[key] = { item }\n\t\treturn true\n",
+		to = "\t\tpools[key] = { item }\n\t\treturn false\n",
+		breaks = "the give that makes a key's pool says so",
+	},
+	{
+		file = "src/FlightBook.luau",
+		from = "\ttable.insert(pool, item)\n\treturn false\n",
+		to = "\ttable.insert(pool, item)\n\treturn true\n",
+		breaks = "a give into a pool that is there does not say it made one",
+	},
+	{
+		file = "src/FlightBook.luau",
+		from = "\tpools[key] = nil\n",
+		to = "\tpools[key] = {}\n",
+		breaks = "a dropped key leaves no entry behind",
 	},
 }
 
