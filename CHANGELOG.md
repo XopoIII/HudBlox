@@ -5,6 +5,13 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.9.3 - 2026-10-09
+
+### Fixed
+
+- `TopBar`'s holder-sizing connection is listed with the row's other connections and disconnected
+  by `destroy`, as the rest are. It died with the row before; now it is also let go.
+
 ## 0.9.2 - 2026-10-09
 
 ### Changed

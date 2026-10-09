@@ -131,7 +131,8 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 			holder.Size = UDim2.fromOffset(plate.AbsoluteSize.X / scale.Scale, Measure.HEIGHT)
 		end
 		fitHolder()
-		plate:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitHolder)
+		-- Dies with the row anyway; listed with the rest so `destroy` disconnects everything.
+		table.insert(connections, plate:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitHolder))
 		return capsule, scale
 	end
 
