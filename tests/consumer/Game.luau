@@ -1,6 +1,7 @@
 --!strict
---- A game's use of the whole public API, as the README shows it. It is checked by the type gate
---- under both solvers (`scripts/type-check.sh`) and is NOT run: it needs a Roblox client.
+--- A game's use of the whole public API, as the README shows it, with `Bag.luau` beside it for the
+--- backpack. Both are checked by the type gate under both solvers (`scripts/type-check.sh`) and are
+--- NOT run: they need a Roblox client.
 ---
 --- When the API changes, this file changes with it, and the README's example after it.
 const HudBlox = require("@hudblox")
@@ -182,6 +183,7 @@ const hooks: HudBlox.HostHooks = {
 HudBlox.Host.set(hooks)
 const _reader: HudBlox.RtlReader, _backPriority: number? = HudBlox.Host.rtl(), HudBlox.Host.backPriority()
 HudBlox.Host.padUsed("Panel")
+HudBlox.Host.padUsed("Equip")
 
 -- A whole dialog, over the game's own hotbar.
 const bar: HudBlox.DialogBottom = { band = 82, room = 360 }
@@ -212,7 +214,7 @@ const focusOptions: HudBlox.FocusOptions = {
 	end,
 }
 HudBlox.Focus.push("panel", panel, focusOptions)
-const _held: boolean = HudBlox.Focus.open()
+const _held: boolean = HudBlox.Focus.open() and HudBlox.Focus.holds("panel")
 HudBlox.Focus.pop("panel")
 buy.SelectionImageObject = HudBlox.Ring.square()
 close.SelectionImageObject = HudBlox.Ring.round()
@@ -222,6 +224,7 @@ const _nearest: number? = HudBlox.Pick.nearest(targets, 0, 0, rtl.active())
 const scopes: { entries: { { name: string, value: number } } } = { entries = {} }
 const _replaced: number? = HudBlox.Stack.push(scopes, "a", 1)
 const _size: number = HudBlox.Stack.size(scopes)
+const _onTop: boolean = HudBlox.Stack.onTop(scopes, "a")
 
 -- The pad itself, and the touch controls.
 const _onPad: boolean = HudBlox.PadInput.active()
@@ -239,57 +242,7 @@ HudBlox.TouchControls.set("help", true)
 HudBlox.TouchControls.set("help", false)
 stopPad()
 
--- The game's own Tools in the stock backpack: what each is, its picture, and every word.
-const function describe(tool: Tool): HudBlox.BackpackItem
-	return {
-		tool = tool,
-		id = tool.Name,
-		fresh = tool:GetAttribute("Fresh") == true,
-		tip = tool.Name,
-		search = tool.Name,
-		kind = "tool",
-		rim = Color3.new(1, 1, 1),
-		counted = true,
-		picture = tool.Name,
-	}
-end
-const draw: HudBlox.BackpackDraw = function(_view: ViewportFrame, _item: HudBlox.BackpackItem, done: (boolean) -> ())
-	done(false)
-end
-const words: HudBlox.BackpackWords = {
-	title = "Backpack",
-	search = "Search",
-	nothing = "Nothing here yet",
-	allOnBar = "Everything is on the bar",
-	count = function(n: number): string
-		return `Backpack ({n})`
-	end,
-}
-const filters: { HudBlox.BackpackFilter } = { { label = "All" }, { kind = "tool", label = "Tools" } }
-const backpackConfig: HudBlox.BackpackConfig = {
-	describe = describe,
-	draw = draw,
-	text = words,
-	filters = filters,
-	pinned = "Sword",
-	used = function(_act: HudBlox.BackpackAct) end,
-}
-const backpack: HudBlox.BackpackHandle = HudBlox.Backpack.mount(Players.LocalPlayer, backpackConfig)
-backpack.toggle()
-backpack.rest(Instance.new("Tool"), 4 * HudBlox.Backpack.Rest.share(3, 4))
-const kept: HudBlox.BackpackOrder = HudBlox.Backpack.Order.new(10, "Sword")
-HudBlox.Backpack.Order.add(kept, "Sword", false)
-const spot: HudBlox.BackpackPlace? = HudBlox.Backpack.Order.where(kept, "Sword")
-const taps = HudBlox.Backpack.Moves.new()
-const _outcome = HudBlox.Backpack.Moves.tap(taps, kept, 0, "Sword", spot or { zone = "bar", index = 1 }, true)
-const _verdict = HudBlox.Backpack.Press.classify("touch", "grid", 0, 12, 0.05)
-const _barTop: number = HudBlox.Backpack.Bar.BOTTOM + HudBlox.Backpack.Bar.HEIGHT + HudBlox.Backpack.Slot.SIZE
-const _small: number = HudBlox.Backpack.PHONE_W
-HudBlox.HotbarCover.set("help", true)
-const _covered: boolean = HudBlox.HotbarCover.hidden()
-const stopCover = HudBlox.HotbarCover.onChange(function(_hidden: boolean) end)
-HudBlox.HotbarCover.set("help", false)
-stopCover()
+-- The backpack and the hotbar's cover are in `tests/consumer/Bag.luau`.
 
 -- A surface that can be unmounted stops everything it started.
 const unbind = HudBlox.SafeArea.bind(gui, row.fit)

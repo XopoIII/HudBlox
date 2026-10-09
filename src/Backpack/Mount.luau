@@ -181,10 +181,17 @@ function Mount.mount(player: Player, config: Config): Handle
 		render()
 	end
 
+	const function heldId(): string?
+		return Items.idOf(state.byId, state.inHand())
+	end
+
 	pad = Pad.new({
 		gui = gui,
 		bar = bar,
 		tap = tap,
+		equip = equip,
+		held = heldId,
+		button = config.padEquip,
 		send = function(id: string)
 			Moves.send(moves, state.order, id)
 			render()
@@ -235,16 +242,6 @@ function Mount.mount(player: Player, config: Config): Handle
 		end,
 		held = render,
 	})
-
-	const function heldId(): string?
-		const tool = state.inHand()
-		for id, item in state.byId do
-			if item.tool == tool then
-				return id
-			end
-		end
-		return nil
-	end
 
 	Keys.bind({
 		slot = function(index: number)

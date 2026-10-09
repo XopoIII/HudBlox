@@ -270,6 +270,11 @@ function Focus.pop(name: string)
 	queue()
 end
 
+--> Whether the panel pushed as `name` holds the pad now: it is open and no other is over it.
+function Focus.holds(name: string): boolean
+	return Stack.onTop(stack, name)
+end
+
 --> Whether any panel holds the focus: the world's own buttons stand down.
 function Focus.open(): boolean
 	return Stack.size(stack) > 0

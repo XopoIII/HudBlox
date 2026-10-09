@@ -85,6 +85,7 @@ export type BackpackDraw = Backpack.Draw
 export type BackpackAct = Backpack.Act
 export type BackpackOrder = Backpack.Order
 export type BackpackPlace = Backpack.Place
+export type BackpackHands = Backpack.Hands
 
 return {
 	--- The top line: the right row and the left buttons.

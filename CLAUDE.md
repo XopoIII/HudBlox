@@ -52,7 +52,8 @@ that "looks right" is not a measurement.
 - A spec is never loosened to make it pass.
 - What cannot run off Roblox (everything that builds an Instance) is said to be unproven, in the
   changelog's "Not done", rather than covered by a fake that proves the fake.
-  `tests/consumer/Game.luau` uses the whole public API and is type-checked under both solvers; it
+  `tests/consumer/` (`Game.luau`, and `Bag.luau` for the backpack) uses the whole public API and is
+  type-checked under both solvers; it
   changes with the API, and the README's example after it.
 
 ## Dependencies
@@ -85,7 +86,7 @@ that "looks right" is not a measurement.
 - `Dialog` over `DialogGeometry` (arithmetic): a whole dialog. `Focus` over `Stack` and `Pick`
   (plain data) with `Ring`: a gamepad's selection. `PadInput`, `PadGlyph`, `PadMenu`,
   `TouchControls`: the pad and the touch controls.
-- `Backpack/`: a hotbar and an inventory for the game's own Tools. `Order`, `Moves`, `Press` are
+- `Backpack/`: a hotbar and an inventory for the game's own Tools. `Order`, `Moves`, `Hands`, `Press` are
   plain data and arithmetic; `Items`, `Gesture`, `Keys`, `Pad` read the engine; `Slot`, `Bar`,
   `Grid`, `Paint` draw; `Mount` wires them. `HotbarCover` hides the bar under a dialog.
 - `init.luau` exposes the modules and re-exports their types.
@@ -98,7 +99,7 @@ that "looks right" is not a measurement.
 - **Not shipped:** a Wally package, an `.rbxm`, roblox-ts typings.
 - **Not in the package:** `demo/`, a place that shows the kit (`demo/README.md`). It is example
   code a game copies, so it is held to every gate `src/` is: when the API changes, the demo
-  changes with it, as `tests/consumer/Game.luau` does. `scripts/check-package.sh` fails if it
+  changes with it, as `tests/consumer/` does. `scripts/check-package.sh` fails if it
   ever enters the archive.
 - **A release** carries one version in `pesde.toml`, `pesde.lock` and `README.md` (the status line
   and the two install lines), and its entry in `CHANGELOG.md`.
@@ -135,7 +136,7 @@ The version bump and the changelog entry are part of the pull request, not of th
 | `lefthook install` | Installs the git hooks |
 | `sh scripts/run-tests.sh` | Runs the suite on LuneBlox (`tests/Run.luau`) |
 | `luneblox run tests/Mutate --yes` | Mutation adequacy: every mutant must fail the suite (`-- Band` for one file) |
-| `sh scripts/type-check.sh` | `luau-lsp analyze` over `src` and `tests`, the consumer under the old solver, and `demo` through a rojo sourcemap under both |
+| `sh scripts/type-check.sh` | `luau-lsp analyze` over `src` and `tests`, the consumer files under the old solver, and `demo` through a rojo sourcemap under both |
 | `sh scripts/build-demo.sh` | Builds the demo place and reads it back against `src/` and `demo/` (`tests/DemoPlace.luau`) |
 | `selene src tests demo` | Lint |
 | `stylua --check src tests demo` | Format check (`stylua src tests demo` to fix) |

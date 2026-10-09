@@ -18,15 +18,17 @@
 --- | `Items` | the Tools there are, as the game describes them |
 --- | `Order` | which slot each sits in; pure, specified |
 --- | `Moves` | what a tap or a drop means; pure, specified |
+--- | `Hands` | what a gamepad's "in the hands" button means; pure, specified |
 --- | `Press`, `Gesture` | a press becoming a tap, a drag or a scroll |
 --- | `Paint`, `Bar`, `Grid`, `Slot` | what is drawn |
 --- | `Keys` | 1 to 0, the backquote and the bumpers |
---- | `Pad` | a gamepad's focus on the slots, its A and X |
+--- | `Pad` | a gamepad's focus on the slots, its A, X and Y |
 ---
 --- Equipping is the engine's `EquipTool`; whatever else a game decides about a Tool, its server
 --- decides.
 const Bar = require("@self/Bar")
 const Grid = require("@self/Grid")
+const Hands = require("@self/Hands")
 const Items = require("@self/Items")
 const Moves = require("@self/Moves")
 const Mount = require("@self/Mount")
@@ -44,16 +46,18 @@ export type Filter = Grid.Filter
 export type Draw = Slot.Draw
 export type Order = Order.Order
 export type Place = Order.Place
+export type Hands = Hands.Outcome
 
 return {
 	--- Draws a player's backpack and follows it for the session.
 	mount = Mount.mount,
 	--- A touch screen narrower than this gets the small layout.
 	PHONE_W = Mount.PHONE_W,
-	--- The pure parts: where each thing sits, what a tap means, what a press becomes, how long a
-	--- thing still rests.
+	--- The pure parts: where each thing sits, what a tap means, what a gamepad's "in the hands"
+	--- button means, what a press becomes, how long a thing still rests.
 	Order = Order,
 	Moves = Moves,
+	Hands = Hands,
 	Press = Press,
 	Rest = Rest,
 	--- The measured layout: a slot's side and gap, the bar's height and the room under it.

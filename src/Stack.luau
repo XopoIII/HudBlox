@@ -46,6 +46,12 @@ function Stack.top<T>(stack: Stack<T>): Entry<T>?
 	return stack.entries[#stack.entries]
 end
 
+--> Whether `name` is the newest entry: the panel that holds the focus now.
+function Stack.onTop<T>(stack: Stack<T>, name: string): boolean
+	const top = stack.entries[#stack.entries]
+	return top ~= nil and top.name == name
+end
+
 function Stack.size<T>(stack: Stack<T>): number
 	return #stack.entries
 end
