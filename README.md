@@ -9,7 +9,7 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **Status: 0.7.0.** The placement arithmetic and the backpack's order and taps are proven by specs
+> **Status: 0.8.0.** The placement arithmetic and the backpack's order and taps are proven by specs
 > that run on every push, and each of 166 small slips in them makes the suite fail
 > (`tests/Mutate.luau`). The modules that build
 > Instances are checked against the Roblox API by the type gate, under both type solvers, and were
@@ -26,7 +26,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.7.0", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.8.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -200,7 +200,7 @@ The backpack's filters are this strip, a chip's size.
 
 ```lua
 const layer = Flight.layer(playerGui)
-Flight.send(layer, {
+const flying, cancel = Flight.send(layer, {
 	from = Flight.centre(claimButton),   -- or any point in AbsolutePosition's space
 	to = wallet.segments[1].lead,        -- what the icons fly into
 	count = 8,                           -- FlightPath.count of it flies: at most 12
@@ -213,6 +213,11 @@ Each icon leaves a thirty-second of a second after the one before, steps out to 
 a ring round the source, then flies into the target, shrinking, and is gone. The target is read
 every frame. `landed` is called as each icon lands, which is when a game writes the new number;
 a target that leaves the tree lands every icon still in the air at once, so nothing is lost.
+
+`send` returns how many fly and a `cancel`, which calls back the icons still in the air and lands
+nothing — for where the reason for the reward goes away before it arrives. However many rewards
+fly at once, one RenderStepped connection steps them all, and the icon frames come from a pool
+rather than from `Instance.new`.
 
 - `Flight.layer(playerGui, name?): ScreenGui`: where they fly, ten layers over a dialog; made once.
 - `Flight.centre(object): Vector2`: the middle of a GuiObject, for `from`.

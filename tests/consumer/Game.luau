@@ -99,7 +99,7 @@ if coinLead then
 		size = HudBlox.FlightPath.SIZE,
 		radius = HudBlox.FlightPath.RADIUS,
 	}
-	const flying: number = HudBlox.Flight.send(flightLayer, flight)
+	const flying: number, _cancel: () -> () = HudBlox.Flight.send(flightLayer, flight)
 	const _x, _y, _scale, phase = HudBlox.FlightPath.place(0.1, 1, flying, 0, 0, 100, 100, 46)
 	const landed: HudBlox.FlightPhase = "done"
 	if phase == landed or HudBlox.FlightPath.lasts(flying) < HudBlox.FlightPath.leaves(2) then
