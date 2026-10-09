@@ -5,6 +5,64 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.9.3 - 2026-10-09
+
+### Fixed
+
+- `TopBar`'s holder-sizing connection is listed with the row's other connections and disconnected
+  by `destroy`, as the rest are. It died with the row before; now it is also let go.
+
+## 0.9.2 - 2026-10-09
+
+### Changed
+
+- `Button.round` makes its two squash tweens once per button instead of a fresh Tween per press: a
+  button is pressed hundreds of times a session. A press that interrupts a release (or the reverse)
+  now cancels the other tween first, so it is one smooth move rather than two racing ones.
+
+### Not done
+
+- Instance code, not run by the suite: type-checked through `tests/consumer/Game.luau`, not looked
+  at in a game.
+
+## 0.9.1 - 2026-10-09
+
+### Fixed
+
+- `Pill.pinWidth` no longer writes its answer into a label whose capsule was destroyed before the
+  text engine answered (a respawn, a closed dialog), which errored in the measuring thread.
+
+### Changed
+
+- `Pill.measure` keeps the text engine's answers by font, size and candidate strings: a surface
+  rebuilt whole (a respawn, a reopened dialog) asks nothing that was already answered. A failed
+  pass is never kept, so a text engine that was not ready is asked again next time.
+
+### Not done
+
+- Both are Instance code and are not run by the suite: they are type-checked through
+  `tests/consumer/Game.luau`, and have not been looked at in a game.
+
+## 0.9.0 - 2026-10-09
+
+### Added
+
+- `Host.set`'s `backPriority`: the priority a panel's B ("back") is bound at, for a game whose own
+  binding of B must sit above or below it. `Focus.PRIORITY` when left out; read when the first
+  scope is pushed, so say it before the first panel opens.
+
+### Changed
+
+- A focus scope keeps its list of the panel's controls and re-reads it when the tree changes,
+  instead of walking every descendant at every repick. Where each control stands and whether it is
+  Selectable is still read at the pick; a control that becomes Selectable with no add or remove is
+  seen at the next one.
+
+### Not done
+
+- The cache and its watches are Instance code and are not run by the suite: they are type-checked
+  through `tests/consumer/Game.luau`, and have not been looked at in a game.
+
 ## 0.8.0 - 2026-10-09
 
 ### Added

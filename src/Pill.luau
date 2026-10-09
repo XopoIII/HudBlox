@@ -10,6 +10,10 @@ const Theme = require("./Theme")
 
 const Pill = {}
 
+-- The text engine's answers, by what decides them: a font, a size and the candidate strings
+-- (order-insensitive). An answer cannot change while its key does not.
+const measured: { [string]: number } = {}
+
 --- One segment as the caller asks for it.
 export type Part = {
 	--- The name `theme.icon` draws. Nil or "" means no lead at all: a value that carries its own
@@ -30,8 +34,19 @@ export type Capsule = { plate: GuiObject, segments: { Segment } }
 --> Measures the widest of `candidates` in `font` at `size` and answers through `done`, because
 --> the text engine yields. A surface that is rebuilt measures once, keeps the number and applies
 --> it itself; the answer cannot change while the font and the size do not.
+---
+--- Answers are kept by font, size and candidates: a surface rebuilt whole (a respawn, a reopened
+--- dialog) asks the text engine nothing it has already answered.
 function Pill.measure(font: Font, size: number, candidates: { string }, done: (widest: number) -> ())
 	const TextService = game:GetService("TextService")
+	const sorted = table.clone(candidates)
+	table.sort(sorted)
+	const key = `{font.Family}\0{font.Weight}\0{font.Style}\0{size}\0{table.concat(sorted, "\0")}`
+	const known = measured[key]
+	if known ~= nil then
+		task.spawn(done, known)
+		return
+	end
 	task.spawn(function()
 		local widest = 0
 		const params = Instance.new("GetTextBoundsParams")
@@ -47,6 +62,10 @@ function Pill.measure(font: Font, size: number, candidates: { string }, done: (w
 			if ok then
 				widest = math.max(widest, bounds.X)
 			end
+		end
+		-- A zero is a failed pass (the engine was not ready), not an answer: never kept.
+		if widest > 0 then
+			measured[key] = widest
 		end
 		done(widest)
 	end)
@@ -67,7 +86,9 @@ function Pill.pinWidth(label: TextLabel, candidates: { string })
 	label.TextWrapped = false
 	label.TextTruncate = Enum.TextTruncate.None
 	Pill.measure(label.FontFace, label.TextSize, candidates, function(widest)
-		if widest > 0 then
+		-- The capsule may be gone before the text engine answers (a respawn, a closed dialog): a
+		-- destroyed label reports no parent, and writing to one errors.
+		if widest > 0 and label.Parent ~= nil then
 			label.AutomaticSize = Enum.AutomaticSize.None
 			label.Size = UDim2.fromOffset(Layout.pinned(widest), Measure.HEIGHT)
 			-- Centred in its fixed box: left-aligned, a narrow value would sit against the lead and
