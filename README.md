@@ -31,6 +31,9 @@ HudBlox = { name = "xopoiii/hudblox", version = "=0.9.3", target = "roblox" }
 
 HudBlox runs on the client. It has no dependencies.
 
+To look at the kit on a device before installing anything, `demo/` is a runnable place:
+`rojo serve demo`, connect Studio, press Play (see `demo/README.md`).
+
 ## The top line in a minute
 
 ```lua

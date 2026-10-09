@@ -5,6 +5,12 @@ semantic versioning.
 
 ## Unreleased
 
+### Added
+
+- `demo/`: a runnable place (`rojo serve demo`) that builds the README's top line with a ticking
+  wallet, sends a reward flight on the shop button and opens the bag dialog, so the kit can be
+  looked at on a device in a minute. No assets needed: the icons are the resolver's tinted discs.
+
 ## 0.9.3 - 2026-10-09
 
 ### Fixed
