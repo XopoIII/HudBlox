@@ -17,12 +17,15 @@
 --- nothing, for where the reason for the reward goes away before it arrives.
 ---
 --- However many rewards are in the air at once, one RenderStepped connection steps them all, and
---- the icon frames come from a per-layer pool rather than from `Instance.new`: a rain of rewards
---- costs one connection and no new Instances.
+--- the frame each icon is drawn in comes from a per-layer pool: a rain of rewards costs one
+--- connection, and makes a frame only when more icons are in the air than ever were before. What
+--- `draw` puts into a frame is the game's and is made anew for every icon.
 ---
 --- What an icon is, how many fly and what a landing does are the game's. The times and the path
---- are `FlightPath`'s, which is arithmetic and specified.
+--- are `FlightPath`'s, and the list of flights and the pools are `FlightBook`'s: both plain data
+--- and specified.
 const Dialog = require("./Dialog")
+const FlightBook = require("./FlightBook")
 const FlightPath = require("./FlightPath")
 
 const Flight = {}
@@ -43,10 +46,13 @@ export type Options = {
 	to: GuiObject,
 	--- How many fly; `FlightPath.count` of it is what does.
 	count: number,
-	--- Fills one icon's frame. The frame is square, clear, and sized by the flight, and may have
-	--- flown before: the pool hands it back emptied, for `draw` to fill again.
+	--- Fills one icon's frame, which is not in the layer yet. The frame is square, clear, and
+	--- sized by the flight, and may have flown before: the pool hands it back without children
+	--- and with its look as a new frame's (`dress`), for `draw` to fill again. A connection or an
+	--- attribute `draw` hangs on the frame itself is not undone: hang those on what it adds.
 	draw: (frame: Frame, index: number) -> (),
-	--- Called as each icon lands, in order. It must not yield.
+	--- Called as each icon lands, in order. It must not yield. It may send a flight and may
+	--- cancel one, its own included.
 	landed: ((index: number, count: number) -> ())?,
 	--- An icon's side and how far it steps out, in pixels. `FlightPath`'s when left out.
 	size: number?,
@@ -66,13 +72,16 @@ type Active = {
 	landed: ((index: number, count: number) -> ())?,
 }
 
--- The flights in the air, and the one connection that steps them all.
+-- The flights in the air, and the one connection that steps them all. A flight leaves the list
+-- only in the step's walk (`FlightBook.walk`): a cancel spends it and the walk drops it, so a
+-- `landed` that cancels or sends mid-step moves nothing under the walk.
 const flights: { Active } = {}
 local stepping: RBXScriptConnection? = nil
+local steppedAt = 0
 
--- Spent icon frames per layer, emptied and handed out again. A layer is made once per PlayerGui
--- and lives for the session, so the pools' keys do not leak.
-const pools: { [ScreenGui]: { Frame } } = {}
+-- Spent icon frames per layer, emptied and handed out again. A layer's pool is dropped when the
+-- layer is destroyed.
+const pools: FlightBook.Pools<ScreenGui, Frame> = {}
 
 --> The middle of `object`, in the space `AbsolutePosition` is read in.
 function Flight.centre(object: GuiObject): Vector2
@@ -96,20 +105,27 @@ function Flight.layer(playerGui: Instance, name: string?): ScreenGui
 	return gui
 end
 
-const function newIcon(): Frame
-	const frame = Instance.new("Frame")
-	frame.AnchorPoint = Vector2.new(0.5, 0.5)
-	frame.BackgroundTransparency = 1
-	frame.BorderSizePixel = 0
-	return frame
-end
-
-const function takeIcon(layer: ScreenGui, index: number): Frame
-	const pool = pools[layer]
-	const frame = (if pool then table.remove(pool) else nil) or newIcon()
+-- An icon frame's look, the same for a new frame and for one that has flown: what a `draw` set
+-- on the frame itself does not reach the next flight.
+const function dress(frame: Frame, index: number, size: number)
 	frame.Name = `Icon{index}`
 	frame.Visible = false
-	frame.Parent = layer
+	frame.AnchorPoint = Vector2.new(0.5, 0.5)
+	frame.Position = UDim2.fromOffset(0, 0)
+	frame.Size = UDim2.fromOffset(size, size)
+	frame.Rotation = 0
+	frame.ZIndex = 1
+	frame.LayoutOrder = 0
+	frame.ClipsDescendants = false
+	frame.BackgroundColor3 = Color3.fromRGB(163, 162, 165)
+	frame.BackgroundTransparency = 1
+	frame.BorderSizePixel = 0
+end
+
+-- Not in the layer yet: `send` puts a flight's icons there once every one is drawn.
+const function takeIcon(layer: ScreenGui, index: number, size: number): Frame
+	const frame = FlightBook.take(pools, layer) or Instance.new("Frame")
+	dress(frame, index, size)
 	return frame
 end
 
@@ -118,12 +134,11 @@ const function freeIcon(layer: ScreenGui, frame: Frame)
 	frame.Visible = false
 	frame:ClearAllChildren()
 	frame.Parent = nil
-	local pool = pools[layer]
-	if pool == nil then
-		pool = {}
-		pools[layer] = pool
+	if FlightBook.give(pools, layer, frame) then
+		layer.Destroying:Once(function()
+			FlightBook.drop(pools, layer)
+		end)
 	end
-	table.insert(pool, frame)
 end
 
 const function land(flight: Active, index: number)
@@ -149,47 +164,44 @@ const function stopStepping()
 	end
 end
 
-const function stepFlights()
-	const now = os.clock()
-	local at = 1
-	while at <= #flights do
-		const flight = flights[at]
-		const layer = flight.layer
-		const gone = not flight.to:IsDescendantOf(game) or not layer:IsDescendantOf(game)
-		const origin = layer.AbsolutePosition
-		const target = Flight.centre(flight.to) - origin
-		const elapsed = now - flight.startedAt
-		for index = 1, flight.count do
-			const frame = flight.icons[index]
-			if frame then
-				const x, y, scale, phase = FlightPath.place(
-					elapsed,
-					index,
-					flight.count,
-					flight.from.X - origin.X,
-					flight.from.Y - origin.Y,
-					target.X,
-					target.Y,
-					flight.radius
-				)
-				if gone or phase == "done" then
-					land(flight, index)
-				else
-					frame.Visible = phase ~= "wait"
-					frame.Position = UDim2.fromOffset(x, y)
-					frame.Size = UDim2.fromOffset(flight.size * scale, flight.size * scale)
-				end
+const function spent(flight: Active): boolean
+	return flight.left == 0
+end
+
+const function stepFlight(flight: Active)
+	const layer = flight.layer
+	const gone = not flight.to:IsDescendantOf(game) or not layer:IsDescendantOf(game)
+	const origin = layer.AbsolutePosition
+	const target = Flight.centre(flight.to) - origin
+	const elapsed = steppedAt - flight.startedAt
+	for index = 1, flight.count do
+		const frame = flight.icons[index]
+		if frame then
+			const x, y, scale, phase = FlightPath.place(
+				elapsed,
+				index,
+				flight.count,
+				flight.from.X - origin.X,
+				flight.from.Y - origin.Y,
+				target.X,
+				target.Y,
+				flight.radius
+			)
+			if gone or phase == "done" then
+				land(flight, index)
+			else
+				frame.Visible = phase ~= "wait"
+				frame.Position = UDim2.fromOffset(x, y)
+				frame.Size = UDim2.fromOffset(flight.size * scale, flight.size * scale)
 			end
 		end
-		if flight.left == 0 then
-			-- Out by swap: the flights' order between each other is not promised, the icons'
-			-- within one flight is.
-			flights[at] = flights[#flights]
-			flights[#flights] = nil
-		else
-			at += 1
-		end
 	end
+end
+
+-- The flights' order between each other is not promised, the icons' within one flight is.
+const function stepFlights()
+	steppedAt = os.clock()
+	FlightBook.walk(flights, spent, stepFlight)
 	stopStepping()
 end
 
@@ -214,11 +226,16 @@ function Flight.send(layer: ScreenGui, options: Options): (number, () -> ())
 		startedAt = os.clock(),
 		landed = options.landed,
 	}
+	-- Every icon is drawn before any is put in the layer: a `draw` that throws leaves the layer
+	-- as it was, with nothing of a flight that never started in it.
+	const icons = flight.icons
 	for index = 1, count do
-		const frame = takeIcon(layer, index)
-		frame.Size = UDim2.fromOffset(size, size)
+		const frame = takeIcon(layer, index, size)
 		options.draw(frame, index)
-		flight.icons[index] = frame
+		icons[index] = frame
+	end
+	for index = 1, count do
+		icons[index].Parent = layer
 	end
 	table.insert(flights, flight)
 	if stepping == nil then
@@ -240,12 +257,9 @@ function Flight.send(layer: ScreenGui, options: Options): (number, () -> ())
 					end
 				end
 			end
+			-- Spent, not taken out: the next step's walk drops it, and stops the stepping when it
+			-- was the last. A cancel may come from a `landed`, in the middle of that walk.
 			flight.left = 0
-			const at = table.find(flights, flight)
-			if at then
-				table.remove(flights, at)
-			end
-			stopStepping()
 		end
 end
 

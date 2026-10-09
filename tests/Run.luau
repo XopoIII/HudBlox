@@ -24,5 +24,6 @@ require("./unit/HotbarCover")
 require("./unit/Badge")
 require("./unit/Tabs")
 require("./unit/Flight")
+require("./unit/FlightBook")
 
 Spec.finish()

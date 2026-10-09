@@ -10,7 +10,7 @@ sizes were not designed: they were read off a live client's top bar, and the kit
 in a live game before it became a package.
 
 > **Status: 0.8.0.** The placement arithmetic and the backpack's order and taps are proven by specs
-> that run on every push, and each of 166 small slips in them makes the suite fail
+> that run on every push, and each of 183 small slips in them makes the suite fail
 > (`tests/Mutate.luau`). The modules that build
 > Instances are checked against the Roblox API by the type gate, under both type solvers, and were
 > ported from code that runs in a live game; as a package they have not yet been run in a game or
@@ -216,8 +216,9 @@ a target that leaves the tree lands every icon still in the air at once, so noth
 
 `send` returns how many fly and a `cancel`, which calls back the icons still in the air and lands
 nothing — for where the reason for the reward goes away before it arrives. However many rewards
-fly at once, one RenderStepped connection steps them all, and the icon frames come from a pool
-rather than from `Instance.new`.
+fly at once, one RenderStepped connection steps them all, and the frame each icon is drawn in comes
+from a pool: it reaches `draw` without children and looking as a new frame does, outside the layer,
+and what `draw` adds to it is destroyed on landing. A `landed` may send or cancel a flight.
 
 - `Flight.layer(playerGui, name?): ScreenGui`: where they fly, ten layers over a dialog; made once.
 - `Flight.centre(object): Vector2`: the middle of a GuiObject, for `from`.

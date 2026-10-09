@@ -11,19 +11,35 @@ semantic versioning.
 
 - `Flight.send` returns a second value, `cancel`: it calls back the icons still in the air and
   lands nothing, for where the reason for the reward goes away before it arrives (the shop it was
-  bought in closed, the player teleported).
+  bought in closed, the player teleported). A `landed` may cancel any flight, its own included,
+  and may send another: the flights beside it fly on.
+- `FlightBook`: the list of flights in the air and the pools of spent icon frames as plain data,
+  with specs and mutants. It is `Flight`'s own and is not part of the kit's table.
 
 ### Changed
 
 - However many rewards are in the air at once, one RenderStepped connection steps them all (was:
-  one per flight), and the icon frames come from a per-layer pool instead of a fresh
-  `Instance.new` each: a rain of rewards costs one connection and no new Instances. A pooled frame
-  is handed to `draw` emptied, and the flight owns its frames for the flight's duration, as before.
+  one per flight), and the frame each icon is drawn in comes from a per-layer pool (was: a fresh
+  `Instance.new("Frame")` each, destroyed on landing). Only that wrapper frame is pooled: what
+  `draw` puts into it is made by the game for every icon and destroyed on landing, as before.
+- A pooled frame is handed to `draw` without children and with a new frame's look (name,
+  visibility, anchor, position, size, rotation, z-index, layout order, clipping, background,
+  border). A connection or an attribute `draw` hangs on the frame itself is not undone; a `draw`
+  that only adds children, as the README's does, is unaffected.
+- As in 0.7.0, a frame is put in the layer after `draw` has filled it; now a flight's frames go in
+  together, once every one is drawn, so a `draw` that throws leaves nothing in the layer (0.7.0
+  left the icons drawn before the throw there, hidden).
+- A layer's pool is dropped when the layer is destroyed.
+- A cancelled flight leaves the driver's list on the next frame, not inside `cancel`; the one
+  connection is dropped on that frame when it was the last flight.
 
 ### Not done
 
-- The driver and the pool build and reuse Instances and are not run by the suite: they are
-  type-checked through `tests/consumer/Game.luau`, and have not been looked at in a game.
+- The driver and the pool build and reuse Instances and are not run by the suite: what is proven
+  is `FlightBook`'s bookkeeping (no flight skipped or dropped unspent when a step cancels or
+  sends, no frame handed out twice, a dropped key's pool gone). That `Flight` uses it as said, the
+  frame's reset look, the draw-before-layer order and the pool's drop on `Destroying` are
+  type-checked through `tests/consumer/Game.luau` and have not been looked at in a game.
 
 ## 0.7.0 - 2026-10-08
 
