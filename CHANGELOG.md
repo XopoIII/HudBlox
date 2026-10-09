@@ -5,6 +5,24 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.9.1 - 2026-10-09
+
+### Fixed
+
+- `Pill.pinWidth` no longer writes its answer into a label whose capsule was destroyed before the
+  text engine answered (a respawn, a closed dialog), which errored in the measuring thread.
+
+### Changed
+
+- `Pill.measure` keeps the text engine's answers by font, size and candidate strings: a surface
+  rebuilt whole (a respawn, a reopened dialog) asks nothing that was already answered. A failed
+  pass is never kept, so a text engine that was not ready is asked again next time.
+
+### Not done
+
+- Both are Instance code and are not run by the suite: they are type-checked through
+  `tests/consumer/Game.luau`, and have not been looked at in a game.
+
 ## 0.9.0 - 2026-10-09
 
 ### Added

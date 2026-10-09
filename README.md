@@ -9,7 +9,7 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **Status: 0.9.0.** The placement arithmetic and the backpack's order and taps are proven by specs
+> **Status: 0.9.1.** The placement arithmetic and the backpack's order and taps are proven by specs
 > that run on every push, and each of 166 small slips in them makes the suite fail
 > (`tests/Mutate.luau`). The modules that build
 > Instances are checked against the Roblox API by the type gate, under both type solvers, and were
@@ -26,7 +26,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.9.0", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.9.1", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
