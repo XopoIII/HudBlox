@@ -6,13 +6,14 @@
 --- line and not matching, and nobody files that bug.
 const Layout = require("./Layout")
 const Measure = require("./Measure")
+const TextMemo = require("./TextMemo")
 const Theme = require("./Theme")
 
 const Pill = {}
 
--- The text engine's answers, by what decides them: a font, a size and the candidate strings
--- (order-insensitive). An answer cannot change while its key does not.
-const measured: { [string]: number } = {}
+-- The text engine's answers, by what decides them: a font, a size and the candidate strings in
+-- any order (`TextMemo`). An answer cannot change while its key does not.
+const measured = TextMemo.new()
 
 --- One segment as the caller asks for it.
 export type Part = {
@@ -36,19 +37,19 @@ export type Capsule = { plate: GuiObject, segments: { Segment } }
 --> it itself; the answer cannot change while the font and the size do not.
 ---
 --- Answers are kept by font, size and candidates: a surface rebuilt whole (a respawn, a reopened
---- dialog) asks the text engine nothing it has already answered.
+--- dialog) asks the text engine nothing it has already answered. `done` may be called before
+--- `measure` returns: always for a kept answer, and whenever the text engine does not yield.
 function Pill.measure(font: Font, size: number, candidates: { string }, done: (widest: number) -> ())
 	const TextService = game:GetService("TextService")
-	const sorted = table.clone(candidates)
-	table.sort(sorted)
-	const key = `{font.Family}\0{font.Weight}\0{font.Style}\0{size}\0{table.concat(sorted, "\0")}`
-	const known = measured[key]
+	const key = TextMemo.key(font.Family, font.Weight.Name, font.Style.Name, size, candidates)
+	const known = TextMemo.get(measured, key)
 	if known ~= nil then
 		task.spawn(done, known)
 		return
 	end
 	task.spawn(function()
 		local widest = 0
+		local answered = true
 		const params = Instance.new("GetTextBoundsParams")
 		params.Font = font
 		params.Size = size
@@ -61,11 +62,14 @@ function Pill.measure(font: Font, size: number, candidates: { string }, done: (w
 			end)
 			if ok then
 				widest = math.max(widest, bounds.X)
+			else
+				answered = false
 			end
 		end
-		-- A zero is a failed pass (the engine was not ready), not an answer: never kept.
-		if widest > 0 then
-			measured[key] = widest
+		-- Kept only when the engine answered for every candidate: the widest of some of them is
+		-- this pass's best guess, as it always was, and not the answer. A zero is never kept.
+		if answered then
+			TextMemo.keep(measured, key, widest)
 		end
 		done(widest)
 	end)
@@ -86,9 +90,10 @@ function Pill.pinWidth(label: TextLabel, candidates: { string })
 	label.TextWrapped = false
 	label.TextTruncate = Enum.TextTruncate.None
 	Pill.measure(label.FontFace, label.TextSize, candidates, function(widest)
-		-- The capsule may be gone before the text engine answers (a respawn, a closed dialog): a
-		-- destroyed label reports no parent, and writing to one errors.
-		if widest > 0 and label.Parent ~= nil then
+		-- The capsule may be gone before the text engine answers (a respawn, a closed dialog).
+		-- The write is made all the same: a destroyed Instance takes it without an error and
+		-- shows nothing, and a label pinned before it has a parent must not be passed over.
+		if widest > 0 then
 			label.AutomaticSize = Enum.AutomaticSize.None
 			label.Size = UDim2.fromOffset(Layout.pinned(widest), Measure.HEIGHT)
 			-- Centred in its fixed box: left-aligned, a narrow value would sit against the lead and

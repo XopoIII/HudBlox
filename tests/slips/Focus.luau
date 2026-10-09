@@ -95,9 +95,21 @@ const MUTANTS: { { file: string, from: string, to: string, breaks: string } } = 
 	},
 	{
 		file = "src/Stack.luau",
-		from = "\tif index then\n\t\ttable.remove(stack.entries, index)\n\tend\n",
-		to = "",
+		from = "\t\tconst old = table.remove(stack.entries, index)\n",
+		to = "\t\tconst old = stack.entries[index]\n",
 		breaks = "a name stands once",
+	},
+	{
+		file = "src/Stack.luau",
+		from = "\treturn replaced\n",
+		to = "\treturn nil\n",
+		breaks = "a push hands back what the name stood with before",
+	},
+	{
+		file = "src/Stack.luau",
+		from = "replaced = if old then old.value else nil",
+		to = "replaced = value",
+		breaks = "a push hands back the old value, not the new one",
 	},
 	{
 		file = "src/Stack.luau",

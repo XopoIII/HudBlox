@@ -204,6 +204,7 @@ const MORE: { { Mutant } } = {
 	require("./slips/Badge"),
 	require("./slips/Tabs"),
 	require("./slips/Flight"),
+	require("./slips/TextMemo"),
 }
 for _, list in MORE do
 	table.move(list, 1, #list, #MUTANTS + 1, MUTANTS)

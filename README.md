@@ -10,7 +10,7 @@ sizes were not designed: they were read off a live client's top bar, and the kit
 in a live game before it became a package.
 
 > **Status: 0.9.0.** The placement arithmetic and the backpack's order and taps are proven by specs
-> that run on every push, and each of 183 small slips in them makes the suite fail
+> that run on every push, and each of 198 small slips in them makes the suite fail
 > (`tests/Mutate.luau`). The modules that build
 > Instances are checked against the Roblox API by the type gate, under both type solvers, and were
 > ported from code that runs in a live game; as a package they have not yet been run in a game or
@@ -130,7 +130,9 @@ type Capsule = { plate: GuiObject, segments: { Segment } }
 - `Pill.segment(plate, theme, order: number, part: Part): Segment`: one more segment, later.
 - `Pill.pinWidth(label: TextLabel, candidates: { string })`: pins a label to its widest text. Padding
   the string does not do this: the font is not monospaced, so "01:24" and "02:12" differ in width.
-- `Pill.measure(font, size, candidates, done: (widest: number) -> ())`: the measurement alone.
+- `Pill.measure(font, size, candidates, done: (widest: number) -> ())`: the measurement alone. An
+  answer is kept by its font, size and candidates and given again without asking the text engine,
+  so `done` may be called before `measure` returns.
 
 ### Button: a round button
 
@@ -366,7 +368,8 @@ holds one. It hands back `gui`, `panel`, `title`, `body`, `footer`, `setOpen(ope
   square one; a round button names the round one itself.
 - `Pick.first(targets, rtl)` and `Pick.nearest(targets, x, y, rtl)`: where focus starts in a panel
   and where it goes when the focused control is gone. `Stack`: which panels hold the focus, a name
-  standing once. Both are plain data with specs.
+  standing once; a `push` hands back what the name stood with before. Both are plain data with
+  specs.
 
 ### PadInput, PadGlyph, PadMenu, TouchControls
 

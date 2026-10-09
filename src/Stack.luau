@@ -18,13 +18,17 @@ const function find<T>(stack: Stack<T>, name: string): number?
 	return nil
 end
 
---> Puts `name` on top with `value`; a name already there moves up.
-function Stack.push<T>(stack: Stack<T>, name: string, value: T)
+--> Puts `name` on top with `value`; a name already there moves up. Hands back the value the name
+--> stood with before, for the caller to let go of, or nil when the name is new.
+function Stack.push<T>(stack: Stack<T>, name: string, value: T): T?
 	const index = find(stack, name)
+	local replaced: T? = nil
 	if index then
-		table.remove(stack.entries, index)
+		const old = table.remove(stack.entries, index)
+		replaced = if old then old.value else nil
 	end
 	table.insert(stack.entries, { name = name, value = value })
+	return replaced
 end
 
 --> Takes `name` out, wherever it stands, and hands back its value; nil when it is not there.

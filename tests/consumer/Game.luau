@@ -180,7 +180,7 @@ const hooks: HudBlox.HostHooks = {
 	backPriority = 2200,
 }
 HudBlox.Host.set(hooks)
-const _reader: HudBlox.RtlReader = HudBlox.Host.rtl()
+const _reader: HudBlox.RtlReader, _backPriority: number? = HudBlox.Host.rtl(), HudBlox.Host.backPriority()
 HudBlox.Host.padUsed("Panel")
 
 -- A whole dialog, over the game's own hotbar.
@@ -220,7 +220,7 @@ const targets: { HudBlox.PickTarget } = { { x = 10, y = 10, order = 0, shown = t
 const _first: number? = HudBlox.Pick.first(targets, false)
 const _nearest: number? = HudBlox.Pick.nearest(targets, 0, 0, rtl.active())
 const scopes: { entries: { { name: string, value: number } } } = { entries = {} }
-HudBlox.Stack.push(scopes, "a", 1)
+const _replaced: number? = HudBlox.Stack.push(scopes, "a", 1)
 const _size: number = HudBlox.Stack.size(scopes)
 
 -- The pad itself, and the touch controls.

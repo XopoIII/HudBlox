@@ -42,6 +42,17 @@ Spec.test("a name pushed again moves to the top with its new value, and stands o
 	Spec.equal(Stack.size(stack), 2, "once")
 end)
 
+Spec.test("a push hands back what the name stood with before, and nothing for a new name", function()
+	const stack: Stack.Stack<number> = { entries = {} }
+	Spec.equal(Stack.push(stack, "a", 1), nil, "a new name")
+	Spec.equal(Stack.push(stack, "b", 2), nil, "another new name")
+	Spec.equal(Stack.push(stack, "a", 3), 1, "the value it stood with")
+	Spec.equal(Stack.push(stack, "a", 4), 3, "and again, the one before")
+	Spec.equal(Stack.push(stack, "b", 5), 2, "from under the top")
+	Spec.equal(Stack.pop(stack, "a"), 4, "a popped name")
+	Spec.equal(Stack.push(stack, "a", 6), nil, "is new again")
+end)
+
 Spec.test("popping the top hands the focus back to the one under it", function()
 	const stack: Stack.Stack<number> = { entries = {} }
 	Stack.push(stack, "hud", 1)

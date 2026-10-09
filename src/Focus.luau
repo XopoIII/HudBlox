@@ -91,6 +91,15 @@ const function controlsOf(scope: Scope): { GuiObject }
 	return scanned
 end
 
+-- Lets go of a scope that left the stack: its watches, and the controls it kept.
+const function unwatch(scope: Scope)
+	for _, connection in scope.watching do
+		connection:Disconnect()
+	end
+	table.clear(scope.watching)
+	scope.objects = nil
+end
+
 const function choose(scope: Scope): GuiObject?
 	if inside(scope, scope.object) then
 		return scope.object
@@ -230,7 +239,11 @@ function Focus.push(name: string, root: GuiBase2d, options: Options?)
 	end
 	table.insert(scope.watching, root.DescendantAdded:Connect(forget))
 	table.insert(scope.watching, root.DescendantRemoving:Connect(forget))
-	Stack.push(stack, name, scope)
+	-- A name pushed again while it stands: the scope it stood with is let go of as a pop would.
+	const replaced = Stack.push(stack, name, scope)
+	if replaced then
+		unwatch(replaced)
+	end
 	TouchControls.set(`focus:{name}`, true)
 	if PadInput.active() then
 		Host.padUsed("Panel")
@@ -244,9 +257,7 @@ function Focus.pop(name: string)
 	if not scope then
 		return
 	end
-	for _, connection in scope.watching do
-		connection:Disconnect()
-	end
+	unwatch(scope)
 	TouchControls.set(`focus:{name}`, false)
 	const guiService = game:GetService("GuiService")
 	const selected = guiService.SelectedObject
