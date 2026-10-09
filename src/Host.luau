@@ -22,6 +22,10 @@ export type Hooks = {
 	rtl: Rtl.Reader?,
 	--- Called each time a gamepad does one of the acts above. It must not yield or throw.
 	padUsed: ((act: PadAct) -> ())?,
+	--- The priority a panel's B ("back") is bound at (`Focus`), for a game whose own binding of B
+	--- must sit above or below it. `Focus.PRIORITY` when left out. Say it before the first panel
+	--- opens: it is read when the first scope is pushed.
+	backPriority: number?,
 }
 
 const LEFT_TO_RIGHT: Rtl.Reader = Rtl.reader(function(): boolean
@@ -30,16 +34,24 @@ end)
 
 local reader: Rtl.Reader = LEFT_TO_RIGHT
 local counter: ((act: PadAct) -> ())? = nil
+local back: number? = nil
 
 --> Says who the game is. What is left out goes back to its default.
 function Host.set(hooks: Hooks)
 	reader = hooks.rtl or LEFT_TO_RIGHT
 	counter = hooks.padUsed
+	back = hooks.backPriority
 end
 
 --> The game's mirror; left to right until a game says otherwise.
 function Host.rtl(): Rtl.Reader
 	return reader
+end
+
+--> The priority a panel's "back" is bound at; nil until a game says one, and `Focus` binds at its
+--> own `PRIORITY` then.
+function Host.backPriority(): number?
+	return back
 end
 
 --> Tells the game a gamepad did `act`. A counter that throws costs its own count, never the press.

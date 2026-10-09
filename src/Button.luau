@@ -56,24 +56,29 @@ function Button.round(parent: Instance, theme: Theme.Theme, icon: string, option
 	-- button's own geometry would re-flow every sibling on every press.
 	const scale = Instance.new("UIScale")
 	scale.Parent = button
-	const tween = TweenInfo.new(Measure.SQUASH_SECONDS, Enum.EasingStyle.Quad)
-	const function to(target: number)
-		game:GetService("TweenService"):Create(scale, tween, { Scale = target }):Play()
-	end
+	-- The two tweens are made once: a button is pressed hundreds of times a session, and a fresh
+	-- Tween per press is garbage for nothing. Cancelling the other one first keeps a press that
+	-- interrupts a release (or the reverse) one smooth move.
+	const info = TweenInfo.new(Measure.SQUASH_SECONDS, Enum.EasingStyle.Quad)
+	const tweens = game:GetService("TweenService")
+	const down = tweens:Create(scale, info, { Scale = Measure.SQUASH })
+	const up = tweens:Create(scale, info, { Scale = 1 })
 	-- Down, not Activated: a tap is confirmed by the finger landing, and a button that waits for
 	-- the release is correct and feels broken. The sound rides the squash for the same reason.
 	button.MouseButton1Down:Connect(function()
-		to(Measure.SQUASH)
+		up:Cancel()
+		down:Play()
 		const press = theme.press
 		if press then
 			press()
 		end
 	end)
-	const function up()
-		to(1)
+	const function release()
+		down:Cancel()
+		up:Play()
 	end
-	button.MouseButton1Up:Connect(up)
-	button.MouseLeave:Connect(up)
+	button.MouseButton1Up:Connect(release)
+	button.MouseLeave:Connect(release)
 
 	button.Parent = parent
 	return button

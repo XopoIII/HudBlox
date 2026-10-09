@@ -43,11 +43,15 @@ type Scope = {
 	-- The control last in focus here and where it stood.
 	object: GuiObject?,
 	at: Vector2?,
+	-- The panel's GuiObject descendants, cached between the tree's changes; nil asks for a rescan.
+	objects: { GuiObject }?,
+	-- The tree watches that empty the cache. Disconnected when the scope pops.
+	watching: { RBXScriptConnection },
 }
 
 const ACTION = "FocusBack"
---- The priority B is bound at: `Enum.ContextActionPriority.High` and a hundred, above every other
---- binding of B a game makes.
+--- The priority B is bound at when the game says nothing else (`Host.set`'s `backPriority`):
+--- `Enum.ContextActionPriority.High` and a hundred, above every other binding of B a game makes.
 Focus.PRIORITY = 2100
 
 const stack: Stack.Stack<Scope> = { entries = {} }
@@ -69,6 +73,33 @@ const function inside(scope: Scope, object: GuiObject?): boolean
 	return object ~= nil and object.Selectable and shown(object, scope.root)
 end
 
+-- The panel's GuiObjects, cached: a repick re-reads where they stand and whether each is
+-- Selectable, not what the tree holds. An add or a remove empties the cache (the watches in
+-- `push`); a control that becomes Selectable with neither is seen at the next one.
+const function controlsOf(scope: Scope): { GuiObject }
+	const cached = scope.objects
+	if cached then
+		return cached
+	end
+	const scanned: { GuiObject } = {}
+	for _, child in scope.root:GetDescendants() do
+		if child:IsA("GuiObject") then
+			table.insert(scanned, child)
+		end
+	end
+	scope.objects = scanned
+	return scanned
+end
+
+-- Lets go of a scope that left the stack: its watches, and the controls it kept.
+const function unwatch(scope: Scope)
+	for _, connection in scope.watching do
+		connection:Disconnect()
+	end
+	table.clear(scope.watching)
+	scope.objects = nil
+end
+
 const function choose(scope: Scope): GuiObject?
 	if inside(scope, scope.object) then
 		return scope.object
@@ -78,12 +109,12 @@ const function choose(scope: Scope): GuiObject?
 	if inside(scope, wanted) then
 		return wanted
 	end
-	const objects: { GuiObject } = {}
+	const candidates: { GuiObject } = {}
 	const targets: { Pick.Target } = {}
-	for _, child in scope.root:GetDescendants() do
-		if child:IsA("GuiObject") and child.Selectable then
+	for _, child in controlsOf(scope) do
+		if child.Selectable then
 			const corner, size = child.AbsolutePosition, child.AbsoluteSize
-			table.insert(objects, child)
+			table.insert(candidates, child)
 			table.insert(targets, {
 				x = corner.X + size.X / 2,
 				y = corner.Y + size.Y / 2,
@@ -96,7 +127,7 @@ const function choose(scope: Scope): GuiObject?
 	const rtl = Host.rtl().active()
 	const at = scope.at
 	const index = if at then Pick.nearest(targets, at.X, at.Y, rtl) else Pick.first(targets, rtl)
-	return if index then objects[index] else nil
+	return if index then candidates[index] else nil
 end
 
 const function settle()
@@ -192,15 +223,27 @@ function Focus.push(name: string, root: GuiBase2d, options: Options?)
 	root.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
 	if Stack.size(stack) == 0 then
 		game:GetService("ContextActionService")
-			:BindActionAtPriority(ACTION, back, false, Focus.PRIORITY, Enum.KeyCode.ButtonB)
+			:BindActionAtPriority(ACTION, back, false, Host.backPriority() or Focus.PRIORITY, Enum.KeyCode.ButtonB)
 	end
-	Stack.push(stack, name, {
+	const scope: Scope = {
 		root = root,
 		back = if options then options.back else nil,
 		first = if options then options.first else nil,
 		object = nil,
 		at = nil,
-	})
+		objects = nil,
+		watching = {},
+	}
+	const function forget()
+		scope.objects = nil
+	end
+	table.insert(scope.watching, root.DescendantAdded:Connect(forget))
+	table.insert(scope.watching, root.DescendantRemoving:Connect(forget))
+	-- A name pushed again while it stands: the scope it stood with is let go of as a pop would.
+	const replaced = Stack.push(stack, name, scope)
+	if replaced then
+		unwatch(replaced)
+	end
 	TouchControls.set(`focus:{name}`, true)
 	if PadInput.active() then
 		Host.padUsed("Panel")
@@ -214,6 +257,7 @@ function Focus.pop(name: string)
 	if not scope then
 		return
 	end
+	unwatch(scope)
 	TouchControls.set(`focus:{name}`, false)
 	const guiService = game:GetService("GuiService")
 	const selected = guiService.SelectedObject

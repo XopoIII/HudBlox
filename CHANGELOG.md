@@ -5,6 +5,51 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.9.0 - 2026-10-09
+
+### Added
+
+- `Host.set`'s `backPriority`, and `Host.backPriority()` to read it: the priority a panel's B
+  ("back") is bound at, for a game whose own binding of B must sit above or below it.
+  `Focus.PRIORITY` (2100, as before) when left out; read when the first scope is pushed, so say
+  it before the first panel opens.
+- `Stack.push` hands back the value a name stood with before, or nil for a new name.
+- `TextMemo`: kept text measurements as plain data, with specs and mutants. It is `Pill`'s own and
+  is not part of the kit's table.
+
+### Changed
+
+- A focus scope keeps its list of the panel's controls and re-reads it when the tree changes (a
+  `DescendantAdded` or a `DescendantRemoving` under the panel), instead of walking every
+  descendant at every repick. Where each control stands, whether it is shown and whether it is
+  Selectable are still read at the pick. A scope lets go of its two watches and of its list when
+  it is popped, and when its name is pushed again while it stands.
+- `Pill.measure` keeps the text engine's answers by font, size and candidate strings, in any
+  order: a surface rebuilt whole (a respawn, a reopened dialog) asks nothing that was already
+  answered. Only a whole answer is kept: a pass in which the engine failed for any candidate, or
+  answered zero, is asked again next time. At most 256 answers are held; one more starts the memo
+  again. For a kept answer `done` is called before `measure` returns, as it already was whenever
+  the text engine did not yield.
+- `Button.round` makes its two squash tweens with the button and plays them again, instead of
+  making a Tween at every press and every release. The goals (`Measure.SQUASH` and 1), the time
+  and the easing are 0.7.0's, and a press still takes over from a release under way: the tween
+  given way to is cancelled and the other played, from where the scale stands.
+- `TopBar`'s holder-sizing connection is listed with the row's other connections and disconnected
+  by `destroy`. It died with the row before, as the row's Instances were destroyed.
+
+### Not done
+
+- The stack this release was written as (pull requests #8 to #11) also made `Pill.pinWidth` skip a
+  label with no parent, on the ground that writing to a destroyed label errors. It does not, and
+  the skip would have passed over a label pinned before it was parented once its answer was kept.
+  It is not in this release: `pinWidth` writes as 0.7.0 did.
+- The focus cache and its watches, the tweens and the row's connection are Instance code and are
+  not run by the suite. They are type-checked through `tests/consumer/Game.luau` and have not
+  been looked at in a game. What is proven is `Stack` and `TextMemo`. That a Tween played again
+  after it completed or was cancelled starts from where its property stands is Roblox's
+  documented behaviour and was not run here: press one round button several times to see it.
+- The demo place of pull request #12 is not in this release: no gate reads `demo/` yet.
+
 ## 0.8.0 - 2026-10-09
 
 ### Added
