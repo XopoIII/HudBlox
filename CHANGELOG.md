@@ -5,6 +5,19 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.9.2 - 2026-10-09
+
+### Changed
+
+- `Button.round` makes its two squash tweens once per button instead of a fresh Tween per press: a
+  button is pressed hundreds of times a session. A press that interrupts a release (or the reverse)
+  now cancels the other tween first, so it is one smooth move rather than two racing ones.
+
+### Not done
+
+- Instance code, not run by the suite: type-checked through `tests/consumer/Game.luau`, not looked
+  at in a game.
+
 ## 0.9.1 - 2026-10-09
 
 ### Fixed
