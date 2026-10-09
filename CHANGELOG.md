@@ -5,6 +5,26 @@ semantic versioning.
 
 ## Unreleased
 
+## 0.8.0 - 2026-10-09
+
+### Added
+
+- `Flight.send` returns a second value, `cancel`: it calls back the icons still in the air and
+  lands nothing, for where the reason for the reward goes away before it arrives (the shop it was
+  bought in closed, the player teleported).
+
+### Changed
+
+- However many rewards are in the air at once, one RenderStepped connection steps them all (was:
+  one per flight), and the icon frames come from a per-layer pool instead of a fresh
+  `Instance.new` each: a rain of rewards costs one connection and no new Instances. A pooled frame
+  is handed to `draw` emptied, and the flight owns its frames for the flight's duration, as before.
+
+### Not done
+
+- The driver and the pool build and reuse Instances and are not run by the suite: they are
+  type-checked through `tests/consumer/Game.luau`, and have not been looked at in a game.
+
 ## 0.7.0 - 2026-10-08
 
 ### Added
