@@ -19,10 +19,10 @@ jobs:
       - uses: CompeyDev/setup-rokit@v0.2.1
 
       - name: Format
-        run: stylua --check src tests
+        run: stylua --check src tests demo
 
       - name: Lint
-        run: selene src tests
+        run: selene src tests demo
 
       - name: Strict mode
         run: sh scripts/check-strict.sh
@@ -35,6 +35,9 @@ jobs:
 
       - name: Types
         run: sh scripts/type-check.sh
+
+      - name: Demo place
+        run: sh scripts/build-demo.sh
 
       - name: Package
         run: sh scripts/check-package.sh

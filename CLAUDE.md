@@ -93,8 +93,13 @@ that "looks right" is not a measurement.
 ## Distribution
 
 - **Package:** pesde only (`xopoiii/hudblox`, `pesde.toml` and `pesde.lock`).
-  `scripts/check-package.sh` checks that the built archive carries every file of `src/`.
+  `scripts/check-package.sh` checks that the built archive carries every file of `src/` and
+  nothing that is not the library's.
 - **Not shipped:** a Wally package, an `.rbxm`, roblox-ts typings.
+- **Not in the package:** `demo/`, a place that shows the kit (`demo/README.md`). It is example
+  code a game copies, so it is held to every gate `src/` is: when the API changes, the demo
+  changes with it, as `tests/consumer/Game.luau` does. `scripts/check-package.sh` fails if it
+  ever enters the archive.
 - **A release** carries one version in `pesde.toml`, `pesde.lock` and `README.md` (the status line
   and the two install lines), and its entry in `CHANGELOG.md`.
 
@@ -130,11 +135,12 @@ The version bump and the changelog entry are part of the pull request, not of th
 | `lefthook install` | Installs the git hooks |
 | `sh scripts/run-tests.sh` | Runs the suite on LuneBlox (`tests/Run.luau`) |
 | `luneblox run tests/Mutate --yes` | Mutation adequacy: every mutant must fail the suite (`-- Band` for one file) |
-| `sh scripts/type-check.sh` | `luau-lsp analyze` over `src` and `tests`, and the consumer under the old solver |
-| `selene src tests` | Lint |
-| `stylua --check src tests` | Format check (`stylua src tests` to fix) |
+| `sh scripts/type-check.sh` | `luau-lsp analyze` over `src` and `tests`, the consumer under the old solver, and `demo` through a rojo sourcemap under both |
+| `sh scripts/build-demo.sh` | Builds the demo place and reads it back against `src/` and `demo/` (`tests/DemoPlace.luau`) |
+| `selene src tests demo` | Lint |
+| `stylua --check src tests demo` | Format check (`stylua src tests demo` to fix) |
 | `sh scripts/check-strict.sh` | `--!strict` gate |
 | `sh scripts/check-file-size.sh` | 300-line gate |
 | `sh scripts/check-english.sh` | English-only gate |
-| `sh scripts/check-package.sh` | The pesde archive carries all of `src/` (`pesde publish --dry-run`) |
+| `sh scripts/check-package.sh` | The pesde archive carries all of `src/` and nothing of `demo/`, `tests/` or `scripts/` (`pesde publish --dry-run`) |
 | `lefthook run pre-commit --all-files` | Every pre-commit gate over the whole tree |

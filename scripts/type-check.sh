@@ -5,6 +5,10 @@
 # LuneBlox and sees both: the `@lune` typedefs through the .luaurc alias, and the Roblox definitions
 # for the types the library itself names.
 #
+# `demo/` runs in Roblox too, and reaches the kit as a game does: by its Instance, which only a
+# rojo sourcemap of the demo's project can tell luau-lsp is `src/`. So the sourcemap is built here,
+# and the demo is checked against the kit under both solvers, as a game's code would be.
+#
 # The Roblox definitions are downloaded once per luau-lsp pin and kept out of git; `luneblox setup`
 # writes the `@lune` typedefs that .luaurc aliases, so CI has them too.
 #
@@ -41,5 +45,27 @@ luau-lsp analyze --flag:LuauSolverV2=true --defs globalTypes.d.luau src tests
 # tests/consumer/Game.luau is a game's use of the whole public API and must be clean there too; the
 # library's own files are the new solver's business, so they are ignored in this run.
 luau-lsp analyze --flag:LuauSolverV2=false --defs globalTypes.d.luau --ignore "src/**" tests/consumer/Game.luau
+
+# The demo place. rojo writes a sourcemap's paths relative to the project file, and luau-lsp reads
+# them relative to where it runs, so both run in demo/.
+#
+# With a sourcemap luau-lsp says once that it cannot watch the file for changes ("[WARN] client does
+# not allow didChangeWatchedFiles registration"): true of every command-line run and nothing to
+# fix, so that one line is dropped and every other line is printed.
+DEMO_LOG="$(mktemp)"
+trap 'rm -f "$DEMO_LOG"' EXIT
+(cd demo && rojo sourcemap default.project.json --output sourcemap.json >/dev/null)
+
+analyze_demo() {
+	demo_status=0
+	(cd demo && luau-lsp analyze "$@" --sourcemap sourcemap.json --defs ../globalTypes.d.luau .) >"$DEMO_LOG" 2>&1 ||
+		demo_status=$?
+	grep -v 'didChangeWatchedFiles' "$DEMO_LOG" || true
+	return "$demo_status"
+}
+
+analyze_demo --flag:LuauSolverV2=true
+# The kit's own files are the new solver's business here too; the demo must read the same to both.
+analyze_demo --flag:LuauSolverV2=false --ignore "../src/**"
 
 echo "type-check: clean"
