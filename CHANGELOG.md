@@ -3,6 +3,16 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.10.1 - 2026-10-10
+
+A maintenance release. The package holds the same 50 files of `src/` as 0.10.0, byte for byte: a
+game that moves to it changes a version number.
+
+### Changed
+
+- The tools the repository checks itself with are the newest releases: LuneBlox 0.10.16, which runs
+  the specs and the mutants, and lefthook 2.2.1.
+
 ## 0.10.0 - 2026-10-10
 
 One press on a gamepad puts a thing of the open inventory in the hands. Until now A picked a slot up
