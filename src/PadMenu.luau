@@ -8,6 +8,7 @@
 --- Both stand down while any panel holds the focus (`Focus`): there the D-pad moves the selection.
 --- Each of the two entry buttons wears a small picture of its D-pad direction while the player is on
 --- a pad (`PadGlyph`).
+const Bindable = require("./Bindable")
 const Focus = require("./Focus")
 const Host = require("./Host")
 const PadGlyph = require("./PadGlyph")
@@ -48,6 +49,9 @@ function PadMenu.bind(config: Config)
 	end
 	cap(config.bag, Enum.KeyCode.DPadRight)
 	cap(config.first, Enum.KeyCode.DPadDown)
+	if not Bindable.here() then
+		return
+	end
 	game:GetService("ContextActionService")
 		:BindAction(
 			"PadMenu",

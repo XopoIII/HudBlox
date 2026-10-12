@@ -20,6 +20,7 @@
 --- engine's auto-selection off and begins to follow the selection; a game that never opens a panel
 --- through here keeps the engine's own behaviour. A game that wants the engine's auto-selection off
 --- from its first frame calls `start` as its client loads.
+const Bindable = require("./Bindable")
 const Host = require("./Host")
 const PadInput = require("./PadInput")
 const Pick = require("./Pick")
@@ -221,7 +222,7 @@ function Focus.push(name: string, root: GuiBase2d, options: Options?)
 	root.SelectionBehaviorDown = Enum.SelectionBehavior.Stop
 	root.SelectionBehaviorLeft = Enum.SelectionBehavior.Stop
 	root.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
-	if Stack.size(stack) == 0 then
+	if Stack.size(stack) == 0 and Bindable.here() then
 		game:GetService("ContextActionService")
 			:BindActionAtPriority(ACTION, back, false, Host.backPriority() or Focus.PRIORITY, Enum.KeyCode.ButtonB)
 	end

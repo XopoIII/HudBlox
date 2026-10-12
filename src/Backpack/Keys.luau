@@ -4,6 +4,8 @@
 ---
 --- Bound through ContextActionService, which stays quiet while a text box (the chat, the backpack's
 --- own search) has the keyboard.
+const Bindable = require("../Bindable")
+
 const Keys = {}
 
 const SLOT_KEYS: { [Enum.KeyCode]: number } = {
@@ -28,6 +30,9 @@ export type Hooks = {
 
 --> Binds the three actions for the session.
 function Keys.bind(hooks: Hooks)
+	if not Bindable.here() then
+		return
+	end
 	const codes: { Enum.KeyCode } = {}
 	for code in SLOT_KEYS do
 		table.insert(codes, code)
