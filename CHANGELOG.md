@@ -3,6 +3,43 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.10.2 - 2026-10-12
+
+A dialog, a top bar's menu and a backpack can be built and opened on a server. Until now the first
+dialog opened there raised `ContextActionService:BindAction can only be called from a local
+script`, so a game could not open one in a suite of its own that runs on a server: an Open Cloud
+task, or a spec under `ServerScriptService`.
+
+On a client nothing changes: every action is bound when it was, at the priority it was.
+
+### Fixed
+
+- **`Focus.push` on a server** no longer raises. It bound B ("back") through
+  `ContextActionService`, which the engine allows from a client only. Everything else a pushed
+  scope does there was already taken by the engine: the selection group, the selection it follows,
+  the world's prompts, the touch controls.
+- So **`Dialog`'s `setOpen` and `toggle`** work on a server: the panel is placed, shown, counted in
+  `ModalsOpen` and closed again, and `changed` fires. Only B is missing, as there is no pad.
+- **`PadMenu.bind`**, **the backpack's keys** (`Backpack.mount`: 1 to 0, the backquote, the
+  bumpers) and **its Y button** bind nothing on a server, for the same reason. They build what
+  they built.
+
+### Added
+
+- `src/Bindable.luau`, internal like `TextMemo` and `FlightBook` and not in the kit's table: the
+  one place that asks whether an action can be bound (`RunService:IsClient()`).
+
+### Not done
+
+- This is Instance code, and the suite here does not run it: there is no spec and no mutant for
+  it. It is type-checked under both solvers. What was run is a game's own suite, on a server
+  through Open Cloud, with these four files in place of 0.10.1's: it opened a dialog, closed it by
+  `setOpen(false)`, opened it again and read `ModalsOpen` at each step. With 0.10.1 the same suite
+  raised on the first opening.
+- `PadMenu.bind` and `Backpack.mount` were not run on a server at all. Their guard is the same
+  line; whether the rest of a backpack is built there without a player has not been looked at.
+- A client was not looked at again. The change there is one call that answers true.
+
 ## 0.10.1 - 2026-10-10
 
 A maintenance release. The package holds the same 50 files of `src/` as 0.10.0, byte for byte: a

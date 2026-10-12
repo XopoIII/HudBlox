@@ -22,6 +22,7 @@
 --- priority does not fire while the inventory holds the focus; one that reads raw `InputBegan`
 --- still hears the press, and asks `Focus.open()` first.
 const Bar = require("./Bar")
+const Bindable = require("../Bindable")
 const Focus = require("../Focus")
 const Gesture = require("./Gesture")
 const Hands = require("./Hands")
@@ -132,7 +133,7 @@ function Pad.new(hooks: Hooks): Pad
 		end
 		Focus.push(SCOPE, hooks.gui, { back = hooks.close, first = first })
 		pressed = game:GetService("UserInputService").InputBegan:Connect(press)
-		if button then
+		if button and Bindable.here() then
 			game:GetService("ContextActionService")
 				:BindActionAtPriority(ACTION, hands, false, Host.backPriority() or Focus.PRIORITY, button)
 		end
