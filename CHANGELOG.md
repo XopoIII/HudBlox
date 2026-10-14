@@ -3,6 +3,38 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.10.3 - 2026-10-14
+
+The top row's wrap warning speaks only for a wrap that stays, and once a row. Until now it fired on
+every change of the row's size while the row was taller than one capsule. On a phone a
+landscape-only game draws its first frames at portrait widths, before the engine turns the screen,
+and so the row warned for a moment that nobody saw, and again on every resize. The message carries
+the sizes, so each one was a row of its own in an error report, and a wrap that stays was buried
+among them.
+
+### Fixed
+
+- **`TopBar.mount`** warns only when the row is still wrapped one second after it wrapped. A wrap
+  that ends sooner says nothing; a wrap that ends and comes back is timed from its return. The
+  warning names the settle period.
+- **Once a mounted row.** After its warning a row says nothing more for any later wrap; a row
+  mounted again after `destroy` may warn again. `destroy` silences a check still waiting.
+
+### Added
+
+- `src/Wrap.luau`, internal like `FlightBook` and not in the kit's table: what a wrap is (taller
+  than one capsule by more than a pixel of rounding, moved here from `TopBar`) and when it is
+  reported, as plain data over a delay the caller hands in (`task.delay` in a game). 9 specs and 11
+  mutants.
+
+### Not done
+
+- `TopBar`'s wiring (the size signal, `task.delay`, the message) is Instance code and the suite
+  does not run it. It is type-checked under both solvers. It was not looked at in a game: neither
+  the quiet startup on a phone nor a wrap that stays.
+- One second is chosen, not measured: how long the screen's turn at startup takes on the slowest
+  phone has not been read.
+
 ## 0.10.2 - 2026-10-12
 
 A dialog, a top bar's menu and a backpack can be built and opened on a server. Until now the first

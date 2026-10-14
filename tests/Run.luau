@@ -2,7 +2,7 @@
 --- The suite: every spec file, in order. A spec file runs its specs as it loads.
 ---
 --- Only what needs no Roblox runs here: the arithmetic (`Layout`, `Clearance`, `Band`,
---- `DialogGeometry`, `Pick`, `Stack`), a badge's count, the backpack's order, taps, presses and a gamepad's "in the hands" button, and the hotbar's cover.
+--- `DialogGeometry`, `Pick`, `Stack`), a badge's count, the backpack's order, taps, presses and a gamepad's "in the hands" button, the hotbar's cover, and when the top row's wrap is reported.
 --- The modules that build Instances are type-checked against the Roblox API
 --- (`tests/consumer/` uses all of them) and are not run by this suite.
 ---
@@ -28,5 +28,6 @@ require("./unit/Tabs")
 require("./unit/Flight")
 require("./unit/FlightBook")
 require("./unit/TextMemo")
+require("./unit/Wrap")
 
 Spec.finish()
