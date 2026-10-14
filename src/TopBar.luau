@@ -10,8 +10,8 @@
 --- THE FAILURE MODE IS NOT A CLIPPED CAPSULE. IT IS A SECOND LINE, WHERE NOBODY WILL SEE IT. The
 --- row is right-anchored, so a width that is too small shows as neither a gap nor a clip: it only
 --- decides where wrapping begins. Once a wrapped line landed exactly behind an icon column; once the
---- first line was drawn off the top of the screen. So `mount` WARNS when the row grows past one
---- capsule's height, and `Layout.fits` answers the question ahead of time for a worst case.
+--- first line was drawn off the top of the screen. So `mount` WARNS when the row stays taller than
+--- one capsule (`Wrap`), and `Layout.fits` answers the question ahead of time for a worst case.
 ---
 --- When the row runs short, add a segment to a capsule rather than another capsule: a segment costs
 --- `Measure.SEGMENT_GAP`, a capsule costs both paddings and `Measure.GAP`.
@@ -21,6 +21,7 @@ const Measure = require("./Measure")
 const Pill = require("./Pill")
 const SafeArea = require("./SafeArea")
 const Theme = require("./Theme")
+const Wrap = require("./Wrap")
 
 const TopBar = {}
 
@@ -83,18 +84,23 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 	const unbind = SafeArea.bind(gui, fit)
 	table.insert(connections, game:GetService("GuiService"):GetPropertyChangedSignal("TopbarInset"):Connect(fit))
 
-	-- The engine knows the instant the row wraps: a second line makes it taller. 1 for rounding.
-	-- A warning, not an error: a wrapped row is still a running game, and somebody must find out.
+	-- The engine knows the instant the row wraps: a second line makes it taller. A warning, not an
+	-- error: a wrapped row is still a running game, and somebody must find out. Only a wrap that
+	-- stays is reported, and once (`Wrap`): the screen's turn at startup wraps a row for a moment.
+	const wrap = Wrap.watch(function(seconds: number, run: () -> ())
+		task.delay(seconds, run)
+	end, function()
+		warn(
+			`[HudBlox] the top row WRAPPED: {row.AbsoluteSize.Y} px tall against one capsule's `
+				.. `{Measure.HEIGHT}, row {row.AbsoluteSize.X} px on a {gui.AbsoluteSize.X} px screen, `
+				.. `still after {Wrap.SETTLE_S} s. `
+				.. "A wrapped line is drawn where nobody looks; fold a capsule into a segment."
+		)
+	end)
 	table.insert(
 		connections,
 		row:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-			if row.AbsoluteSize.Y > Measure.HEIGHT + 1 then
-				warn(
-					`[HudBlox] the top row WRAPPED: {row.AbsoluteSize.Y} px tall against one capsule's `
-						.. `{Measure.HEIGHT}, row {row.AbsoluteSize.X} px on a {gui.AbsoluteSize.X} px screen. `
-						.. "A wrapped line is drawn where nobody looks; fold a capsule into a segment."
-				)
-			end
+			wrap.seen(row.AbsoluteSize.Y)
 		end)
 	)
 
@@ -150,6 +156,7 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 	end
 
 	const function destroy()
+		wrap.stop()
 		unbind()
 		for _, connection in connections do
 			connection:Disconnect()
