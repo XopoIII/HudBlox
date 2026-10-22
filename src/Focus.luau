@@ -281,4 +281,10 @@ function Focus.open(): boolean
 	return Stack.size(stack) > 0
 end
 
+--> Whether `object` stands in the panel that holds the pad now: a tab strip's bumpers (`Tabs`).
+function Focus.within(object: Instance): boolean
+	const top = Stack.top(stack)
+	return top ~= nil and object:IsDescendantOf(top.value.root)
+end
+
 return Focus

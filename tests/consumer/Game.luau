@@ -76,7 +76,10 @@ const tabOptions: HudBlox.TabsOptions = {
 	width = HudBlox.TabFit.width(712, 2, HudBlox.TabFit.GAP, HudBlox.TabFit.WIDTH),
 	gap = HudBlox.TabFit.GAP,
 	text = HudBlox.TabFit.TEXT,
+	bumpers = true,
 }
+const _next: number = HudBlox.TabFit.step(#tabEntries, 1, 1)
+const _tabsCap: number = HudBlox.Tabs.CAP
 const tabs: HudBlox.TabsHandle = HudBlox.Tabs.mount(gui, tabEntries, tabOptions)
 tabs.frame.Position = UDim2.fromOffset(0, HudBlox.TabFit.NARROWEST)
 if tabs.pick("pets") and tabs.on() == "pets" then
@@ -193,9 +196,16 @@ const dialogOptions: HudBlox.DialogOptions = {
 }
 const shopDialog: HudBlox.DialogHandle = HudBlox.Dialog.new(playerGui, "Shop", "Shop", 620, 600, dialogOptions)
 const plain: HudBlox.DialogHandle = HudBlox.Dialog.new(playerGui, "Help", "Help", 460, 330)
-HudBlox.Native.button(shopDialog.footer, "Buy").Activated:Connect(function()
+const buyButton = HudBlox.Native.button(shopDialog.footer, "Buy")
+buyButton.Activated:Connect(function()
 	shopDialog.toggle()
 end)
+-- A accepts with Buy on a pad, and the pad's focus starts there
+shopDialog.primary(buyButton)
+plain.primary(nil)
+const _inShop: boolean = HudBlox.Focus.within(buyButton)
+const _corner: ImageLabel = HudBlox.PadGlyph.corner(buyButton, Enum.KeyCode.ButtonA, HudBlox.Dialog.CAP)
+const _inset: number = HudBlox.PadGlyph.INSET
 shopDialog.changed.Event:Connect(function(_open: boolean) end)
 shopDialog.setOpen(true)
 plain.setOpen(false)

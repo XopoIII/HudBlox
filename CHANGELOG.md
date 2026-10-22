@@ -3,6 +3,35 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.11.0 - 2026-10-22
+
+A dialog says on a gamepad what its keys do, and a strip of tabs turns on the bumpers. A game's
+owner, trying a dialog with a pad, could not tell what to press: the focus stood on the body's first
+control, nothing showed that B closes, and the tabs could only be reached by walking the ring up to
+them.
+
+### Added
+
+- **`dialog.primary(button)`** names the button A accepts with: the pad's focus starts on it each
+  time the dialog opens, and it wears A's picture. Nil takes the name off.
+- **The dialog's X wears B's picture** on a pad.
+- **`Tabs.mount`'s bumpers** (`Options.bumpers`, true when left out): while the panel the strip
+  stands in holds the pad (`Focus`), the left bumper turns it a tab to the left and the right one a
+  tab to the right, the left one always leftward in a strip read from the right; the end tabs wear
+  the bumpers' pictures. One binding serves every strip, and a bumper goes to the strip drawn in the
+  panel on top. `Tabs.ACTION`, `Tabs.CAP`.
+- **`TabFit.step(count, on, by)`**: the place a bumper takes a strip to, kept within its ends. 1
+  spec and 2 mutants.
+- **`Focus.within(object)`**: whether a control stands in the panel that holds the pad.
+- **`PadGlyph.corner(parent, code, size)`**: a cap pinned on a control's lower right corner,
+  `PadGlyph.INSET` in from it.
+
+### Not done
+
+- The bumpers' binding, the pictures and a dialog's first focus on its primary build Instances and
+  read the engine's input, so they are not run by the suite; checked against the Roblox API by the
+  type gate under both solvers, and in a game in Studio.
+
 ## 0.10.3 - 2026-10-14
 
 The top row's wrap warning speaks only for a wrap that stays, and once a row. Until now it fired on
