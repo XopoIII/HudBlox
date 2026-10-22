@@ -57,6 +57,8 @@ swung the camera behind a list, and the top row's ring was cut off):
   edges the white; a D-pad's way is a white disc with a black arrow. **`PadGlyph.shape`** says
   which a key has: 2 specs and 3 mutants. **`Ring.fit`** rounds the ring as the control in focus
   is rounded, at the scale it is drawn at.
+- **The specs run on LuneBlox 0.11.0**, which gives them Roblox's `Enum`: `PadChord.find` is
+  checked with `Enum.KeyCode` values as a game calls it. 2 specs and 2 mutants.
 
 ### Changed
 

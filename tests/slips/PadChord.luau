@@ -19,6 +19,18 @@ const MUTANTS = {
 		to = "if true then",
 		breaks = "a key the chord has not means nothing",
 	},
+	{
+		file = "src/PadChord.luau",
+		from = "live = not chord.live or chord.live() })",
+		to = "live = true })",
+		breaks = "find: a chord not live means nothing",
+	},
+	{
+		file = "src/PadChord.luau",
+		from = "return if i and j then chords[i].keys[j] else nil",
+		to = "return chords[1].keys[1]",
+		breaks = "find: the entry is the held bumper's key's",
+	},
 }
 
 return MUTANTS
