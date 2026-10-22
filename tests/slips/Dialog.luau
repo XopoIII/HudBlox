@@ -153,6 +153,24 @@ const MUTANTS: { { file: string, from: string, to: string, breaks: string } } = 
 		to = "DialogGeometry.STRIP_CLEAR_MIN = 400",
 		breaks = "the height that spares the strip is as measured",
 	},
+	{
+		file = "src/DialogGeometry.luau",
+		from = "const s = if scale > 0 then scale else 1",
+		to = "const s = scale",
+		breaks = "a scale not read lays the panel out as on a computer",
+	},
+	{
+		file = "src/DialogGeometry.luau",
+		from = "top = math.floor(frame.top * s),",
+		to = "top = frame.top,",
+		breaks = "at Roblox's scale the panel's top is in pixels",
+	},
+	{
+		file = "src/DialogGeometry.luau",
+		from = "{ band = bottom.band / s, room = bottom.room / s }",
+		to = "{ band = bottom.band, room = bottom.room }",
+		breaks = "the band is read in the panel's points",
+	},
 }
 
 return MUTANTS

@@ -46,12 +46,15 @@ end
 
 -- the stick's tilt across and up, while a panel holds the pad
 local stickX, stickY = 0, 0
-local beat: RBXScriptConnection? = nil
+local pulse: RBXScriptConnection? = nil
+
+--- How often a second `start`'s `beat` is called while a panel holds the pad.
+PadScroll.BEATS = 5
 
 --> Takes the right stick and the triggers at `priority`, the stick scrolling the list in the root
---> `current` names, nil for none.
-function PadScroll.start(priority: number, current: () -> GuiBase2d?)
-	if beat or not Bindable.here() then
+--> `current` names, nil for none; `beat`, the panel's own, is called `BEATS` times a second meanwhile.
+function PadScroll.start(priority: number, current: () -> GuiBase2d?, beat: (() -> ())?)
+	if pulse or not Bindable.here() then
 		return
 	end
 	stickX, stickY = 0, 0
@@ -71,7 +74,13 @@ function PadScroll.start(priority: number, current: () -> GuiBase2d?)
 		Enum.KeyCode.ButtonL2,
 		Enum.KeyCode.ButtonR2
 	)
-	beat = game:GetService("RunService").Heartbeat:Connect(function(dt: number)
+	local since = 0
+	pulse = game:GetService("RunService").Heartbeat:Connect(function(dt: number)
+		since += dt
+		if beat and since >= 1 / PadScroll.BEATS then
+			since = 0
+			beat()
+		end
 		const root = current()
 		const list = if root and (stickX ~= 0 or stickY ~= 0) then listIn(root) else nil
 		if not list then
@@ -89,11 +98,11 @@ end
 
 --> Gives the right stick and the triggers back.
 function PadScroll.stop()
-	if not beat then
+	if not pulse then
 		return
 	end
-	beat:Disconnect()
-	beat = nil
+	pulse:Disconnect()
+	pulse = nil
 	stickX, stickY = 0, 0
 	game:GetService("ContextActionService"):UnbindAction(PadScroll.ACTION)
 end

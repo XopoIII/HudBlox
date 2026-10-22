@@ -50,6 +50,9 @@ swung the camera behind a list, and the top row's ring was cut off):
 - **`PadPage.tile(frame, keys)`**: a tile walked whole whose buttons each say their key while the
   ring stands on it (A wears or buys with stars, X buys with Robux), the first of a key whose button
   is shown pressing; **`PadPage.whole`** is a tile of one A, and now says it on its button.
+- **Dialogs at Roblox's scale**: **`DialogGeometry.scaled`** lays a panel out in points of the
+  bar's scale and `Dialog` draws it at that scale, half again as large on a television and still
+  on the screen. 2 specs and 3 mutants. **`SafeArea.follow`** takes a card drawn by hand too.
 
 ### Changed
 

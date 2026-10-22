@@ -61,16 +61,7 @@ const stack: Stack.Stack<Scope> = { entries = {} }
 local ringed = false
 local started = false
 
-const function shown(object: GuiObject, root: GuiBase2d): boolean
-	local at: Instance? = object
-	while at and at ~= root do
-		if at:IsA("GuiObject") and not at.Visible then
-			return false
-		end
-		at = at.Parent
-	end
-	return at == root
-end
+const shown = Steer.shown
 
 const function inside(scope: Scope, object: GuiObject?): boolean
 	return object ~= nil and object.Selectable and shown(object, scope.root)
@@ -192,9 +183,7 @@ function Focus.start()
 		if selected and inside(scope, selected) then
 			scope.object = selected
 			scope.at = selected.AbsolutePosition + selected.AbsoluteSize / 2
-			Steer.aim(selected, controlsOf(scope), function(control: GuiObject): boolean
-				return shown(control, scope.root)
-			end, Host.rtl().active())
+			Steer.aim(selected, scope.root, controlsOf(scope), Host.rtl().active())
 		else
 			queue()
 		end
@@ -233,6 +222,11 @@ function Focus.push(name: string, root: GuiBase2d, options: Options?)
 		PadScroll.start(Host.backPriority() or Focus.PRIORITY, function(): GuiBase2d?
 			const top = Stack.top(stack)
 			return if top then top.value.root else nil
+		end, function()
+			const top, selected = Stack.top(stack), game:GetService("GuiService").SelectedObject
+			if top and selected and inside(top.value, selected) then
+				Steer.aim(selected, top.value.root, controlsOf(top.value), Host.rtl().active())
+			end
 		end)
 	end
 	const scope: Scope = {

@@ -42,9 +42,11 @@ end
 
 --> Draws `gui`, and all that is in it, at Roblox's scale of its bar from now on: a UIScale named
 --> `ChromeScale`, made the first time the scale is not 1 and kept to it as the bar changes. For what
---> stands beside the bar and should match it, a column of round buttons down the screen's edge.
---> Returns the function that stops it.
-function SafeArea.follow(gui: LayerCollector): () -> ()
+--> stands beside the bar and should match it: a column of round buttons down the screen's edge (a
+--> whole ScreenGui), or a card drawn by hand over the middle of the screen (the card itself, which
+--> grows round its anchor; a UIScale on its ScreenGui would move it off the middle). Returns the
+--> function that stops it.
+function SafeArea.follow(gui: GuiBase2d): () -> ()
 	const function apply()
 		const scale = SafeArea.chromeScale()
 		local made = gui:FindFirstChild("ChromeScale")

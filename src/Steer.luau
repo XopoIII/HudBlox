@@ -5,7 +5,9 @@
 --- column of a grid whose last row has one card); this one goes to the nearest beside the line.
 ---
 --- A way the game wrote on a control itself is kept: only the ways written here are written again,
---- and a way with nothing that way leads to the control itself, so the ring stays.
+--- and a way with nothing that way leads to the control itself, so the ring stays. `Focus` writes
+--- them as the ring moves and again a few times a second while a panel holds the pad, so a strip
+--- of buttons shown under the ring is reached the way it stands.
 const Pick = require("./Pick")
 
 const Steer = {}
@@ -18,6 +20,18 @@ const WAYS: { { way: Way, dx: number, dy: number } } = {
 	{ way = "left", dx = -1, dy = 0 },
 	{ way = "right", dx = 1, dy = 0 },
 }
+
+--> Whether `object` is drawn in the panel `root`: it and everything between them visible.
+function Steer.shown(object: GuiObject, root: GuiBase2d): boolean
+	local at: Instance? = object
+	while at and at ~= root do
+		if at:IsA("GuiObject") and not at.Visible then
+			return false
+		end
+		at = at.Parent
+	end
+	return at == root
+end
 
 --- The attribute a control keeps the ways written here in, as their initials ("udlr"): what a game
 --- wrote itself is never among them.
@@ -44,9 +58,9 @@ const function put(object: GuiObject, way: Way, to: GuiObject)
 	end
 end
 
---> Writes on `object`, the control in focus, where each way goes among `controls`, those `usable`
---> (shown in the panel and selectable) counted, in a locale read from the right when `rtl`.
-function Steer.aim(object: GuiObject, controls: { GuiObject }, usable: (GuiObject) -> boolean, rtl: boolean)
+--> Writes on `object`, the control in focus, where each way goes among `controls`, those selectable
+--> and shown in the panel `root` counted, in a locale read from the right when `rtl`.
+function Steer.aim(object: GuiObject, root: GuiBase2d, controls: { GuiObject }, rtl: boolean)
 	const candidates: { GuiObject } = {}
 	const targets: { Pick.Target } = {}
 	for _, control in controls do
@@ -57,7 +71,7 @@ function Steer.aim(object: GuiObject, controls: { GuiObject }, usable: (GuiObjec
 				x = corner.X + size.X / 2,
 				y = corner.Y + size.Y / 2,
 				order = 0,
-				shown = size.X > 0 and usable(control),
+				shown = size.X > 0 and Steer.shown(control, root),
 				selectable = true,
 			})
 		end

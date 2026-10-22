@@ -122,4 +122,28 @@ function DialogGeometry.layout(
 	}
 end
 
+--> `layout` at Roblox's scale `scale` of its bar (`SafeArea.chromeScale`), the screen, the strip and
+--> the band in pixels: the panel laid out in points `scale` pixels each, so drawn at that scale it
+--> is as much larger as Roblox's own bar and still fits. Its size in points, its top in pixels. A
+--> scale that is not above 0 is 1.
+function DialogGeometry.scaled(
+	width: number,
+	height: number,
+	strip: number,
+	maxW: number,
+	maxH: number,
+	bottom: Bottom?,
+	scale: number
+): Frame
+	const s = if scale > 0 then scale else 1
+	const band: Bottom? = if bottom then { band = bottom.band / s, room = bottom.room / s } else nil
+	const frame = DialogGeometry.layout(width / s, height / s, strip / s, maxW, maxH, band)
+	return {
+		width = frame.width,
+		height = frame.height,
+		top = math.floor(frame.top * s),
+		clearsBottom = frame.clearsBottom,
+	}
+end
+
 return DialogGeometry
