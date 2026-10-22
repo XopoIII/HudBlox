@@ -6,7 +6,11 @@
   "lintErrors": true,
   "typeErrors": true,
   "aliases": {
-    "lune": "~/.luneblox/.typedefs/0.10.16/",
+    "lune": "~/.luneblox/.typedefs/0.11.0/",
     "hudblox": "./src"
-  }
+  },
+  "globals": [
+    "Enum",
+    "warn"
+  ]
 }

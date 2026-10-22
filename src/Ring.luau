@@ -4,12 +4,17 @@
 ---
 --- Two shapes: the button's rounded rectangle, which every control under a PlayerGui gets through
 --- `PlayerGui.SelectionImageObject`, and a circle for round buttons, which name it themselves.
+const PadGlyph = require("./PadGlyph")
+
 const Ring = {}
 
 --- The outline's width in pixels.
 Ring.THICKNESS = 3
 --- The rectangle's corner: `Native.BUTTON_CORNER`, written out, because `Native` requires this module.
 Ring.CORNER = 8
+--- The size of A's picture on a control the ring stands on, in pixels, and its name.
+Ring.CAP = 20
+Ring.SAY = "PadSay"
 
 local square: Frame? = nil
 local round: Frame? = nil
@@ -71,9 +76,38 @@ function Ring.fit(object: GuiObject)
 	ring.CornerRadius = UDim.new(radius.Scale, radius.Offset * drawn)
 end
 
---> Every control under `playerGui` wears the square ring unless it names its own.
+-- A's picture, moved to the control the ring stands on
+local said: Frame? = nil
+
+--> Puts A's picture on `object`, the control the ring stands on, so a player sees at once that A
+--> presses it, the same on every control of every panel; none on a control that says a key of
+--> its own (a dialog's X wears B, a tile's buttons their keys, a view's button its way), and none
+--> once the ring has left. Nil takes it off.
+function Ring.say(object: GuiObject?)
+	if said then
+		said.Parent = nil
+	end
+	if not object or object:FindFirstChild("PadCap") or object.Name == "Whole" then
+		return
+	end
+	if not said then
+		const cap = PadGlyph.corner(object, Enum.KeyCode.ButtonA, Ring.CAP)
+		cap.Name = Ring.SAY
+		said = cap
+	end
+	const cap = said :: Frame
+	cap.ZIndex = object.ZIndex + 10
+	cap.Parent = object
+end
+
+--> Every control under `playerGui` wears the square ring unless it names its own, and A's picture
+--> while the ring is on it (`say`).
 function Ring.install(playerGui: PlayerGui)
 	playerGui.SelectionImageObject = Ring.square()
+	const guiService = game:GetService("GuiService")
+	guiService:GetPropertyChangedSignal("SelectedObject"):Connect(function()
+		Ring.say(guiService.SelectedObject)
+	end)
 end
 
 return Ring

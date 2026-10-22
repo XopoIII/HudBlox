@@ -185,6 +185,7 @@ function Focus.start()
 			scope.at = selected.AbsolutePosition + selected.AbsoluteSize / 2
 			Steer.aim(selected, scope.root, controlsOf(scope), Host.rtl().active())
 			Ring.fit(selected)
+			PadScroll.reveal(selected)
 		else
 			queue()
 		end

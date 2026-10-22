@@ -40,6 +40,24 @@ const MUTANTS = {
 	},
 	{
 		file = "src/PadScroll.luau",
+		from = "if top - margin < 0 then",
+		to = "if top < 0 then",
+		breaks = "a control is shown with its margin above it",
+	},
+	{
+		file = "src/PadScroll.luau",
+		from = "want = at + math.min(bottom + margin - window, top - margin)",
+		to = "want = at + bottom + margin - window",
+		breaks = "a control taller than the window shows its start",
+	},
+	{
+		file = "src/PadScroll.luau",
+		from = "return math.clamp(want, 0, math.max(most, 0))",
+		to = "return want",
+		breaks = "the canvas stays between its start and its end",
+	},
+	{
+		file = "src/PadScroll.luau",
 		from = "if size <= PadScroll.DEAD then",
 		to = "if size < 0 then",
 		breaks = "a stick inside the dead zone scrolls nothing",
