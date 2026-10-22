@@ -13,11 +13,67 @@
 ---
 --- What stands under a tab is the game's: `picked` is told the key and shows what it will. The
 --- sizes and the sharing rule are `TabFit`'s.
+---
+--- On a gamepad the bumpers turn the strip a tab left or right while the panel it stands in holds
+--- the pad (`Focus`), the left bumper always to the left, and the two end tabs wear the bumpers'
+--- pictures (`PadGlyph`). A strip that should not answer them says `bumpers = false`.
+const Bindable = require("./Bindable")
+const Focus = require("./Focus")
 const Host = require("./Host")
 const Native = require("./Native")
+const PadGlyph = require("./PadGlyph")
 const TabFit = require("./TabFit")
 
 const Tabs = {}
+
+--- The bumpers' action, and the size of their pictures on the end tabs, in pixels.
+Tabs.ACTION = "TabsBumpers"
+Tabs.CAP = 18
+
+-- every strip that answers the bumpers, and how it steps
+const strips: { [Frame]: (by: number) -> () } = {}
+local bound = false
+
+-- Whether `object` is drawn: it and everything over it visible, in a gui that is on.
+const function drawn(object: GuiObject): boolean
+	local at: Instance? = object
+	while at do
+		if at:IsA("GuiObject") and not at.Visible then
+			return false
+		elseif at:IsA("LayerCollector") then
+			return at.Enabled
+		end
+		at = at.Parent
+	end
+	return false
+end
+
+-- One binding for every strip: a bumper goes to the strip drawn in the panel that holds the pad.
+const function bind()
+	if bound or not Bindable.here() then
+		return
+	end
+	bound = true
+	game:GetService("ContextActionService"):BindActionAtPriority(
+		Tabs.ACTION,
+		function(_: string, state: Enum.UserInputState, input: InputObject): Enum.ContextActionResult
+			if state ~= Enum.UserInputState.Begin then
+				return Enum.ContextActionResult.Pass
+			end
+			for frame, step in strips do
+				if Focus.within(frame) and drawn(frame) then
+					step(if input.KeyCode == Enum.KeyCode.ButtonL1 then -1 else 1)
+					return Enum.ContextActionResult.Sink
+				end
+			end
+			return Enum.ContextActionResult.Pass
+		end,
+		false,
+		Focus.PRIORITY,
+		Enum.KeyCode.ButtonL1,
+		Enum.KeyCode.ButtonR1
+	)
+end
 
 export type Entry = {
 	--- What `picked` is told, and the tab's name in the tree.
@@ -34,6 +90,9 @@ export type Options = {
 	first: string?,
 	--- The strip's name in the tree. "Tabs" when left out.
 	name: string?,
+	--- Whether a gamepad's bumpers turn the strip, with their pictures on its end tabs. True when
+	--- left out.
+	bumpers: boolean?,
 	--- A tab's height, widest width, the gap between two and the size of its word; `TabFit`'s
 	--- when left out.
 	height: number?,
@@ -132,6 +191,32 @@ function Tabs.mount(parent: Instance, entries: { Entry }, options: Options?): Ha
 	end)
 	if frame.AbsoluteSize.X > 0 then
 		fit()
+	end
+
+	if #entries > 1 and not (options and options.bumpers == false) then
+		-- the left bumper goes left: back in reading order, on in a strip read from the right
+		const ahead = if reader.active() then -1 else 1
+		strips[frame] = function(by: number)
+			local place = 1
+			for i, entry in entries do
+				if entry.key == on then
+					place = i
+				end
+			end
+			pick(entries[TabFit.step(#entries, place, by * ahead)].key)
+		end
+		frame.Destroying:Connect(function()
+			strips[frame] = nil
+		end)
+		const left = if reader.active() then entries[#entries] else entries[1]
+		const right = if reader.active() then entries[1] else entries[#entries]
+		const lb = PadGlyph.cap(buttons[left.key], Enum.KeyCode.ButtonL1, Tabs.CAP)
+		lb.AnchorPoint = Vector2.new(0.5, 0.5)
+		lb.Position = UDim2.fromOffset(4, 4)
+		const rb = PadGlyph.cap(buttons[right.key], Enum.KeyCode.ButtonR1, Tabs.CAP)
+		rb.AnchorPoint = Vector2.new(0.5, 0.5)
+		rb.Position = UDim2.new(1, -4, 0, 4)
+		bind()
 	end
 
 	return {

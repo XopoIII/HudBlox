@@ -35,4 +35,13 @@ Spec.test("no tabs ask for nothing: the widest", function()
 	Spec.equal(TabFit.width(712, 0, 8, 150), 150, "none")
 end)
 
+Spec.test("a bumper steps one tab on, and stops at either end", function()
+	Spec.equal(TabFit.step(3, 1, 1), 2, "the right bumper from the first")
+	Spec.equal(TabFit.step(3, 2, -1), 1, "the left bumper back to the first")
+	Spec.equal(TabFit.step(3, 3, 1), 3, "past the last: it stays")
+	Spec.equal(TabFit.step(3, 1, -1), 1, "before the first: it stays")
+	Spec.equal(TabFit.step(1, 1, 1), 1, "one tab: nowhere to go")
+	Spec.equal(TabFit.step(0, 1, 1), 1, "no tabs: where it was")
+end)
+
 return nil

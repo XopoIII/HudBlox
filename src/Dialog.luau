@@ -3,8 +3,10 @@
 --- body to fill and a footer for buttons, handing back `toggle` and `setOpen`.
 ---
 --- Gamepad B closes it, as do the X and a tap outside; while it is up a gamepad's focus stays inside
---- the panel (`Focus`), starting on the body's first control and on the X only when there is
---- nothing else.
+--- the panel (`Focus`), starting on the dialog's primary button when it names one (`primary`), else
+--- on the body's first control, and on the X only when there is nothing else. On a pad the X wears
+--- B's picture and the primary button A's (`PadGlyph`), so a player sees at once that A accepts and
+--- B closes.
 ---
 --- - The panel's size comes from the screen (`DialogGeometry`), worked out again whenever the screen,
 ---   its inset or Roblox's top bar changes, so a rotation never leaves it off the edge.
@@ -22,6 +24,7 @@ const DialogGeometry = require("./DialogGeometry")
 const Focus = require("./Focus")
 const Host = require("./Host")
 const Native = require("./Native")
+const PadGlyph = require("./PadGlyph")
 const Rtl = require("./Rtl")
 const SafeArea = require("./SafeArea")
 const TouchControls = require("./TouchControls")
@@ -35,6 +38,8 @@ Dialog.TOP_PAD = 12
 Dialog.DISPLAY_ORDER = 10
 --- The PlayerGui attribute that counts the dialogs that are up, for whatever steps aside for one.
 Dialog.OPEN_ATTRIBUTE = "ModalsOpen"
+--- The size of a pad's picture on the X and on the primary button, in pixels.
+Dialog.CAP = 20
 
 export type Options = {
 	--- What the game keeps at the bottom of the screen (`DialogGeometry.Bottom`). None when left out.
@@ -52,6 +57,9 @@ export type Dialog = {
 	footer: Frame,
 	setOpen: (open: boolean) -> (),
 	toggle: () -> (),
+	--- Names the button A accepts with: the pad's focus starts on it each time the dialog opens, and
+	--- it wears A's picture. Nil takes the name off again.
+	primary: (button: GuiButton?) -> (),
 	--- Fired with the new state every time the dialog opens or closes.
 	changed: BindableEvent,
 }
@@ -147,6 +155,7 @@ function Dialog.new(
 	-- Built with the close button at the right and mirrored once, whatever the locale: the X stands
 	-- on the left, as the Escape menu's does, and the title takes the rest of the row.
 	Rtl.mirror(header)
+	PadGlyph.corner(close, Enum.KeyCode.ButtonB, Dialog.CAP)
 
 	const divider = Instance.new("Frame")
 	divider.Name = "Divider"
@@ -205,6 +214,9 @@ function Dialog.new(
 
 	const changed = Instance.new("BindableEvent")
 	local token = 0
+	-- the button A accepts with, and its picture
+	local accept: GuiButton? = nil
+	local acceptCap: ImageLabel? = nil
 	local setOpen: (want: boolean) -> ()
 	const function shut()
 		setOpen(false)
@@ -231,7 +243,12 @@ function Dialog.new(
 			game:GetService("TweenService")
 				:Create(scale, TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 })
 				:Play()
-			Focus.push(scope, panel, { back = shut })
+			Focus.push(scope, panel, {
+				back = shut,
+				first = function(): GuiObject?
+					return accept
+				end,
+			})
 		else
 			if cover then
 				cover(false)
@@ -264,6 +281,14 @@ function Dialog.new(
 		setOpen = setOpen,
 		toggle = function()
 			setOpen(not open)
+		end,
+		primary = function(button: GuiButton?)
+			if acceptCap then
+				acceptCap:Destroy()
+				acceptCap = nil
+			end
+			accept = button
+			acceptCap = if button then PadGlyph.corner(button, Enum.KeyCode.ButtonA, Dialog.CAP) else nil
 		end,
 		changed = changed,
 	}

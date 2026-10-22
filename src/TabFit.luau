@@ -23,4 +23,14 @@ function TabFit.width(span: number, count: number, gap: number, most: number): n
 	return math.max(math.min(most, share), math.min(most, TabFit.NARROWEST))
 end
 
+--> The place a gamepad's bumper takes the strip to: `by` places on from place `on` of `count`, in
+--> reading order, and no further than either end. A strip read from the right is stepped the other
+--> way by its caller, so the left bumper always goes left.
+function TabFit.step(count: number, on: number, by: number): number
+	if count < 1 then
+		return on
+	end
+	return math.clamp(on + by, 1, count)
+end
+
 return TabFit

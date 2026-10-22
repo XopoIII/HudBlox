@@ -31,6 +31,18 @@ const MUTANTS = {
 		to = "math.min(most, share), 0)",
 		breaks = "a tab is never squeezed under the narrowest",
 	},
+	{
+		file = "src/TabFit.luau",
+		from = "math.clamp(on + by, 1, count)",
+		to = "on + by",
+		breaks = "a bumper stops at either end",
+	},
+	{
+		file = "src/TabFit.luau",
+		from = "\tif count < 1 then\n\t\treturn on\n\tend\n\treturn math.clamp",
+		to = "\treturn math.clamp",
+		breaks = "no tabs: where it was",
+	},
 }
 
 return MUTANTS
