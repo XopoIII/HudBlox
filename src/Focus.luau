@@ -184,6 +184,7 @@ function Focus.start()
 			scope.object = selected
 			scope.at = selected.AbsolutePosition + selected.AbsoluteSize / 2
 			Steer.aim(selected, scope.root, controlsOf(scope), Host.rtl().active())
+			Ring.fit(selected)
 		else
 			queue()
 		end

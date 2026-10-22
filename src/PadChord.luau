@@ -11,6 +11,7 @@
 --- Which key a held chord means is `PadChord.find`, plain data in, so the rule is a spec.
 const Bindable = require("./Bindable")
 const Focus = require("./Focus")
+const PadGlyph = require("./PadGlyph")
 const PadInput = require("./PadInput")
 
 const PadChord = {}
@@ -86,7 +87,7 @@ end
 function PadChord.bind(chords: { Chord }): Handle
 	local held: Enum.KeyCode? = nil
 	local prompts: boolean? = nil
-	const made: { [string]: ImageLabel } = {}
+	const made: { [string]: Frame } = {}
 
 	const function put(id: string, target: GuiObject?, key: Enum.KeyCode, corner: Vector2)
 		local picture = made[id]
@@ -99,15 +100,10 @@ function PadChord.bind(chords: { Chord }): Handle
 			return
 		end
 		if not picture then
-			const fresh = Instance.new("ImageLabel")
+			const fresh = PadGlyph.cap(target, key, PadChord.CAP)
 			fresh.Name = PadChord.NAME
-			fresh.BackgroundTransparency = 1
-			fresh.Size = UDim2.fromOffset(PadChord.CAP, PadChord.CAP)
 			fresh.AnchorPoint = Vector2.new(0.5, 0.5)
 			fresh.Position = UDim2.fromScale(corner.X, corner.Y)
-			fresh.ZIndex = target.ZIndex + 10
-			fresh.Image = game:GetService("UserInputService"):GetImageForKeyCode(key)
-			fresh.Parent = target
 			made[id] = fresh
 		end
 	end

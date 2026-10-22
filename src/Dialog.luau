@@ -217,7 +217,7 @@ function Dialog.new(
 	local token = 0
 	-- the button A accepts with, and its picture
 	local accept: GuiButton? = nil
-	local acceptCap: ImageLabel? = nil
+	local acceptCap: Frame? = nil
 	local setOpen: (want: boolean) -> ()
 	const function shut()
 		setOpen(false)

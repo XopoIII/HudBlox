@@ -66,6 +66,7 @@ export type TabsEntry = Tabs.Entry
 export type TabsOptions = Tabs.Options
 export type PadCardOptions = PadCard.Options
 export type PadPageKey = PadPage.Key
+export type PadGlyphShape = PadGlyph.Shape
 export type DialogColumnOptions = DialogColumn.Options
 export type PadChordKey = PadChord.Key
 export type PadChordChord = PadChord.Chord

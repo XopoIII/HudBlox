@@ -1,6 +1,6 @@
 --!strict
---- The pad's walk and scroll's slips: each a small error in where a press goes or how far the right
---- stick scrolls a list, and the rule it breaks.
+--- The pad's walk, scroll and pictures' slips: each a small error in where a press goes, how far the
+--- right stick scrolls a list or what a key's cap looks like, and the rule it breaks.
 const MUTANTS = {
 	{
 		file = "src/Pick.luau",
@@ -19,6 +19,24 @@ const MUTANTS = {
 		from = "if usable(target) and along > Pick.ROW then",
 		to = "if along > Pick.ROW then",
 		breaks = "a press skips what is hidden or unselectable",
+	},
+	{
+		file = "src/PadGlyph.luau",
+		from = 'return if bar[name] then "bumper" else "face"',
+		to = 'return "face"',
+		breaks = "a bumper's cap is the engine's bar",
+	},
+	{
+		file = "src/PadGlyph.luau",
+		from = "if PadGlyph.ARROWS[name] then",
+		to = "if false then",
+		breaks = "a D-pad's way is a disc with an arrow",
+	},
+	{
+		file = "src/PadGlyph.luau",
+		from = 'DPadDown = "\\u{25BC}"',
+		to = 'DPadDown = "\\u{25B2}"',
+		breaks = "down points down, its own arrow",
 	},
 	{
 		file = "src/PadScroll.luau",

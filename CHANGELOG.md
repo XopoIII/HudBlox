@@ -53,8 +53,17 @@ swung the camera behind a list, and the top row's ring was cut off):
 - **Dialogs at Roblox's scale**: **`DialogGeometry.scaled`** lays a panel out in points of the
   bar's scale and `Dialog` draws it at that scale, half again as large on a television and still
   on the screen. 2 specs and 3 mutants. **`SafeArea.follow`** takes a card drawn by hand too.
+- **A key's cap black on white**: `PadGlyph` fills the engine's cut-out letter with black and
+  edges the white; a D-pad's way is a white disc with a black arrow. **`PadGlyph.shape`** says
+  which a key has: 2 specs and 3 mutants. **`Ring.fit`** rounds the ring as the control in focus
+  is rounded, at the scale it is drawn at.
 
 ### Changed
+
+- **`PadGlyph.cap` and `PadGlyph.corner` return a Frame**, not an ImageLabel: the picture is one
+  of the cap's parts.
+- **`TopBar`'s left buttons stand in a holder of their own** (`LeftHolder`) that carries Roblox's
+  scale: the button's own UIScale is its squash, and an object is drawn at one UIScale only.
 
 - **`Layout.top(screen, insetMinX, leftCount, rowTop?, scale?)`** lays the line out at `scale`:
   the edge margin, the top, the gaps and each left button's step grow with it. Without a scale it

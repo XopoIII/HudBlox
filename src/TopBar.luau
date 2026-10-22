@@ -79,15 +79,18 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 	rowScale.Parent = row
 	row.Parent = gui
 
-	const lefts: { TextButton } = {}
+	-- each left button in a holder of its own, which wears Roblox's scale: the button's squash rides
+	-- a UIScale already, and an object is drawn at one UIScale only (a television's left buttons
+	-- stood at a computer's size beside Roblox's, a game's owner saw)
+	const lefts: { Frame } = {}
 	const connections: { RBXScriptConnection } = {}
 
 	const function fit()
 		const s = SafeArea.chromeScale()
 		const top = Layout.top(SafeArea.measure(gui), SafeArea.insetMinX(), #lefts, nil, s)
-		for index, button in lefts do
-			button.Position = UDim2.fromOffset(top.lefts[index], Measure.TOP * s)
-			const scale = button:FindFirstChild("ChromeScale")
+		for index, holder in lefts do
+			holder.Position = UDim2.fromOffset(top.lefts[index], Measure.TOP * s)
+			const scale = holder:FindFirstChild("ChromeScale")
 			if scale and scale:IsA("UIScale") then
 				scale.Scale = s
 			end
@@ -167,11 +170,16 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 	end
 
 	const function addLeftButton(icon: string): TextButton
-		const button = Button.round(gui, theme, icon, { name = "LeftButton" })
+		const holder = Instance.new("Frame")
+		holder.Name = "LeftHolder"
+		holder.BackgroundTransparency = 1
+		holder.Size = UDim2.fromOffset(Measure.HEIGHT, Measure.HEIGHT)
 		const scale = Instance.new("UIScale")
 		scale.Name = "ChromeScale"
-		scale.Parent = button
-		table.insert(lefts, button)
+		scale.Parent = holder
+		holder.Parent = gui
+		const button = Button.round(holder, theme, icon, { name = "LeftButton" })
+		table.insert(lefts, holder)
 		fit()
 		return button
 	end
@@ -182,8 +190,8 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 		for _, connection in connections do
 			connection:Disconnect()
 		end
-		for _, button in lefts do
-			button:Destroy()
+		for _, holder in lefts do
+			holder:Destroy()
 		end
 		row:Destroy()
 	end

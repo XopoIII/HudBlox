@@ -208,8 +208,9 @@ end)
 shopDialog.primary(buyButton)
 plain.primary(nil)
 const _inShop: boolean = HudBlox.Focus.within(buyButton)
-const _corner: ImageLabel = HudBlox.PadGlyph.corner(buyButton, Enum.KeyCode.ButtonA, HudBlox.Dialog.CAP)
+const _corner: Frame = HudBlox.PadGlyph.corner(buyButton, Enum.KeyCode.ButtonA, HudBlox.Dialog.CAP)
 const _inset: number = HudBlox.PadGlyph.INSET
+const _shape: HudBlox.PadGlyphShape = HudBlox.PadGlyph.shape("ButtonA")
 shopDialog.changed.Event:Connect(function(_open: boolean) end)
 shopDialog.setOpen(true)
 plain.setOpen(false)
@@ -243,7 +244,7 @@ const _onTop: boolean = HudBlox.Stack.onTop(scopes, "a")
 -- The pad itself, and the touch controls.
 const _onPad: boolean = HudBlox.PadInput.active()
 const stopPad = HudBlox.PadInput.onChange(function(_active: boolean) end)
-const _cap: ImageLabel = HudBlox.PadGlyph.cap(buy, Enum.KeyCode.ButtonA, 18)
+const _cap: Frame = HudBlox.PadGlyph.cap(buy, Enum.KeyCode.ButtonA, 18)
 const menu: HudBlox.PadMenuConfig = {
 	gui = gui,
 	buttons = { buy, leave },
