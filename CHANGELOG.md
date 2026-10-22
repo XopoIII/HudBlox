@@ -34,6 +34,23 @@ The rest of a game's pad, which a game had to write for itself and the next woul
 - **`Tabs`' bumpers** leave the tabs out of the ring's walk and put the ring on the turned page's
   first control.
 
+Every dialog walked the same way on a pad, in every game (a game's owner, testing on a pad: a
+wardrobe whose last row had one card could not be reached from the middle column, the stick
+swung the camera behind a list, and the top row's ring was cut off):
+
+- **`Pick.toward`**, and **`Steer`**: a press of the D-pad or the stick goes to the nearest
+  control that way, straight in line or, when none is, beside the line (a step aside weighs
+  `Pick.ASIDE`, 2, steps along); `Focus` writes it on the control in focus as the engine's
+  `NextSelection` of each way, and keeps a way a game wrote itself. 4 specs and 3 mutants.
+- **`PadScroll`**: while a panel holds the pad, the right stick scrolls the list the ring stands
+  in, and neither it nor the triggers reach the camera. **`PadScroll.step`**, how far a tilt
+  scrolls, is plain numbers: 3 specs and 3 mutants.
+- **`DialogColumn.mount(body, options)`**: the one column a dialog's body scrolls in, with room
+  round its lines for the ring, the bar in a strip of its own with air before it.
+- **`PadPage.tile(frame, keys)`**: a tile walked whole whose buttons each say their key while the
+  ring stands on it (A wears or buys with stars, X buys with Robux), the first of a key whose button
+  is shown pressing; **`PadPage.whole`** is a tile of one A, and now says it on its button.
+
 ### Changed
 
 - **`Layout.top(screen, insetMinX, leftCount, rowTop?, scale?)`** lays the line out at `scale`:

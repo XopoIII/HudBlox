@@ -229,6 +229,7 @@ const MORE: { { Mutant } } = {
 	require("./slips/Badge"),
 	require("./slips/Tabs"),
 	require("./slips/PadChord"),
+	require("./slips/PadScroll"),
 	require("./slips/Flight"),
 	require("./slips/TextMemo"),
 	require("./slips/Wrap"),

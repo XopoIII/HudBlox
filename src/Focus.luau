@@ -14,7 +14,7 @@
 --- and taking the pad up with a panel open puts the ring in it. The engine's own auto-selection is
 --- switched off, so nothing but this module ever selects.
 ---
---- The order of scopes is `Stack`'s and the choice of control is `Pick`'s, both pure and tested.
+--- `Stack` orders the scopes, `Pick` (each way `Steer`) chooses, `PadScroll` takes the right stick.
 ---
 --- NOTHING HAPPENS UNTIL A GAME ASKS. `start` (which the first `push` calls) is what switches the
 --- engine's auto-selection off and begins to follow the selection; a game that never opens a panel
@@ -23,9 +23,11 @@
 const Bindable = require("./Bindable")
 const Host = require("./Host")
 const PadInput = require("./PadInput")
+const PadScroll = require("./PadScroll")
 const Pick = require("./Pick")
 const Ring = require("./Ring")
 const Stack = require("./Stack")
+const Steer = require("./Steer")
 const TouchControls = require("./TouchControls")
 
 const Focus = {}
@@ -190,6 +192,9 @@ function Focus.start()
 		if selected and inside(scope, selected) then
 			scope.object = selected
 			scope.at = selected.AbsolutePosition + selected.AbsoluteSize / 2
+			Steer.aim(selected, controlsOf(scope), function(control: GuiObject): boolean
+				return shown(control, scope.root)
+			end, Host.rtl().active())
 		else
 			queue()
 		end
@@ -225,6 +230,10 @@ function Focus.push(name: string, root: GuiBase2d, options: Options?)
 	if Stack.size(stack) == 0 and Bindable.here() then
 		game:GetService("ContextActionService")
 			:BindActionAtPriority(ACTION, back, false, Host.backPriority() or Focus.PRIORITY, Enum.KeyCode.ButtonB)
+		PadScroll.start(Host.backPriority() or Focus.PRIORITY, function(): GuiBase2d?
+			const top = Stack.top(stack)
+			return if top then top.value.root else nil
+		end)
 	end
 	const scope: Scope = {
 		root = root,
@@ -267,6 +276,7 @@ function Focus.pop(name: string)
 	end
 	if Stack.size(stack) == 0 then
 		game:GetService("ContextActionService"):UnbindAction(ACTION)
+		PadScroll.stop()
 	end
 	queue()
 end

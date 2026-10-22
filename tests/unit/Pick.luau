@@ -92,4 +92,61 @@ Spec.test("a nearer control that is hidden or unselectable is skipped", function
 	Spec.equal(Pick.nearest({ hidden, dead }, 200, 100, false), nil)
 end)
 
+-- A grid of three columns, 200 apart, rows 300 apart, the last row one card at the left: the
+-- wardrobe of a game whose stick could not go down from the middle column (cn, 2026-10-22).
+const function grid(): { Pick.Target }
+	return {
+		target(100, 100),
+		target(300, 100),
+		target(500, 100),
+		target(100, 400),
+		target(300, 400),
+		target(500, 400),
+		target(100, 700),
+	}
+end
+
+Spec.test("a press goes to the control straight that way, the next in the row or the column", function()
+	const cards = grid()
+	Spec.equal(Pick.toward(cards, 300, 100, 1, 0, false), 3, "right")
+	Spec.equal(Pick.toward(cards, 300, 100, -1, 0, false), 1, "left")
+	Spec.equal(Pick.toward(cards, 300, 100, 0, 1, false), 5, "down")
+	Spec.equal(Pick.toward(cards, 300, 400, 0, -1, false), 2, "up")
+	-- a row further down is not the next one, even straight in line
+	Spec.equal(Pick.toward(cards, 100, 100, 0, 1, false), 4, "the next row, not the last")
+end)
+
+Spec.test("with nothing straight that way a press goes to the nearest beside it, and none at the edge", function()
+	const cards = grid()
+	-- from the middle and the right column of the second row down to the last row's single card
+	Spec.equal(Pick.toward(cards, 300, 400, 0, 1, false), 7, "from the middle")
+	Spec.equal(Pick.toward(cards, 500, 400, 0, 1, false), 7, "from the right")
+	-- and nothing past the edges
+	Spec.equal(Pick.toward(cards, 100, 700, 0, 1, false), nil, "below the last row")
+	Spec.equal(Pick.toward(cards, 500, 100, 1, 0, false), nil, "right of the right column")
+	Spec.equal(Pick.toward(cards, 100, 100, 0, -1, false), nil, "above the top row")
+end)
+
+Spec.test("a step aside weighs twice a step along: the row beside the line loses to the line", function()
+	Spec.equal(Pick.ASIDE, 2, "the weight")
+	-- 300 along and 200 aside (700) against 600 along in line (600): the line
+	Spec.equal(Pick.toward({ target(300, 400), target(100, 700) }, 100, 100, 0, 1, false), 2, "in line")
+	-- 300 along and 100 aside (500) against 600 in line: the one beside
+	Spec.equal(Pick.toward({ target(200, 400), target(100, 700) }, 100, 100, 0, 1, false), 1, "beside")
+	-- one within a row's height that way is not that way at all
+	Spec.equal(Pick.toward({ target(100, 104) }, 100, 100, 0, 1, false), nil, "a row's height")
+	Spec.equal(Pick.toward({ target(100, 105) }, 100, 100, 0, 1, false), 1, "past it")
+end)
+
+Spec.test("a press skips what is hidden or unselectable, and breaks a tie by the reading side", function()
+	const hidden = target(100, 400, 0, false, true)
+	const dead = target(100, 401, 0, true, false)
+	Spec.equal(Pick.toward({ hidden, dead, target(100, 900) }, 100, 100, 0, 1, false), 3, "the live one")
+	Spec.equal(Pick.toward({ hidden, dead }, 100, 100, 0, 1, false), nil, "none")
+	-- two below at the same distance aside, either way
+	const left, right = target(0, 400), target(200, 400)
+	Spec.equal(Pick.toward({ right, left }, 100, 100, 0, 1, false), 2, "the left one, left to right")
+	Spec.equal(Pick.toward({ right, left }, 100, 100, 0, 1, true), 1, "the right one, right to left")
+end)
+
 return nil

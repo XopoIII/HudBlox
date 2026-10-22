@@ -1,6 +1,6 @@
 --!strict
 --- A game's use of the pad's parts of the public API (`PadCard`, `PadPage`, `PadChord`,
---- `SafeArea.follow`), beside `Game.luau`: checked by the type gate under both solvers and NOT run.
+--- `DialogColumn`, `PadScroll`, `SafeArea.follow`), beside `Game.luau`: checked by the type gate under both solvers and NOT run.
 const HudBlox = require("@hudblox")
 const Players = game:GetService("Players")
 
@@ -18,6 +18,18 @@ const cardOptions: HudBlox.PadCardOptions = { back = function() end, cancel = la
 HudBlox.PadCard.hold("reward", cardGui, accept, cardOptions)
 const tile = Instance.new("Frame")
 const _whole: TextButton = HudBlox.PadPage.whole(tile, accept, function() end)
+-- a tile that buys with stars on A or Robux on X, whichever it shows
+const tileKeys: { HudBlox.PadPageKey } = {
+	{ key = Enum.KeyCode.ButtonA, button = accept, press = function() end },
+	{ key = Enum.KeyCode.ButtonX, button = later, press = function() end },
+}
+const _tile: TextButton = HudBlox.PadPage.tile(tile, tileKeys)
+-- a dialog's one column, and the pad's walk and scroll the kit does by itself
+const dialog = HudBlox.Dialog.new(playerGui, "List", "List", 400, 300)
+const columnOptions: HudBlox.DialogColumnOptions = { gap = 6, air = 12 }
+const _column: ScrollingFrame = HudBlox.DialogColumn.mount(dialog.body, columnOptions)
+const _moved: number = HudBlox.PadScroll.step(-1, 1 / 60)
+const _toward: number? = HudBlox.Pick.toward({}, 0, 0, 0, 1, false)
 const _firstControl: GuiObject? = HudBlox.PadPage.first(cardGui, nil)
 HudBlox.PadPage.ring(cardGui)
 -- the left bumper held opens the shop with X, its picture on the shop's button

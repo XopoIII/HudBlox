@@ -10,7 +10,7 @@ sizes were not designed: they were read off a live client's top bar, and the kit
 in a live game before it became a package.
 
 > **Status: 0.12.0.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
-> the hands" button are proven by specs that run on every push, and each of 239 small slips in them
+> the hands" button are proven by specs that run on every push, and each of 245 small slips in them
 > makes the suite fail (`tests/Mutate.luau`). The modules that build Instances cannot run off
 > Roblox, so the suite does not run them; they are checked against the Roblox API by the type gate,
 > under both type solvers.

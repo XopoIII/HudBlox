@@ -6,6 +6,7 @@
 --- the ring falls back to the dialog's X; `ring` waits for the page and puts it on the first.
 const Focus = require("./Focus")
 const Host = require("./Host")
+const PadGlyph = require("./PadGlyph")
 const PadInput = require("./PadInput")
 const Pick = require("./Pick")
 
@@ -62,10 +63,28 @@ function PadPage.ring(root: Instance, skip: Instance?)
 	end)
 end
 
+--- The size of a key's picture on a tile's own button while the ring stands on the tile, in
+--- pixels, and the action a tile's keys other than A are bound under while it is ringed.
+PadPage.CAP = 20
+PadPage.ACTION = "PadTile"
+
+export type Key = {
+	--- The key: `ButtonA` for the press of the tile itself, another face button for a second one.
+	key: Enum.KeyCode,
+	--- The tile's own button it presses, which wears its picture while the ring is on the tile.
+	button: GuiButton,
+	press: () -> (),
+}
+
+-- the tile whose keys are bound now
+local bound: TextButton? = nil
+
 --> Makes a tile `frame` walked whole by the ring: an unseen button over all of it, under what is
---> drawn on it, which `press`es while `inner` (the tile's own button, a claim or a buy) is shown.
---> `inner` is left out of the ring's walk, so the ring stops once a tile. Returns the button.
-function PadPage.whole(frame: GuiObject, inner: GuiButton, press: () -> ()): TextButton
+--> drawn on it. Its own buttons are left out of the ring's walk, so the ring stops once a tile and
+--> the list scrolls to show the tile whole; while the ring stands on it each of `keys` wears its
+--> key's picture on its button and presses it, the first of a key whose button is shown (a tile
+--> that buys with stars or Robux, or is worn, shows one or the other). Returns the button.
+function PadPage.tile(frame: GuiObject, keys: { Key }): TextButton
 	const whole = Instance.new("TextButton")
 	whole.Name = "Whole"
 	whole.Text = ""
@@ -74,13 +93,70 @@ function PadPage.whole(frame: GuiObject, inner: GuiButton, press: () -> ()): Tex
 	whole.Size = UDim2.fromScale(1, 1)
 	whole.ZIndex = 0
 	whole.Parent = frame
-	inner.Selectable = false
+	const hints: { Frame } = {}
+	for _, entry in keys do
+		entry.button.Selectable = false
+		-- the key's picture on the button, there only while the ring is on the tile
+		const hint = Instance.new("Frame")
+		hint.Name = "PadHint"
+		hint.BackgroundTransparency = 1
+		hint.Size = UDim2.fromScale(1, 1)
+		hint.ZIndex = entry.button.ZIndex
+		hint.Visible = false
+		hint.Parent = entry.button
+		PadGlyph.corner(hint, entry.key, PadPage.CAP)
+		table.insert(hints, hint)
+	end
+	const function press(key: Enum.KeyCode): boolean
+		for _, entry in keys do
+			if entry.key == key and entry.button.Visible then
+				entry.press()
+				return true
+			end
+		end
+		return false
+	end
 	whole.Activated:Connect(function()
-		if inner.Visible then
-			press()
+		press(Enum.KeyCode.ButtonA)
+	end)
+	const function act(_: string, state: Enum.UserInputState, input: InputObject): Enum.ContextActionResult
+		if state == Enum.UserInputState.Begin and press(input.KeyCode) then
+			return Enum.ContextActionResult.Sink
+		end
+		return Enum.ContextActionResult.Pass
+	end
+	const others: { Enum.KeyCode } = {}
+	for _, entry in keys do
+		if entry.key ~= Enum.KeyCode.ButtonA and not table.find(others, entry.key) then
+			table.insert(others, entry.key)
+		end
+	end
+	whole.SelectionGained:Connect(function()
+		for _, hint in hints do
+			hint.Visible = true
+		end
+		if #others > 0 then
+			bound = whole
+			game:GetService("ContextActionService")
+				:BindActionAtPriority(PadPage.ACTION, act, false, Focus.PRIORITY - 1, table.unpack(others))
+		end
+	end)
+	whole.SelectionLost:Connect(function()
+		for _, hint in hints do
+			hint.Visible = false
+		end
+		if bound == whole then
+			bound = nil
+			game:GetService("ContextActionService"):UnbindAction(PadPage.ACTION)
 		end
 	end)
 	return whole
+end
+
+--> A tile walked whole that A presses: `tile` with `inner`, the tile's own button (a claim or a
+--> buy), pressing `press` while it is shown.
+function PadPage.whole(frame: GuiObject, inner: GuiButton, press: () -> ()): TextButton
+	return PadPage.tile(frame, { { key = Enum.KeyCode.ButtonA, button = inner, press = press } })
 end
 
 return PadPage
