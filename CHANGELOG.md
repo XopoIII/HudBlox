@@ -3,6 +3,25 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.12.1 - 2026-10-22
+
+A game's owner, checking 0.12.0 on a television, found a picked card's outline cut off at the
+top of a list, and no A on a card the ring stood on.
+
+### Fixed
+
+- **A list shows the control in focus with room round it**: **`PadScroll.reveal`** scrolls the
+  list the ring stands in so the control shows whole with `PadScroll.MARGIN`, 10 points, round
+  it; the engine scrolls to the control's own edges, and the ring and an outline drawn outside
+  them were cut off. Where the canvas goes is **`PadScroll.into`**, plain numbers: 3 specs and
+  3 mutants. The stick's scroll is kept between the canvas's ends in pixels, as the canvas is
+  scrolled.
+- **`DialogColumn.RING_ROOM`** is the ring's width and four points, room for a picked card's own
+  outline too.
+- **A on whatever the ring stands on**: **`Ring.say`** puts A's picture on the control in focus
+  when it says no key of its own (a dialog's X wears B, a tile's buttons their keys), and takes it
+  off as the ring leaves, the same on every control of every panel.
+
 ## 0.12.0 - 2026-10-22
 
 The top line is drawn at Roblox's own scale. On a television Roblox draws its bar half again as

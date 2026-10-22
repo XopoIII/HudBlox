@@ -13,8 +13,9 @@ const DialogColumn = {}
 --- Between two lines of the column, and between its lines and its scroll bar, in pixels.
 DialogColumn.GAP = 6
 DialogColumn.AIR = 12
---- The room round the lines for the ring: its width and a pixel.
-DialogColumn.RING_ROOM = Ring.THICKNESS + 1
+--- The room round the lines for the ring and a picked card's own outline drawn outside it: the
+--- ring's width and four points.
+DialogColumn.RING_ROOM = Ring.THICKNESS + 4
 
 export type Options = {
 	--- Between two lines; `DialogColumn.GAP` when left out.
