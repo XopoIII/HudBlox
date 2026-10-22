@@ -7,13 +7,13 @@ export type Mutant = { file: string, from: string, to: string, breaks: string }
 const MUTANTS: { Mutant } = {
 	{
 		file = "src/Layout.luau",
-		from = "then free + Measure.GAP else",
+		from = "then free + Measure.GAP * s else",
 		to = "then free else",
 		breaks = "the first left button keeps Roblox's own gap past Roblox's buttons",
 	},
 	{
 		file = "src/Layout.luau",
-		from = "else Measure.EDGE\n",
+		from = "else Measure.EDGE * s\n",
 		to = "else 0\n",
 		breaks = "below the chrome line the first left button starts at the edge margin",
 	},
@@ -43,8 +43,8 @@ const MUTANTS: { Mutant } = {
 	},
 	{
 		file = "src/Layout.luau",
-		from = "x += Measure.HEIGHT + Measure.GAP",
-		to = "x += Measure.HEIGHT",
+		from = "x += (Measure.HEIGHT + Measure.GAP) * s",
+		to = "x += Measure.HEIGHT * s",
 		breaks = "left buttons stand a gap apart, and the row a gap past the last",
 	},
 	{
@@ -55,13 +55,13 @@ const MUTANTS: { Mutant } = {
 	},
 	{
 		file = "src/Layout.luau",
-		from = "const rowWidth = math.max(0, screen.width - Measure.EDGE - bound)",
-		to = "const rowWidth = screen.width - Measure.EDGE - bound",
+		from = "const rowWidth = math.max(0, screen.width - Measure.EDGE * s - bound)",
+		to = "const rowWidth = screen.width - Measure.EDGE * s - bound",
 		breaks = "a screen with no room gives the row no width, not a negative one",
 	},
 	{
 		file = "src/Layout.luau",
-		from = "const rowWidth = math.max(0, screen.width - Measure.EDGE - bound)",
+		from = "const rowWidth = math.max(0, screen.width - Measure.EDGE * s - bound)",
 		to = "const rowWidth = math.max(0, screen.width - bound)",
 		breaks = "the row's width leaves the edge margin on the right",
 	},
@@ -85,8 +85,8 @@ const MUTANTS: { Mutant } = {
 	},
 	{
 		file = "src/Layout.luau",
-		from = "return needs <= top.rowWidth",
-		to = "return needs < top.rowWidth",
+		from = "return needs * (scale or 1) <= top.rowWidth",
+		to = "return needs * (scale or 1) < top.rowWidth",
 		breaks = "contents exactly as wide as the row fit",
 	},
 	{
@@ -191,6 +191,30 @@ const MUTANTS: { Mutant } = {
 		to = "",
 		breaks = "a stopped listener hears nothing more",
 	},
+	{
+		file = "src/Layout.luau",
+		from = "return strip / Measure.STRIP",
+		to = "return Measure.STRIP / strip",
+		breaks = "a taller strip draws the line larger, in proportion",
+	},
+	{
+		file = "src/Layout.luau",
+		from = "\tif strip <= 0 then\n\t\treturn 1\n\tend\n\treturn strip",
+		to = "\treturn strip",
+		breaks = "a strip that is not reported keeps the line as written",
+	},
+	{
+		file = "src/Layout.luau",
+		from = "const top = rowTop or Measure.TOP * s",
+		to = "const top = rowTop or Measure.TOP",
+		breaks = "the row's top grows with the scale",
+	},
+	{
+		file = "src/Layout.luau",
+		from = "return needs * (scale or 1) <= top.rowWidth",
+		to = "return needs <= top.rowWidth",
+		breaks = "contents are measured as written and drawn at the scale",
+	},
 }
 
 -- The dialog's geometry, the gamepad's focus and the backpack keep theirs in files of their own.
@@ -204,6 +228,8 @@ const MORE: { { Mutant } } = {
 	require("./slips/BackpackRest"),
 	require("./slips/Badge"),
 	require("./slips/Tabs"),
+	require("./slips/PadChord"),
+	require("./slips/PadScroll"),
 	require("./slips/Flight"),
 	require("./slips/TextMemo"),
 	require("./slips/Wrap"),

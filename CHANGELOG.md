@@ -3,6 +3,84 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.12.0 - 2026-10-22
+
+The top line is drawn at Roblox's own scale. On a television Roblox draws its bar half again as
+large (a strip of 87 against a computer's 58, the menu button 66 x 66 at x 24 and y 18), and the
+kit's capsules and buttons stood beside it at a computer's size, smaller than Roblox's and out of
+its line. A phone or any device that draws the bar at another size is followed the same way.
+
+### Added
+
+- **`Measure.STRIP`**, 58: Roblox's strip on the computer the other numbers were read on.
+- **`Layout.scale(strip)`**: Roblox's scale of its bar, the strip's height over `Measure.STRIP`, 1
+  for a strip that is not reported. 1 spec and 2 mutants.
+- **`SafeArea.chromeScale()`**: that scale on the running device, for what a game stands beside or
+  under the bar. **`SafeArea.follow(gui)`** keeps a gui of the game's own (a column of round
+  buttons down the edge) at it, as the bar changes.
+
+The rest of a game's pad, which a game had to write for itself and the next would again:
+
+- **`PadCard.hold(name, root, first, options)`**: a card the game draws by hand holds the pad
+  while it is shown, as a dialog does, the ring on `first` with A's picture, B doing `back` with
+  its picture on `cancel`; a card built hidden takes the pad as it is shown.
+- **`PadPage.first(root)`**, **`PadPage.ring(root)`**, **`PadPage.whole(frame, inner, press)`**: the
+  first control of a part of the screen as `Pick` orders it; the ring put on it once a page drawn a
+  share of a frame at a time is there; a tile walked whole by the ring, A pressing its button.
+- **`PadChord.bind(chords)`**: a bumper held as a chord, the face buttons and the D-pad pressing what
+  the game names from anywhere, each control wearing its key while the bumper is down and the
+  bumper's own picture standing where the game says while it is up; the world's prompts off while
+  a chord is held. **`PadChord.match`**, the rule, is plain data: 2 specs and 3 mutants.
+- **`Tabs`' bumpers** leave the tabs out of the ring's walk and put the ring on the turned page's
+  first control.
+
+Every dialog walked the same way on a pad, in every game (a game's owner, testing on a pad: a
+wardrobe whose last row had one card could not be reached from the middle column, the stick
+swung the camera behind a list, and the top row's ring was cut off):
+
+- **`Pick.toward`**, and **`Steer`**: a press of the D-pad or the stick goes to the nearest
+  control that way, straight in line or, when none is, beside the line (a step aside weighs
+  `Pick.ASIDE`, 2, steps along); `Focus` writes it on the control in focus as the engine's
+  `NextSelection` of each way, and keeps a way a game wrote itself. 4 specs and 3 mutants.
+- **`PadScroll`**: while a panel holds the pad, the right stick scrolls the list the ring stands
+  in, and neither it nor the triggers reach the camera. **`PadScroll.step`**, how far a tilt
+  scrolls, is plain numbers: 3 specs and 3 mutants.
+- **`DialogColumn.mount(body, options)`**: the one column a dialog's body scrolls in, with room
+  round its lines for the ring, the bar in a strip of its own with air before it.
+- **`PadPage.tile(frame, keys)`**: a tile walked whole whose buttons each say their key while the
+  ring stands on it (A wears or buys with stars, X buys with Robux), the first of a key whose button
+  is shown pressing; **`PadPage.whole`** is a tile of one A, and now says it on its button.
+- **Dialogs at Roblox's scale**: **`DialogGeometry.scaled`** lays a panel out in points of the
+  bar's scale and `Dialog` draws it at that scale, half again as large on a television and still
+  on the screen. 2 specs and 3 mutants. **`SafeArea.follow`** takes a card drawn by hand too.
+- **A key's cap black on white**: `PadGlyph` fills the engine's cut-out letter with black and
+  edges the white; a D-pad's way is a white disc with a black arrow. **`PadGlyph.shape`** says
+  which a key has: 2 specs and 3 mutants. **`Ring.fit`** rounds the ring as the control in focus
+  is rounded, at the scale it is drawn at.
+- **The specs run on LuneBlox 0.11.0**, which gives them Roblox's `Enum`: `PadChord.find` is
+  checked with `Enum.KeyCode` values as a game calls it. 2 specs and 2 mutants.
+
+### Changed
+
+- **`PadGlyph.cap` and `PadGlyph.corner` return a Frame**, not an ImageLabel: the picture is one
+  of the cap's parts.
+- **`TopBar`'s left buttons stand in a holder of their own** (`LeftHolder`) that carries Roblox's
+  scale: the button's own UIScale is its squash, and an object is drawn at one UIScale only.
+
+- **`Layout.top(screen, insetMinX, leftCount, rowTop?, scale?)`** lays the line out at `scale`:
+  the edge margin, the top, the gaps and each left button's step grow with it. Without a scale it
+  is the line it was. **`Layout.fits(top, needs, scale?)`** draws written widths at the scale.
+  The arithmetic's mutants were moved onto the scaled lines, and 2 more added.
+- **`TopBar.mount`** draws the row and the left buttons at `SafeArea.chromeScale()` (a UIScale
+  named `ChromeScale` on each), placed at that scale, and fits again as the bar changes. The wrap
+  check and a capsule's holder read the row in its own units.
+
+### Not done
+
+- The UIScale on the row and the left buttons, `SafeArea.follow`, `PadCard`, `PadPage` and the
+  chords' binding and pictures build Instances or read the engine's input, so they are not run by
+  the suite; they are looked at in a game in Studio's ten-foot interface with a pad.
+
 ## 0.11.0 - 2026-10-22
 
 A dialog says on a gamepad what its keys do, and a strip of tabs turns on the bumpers. A game's

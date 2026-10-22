@@ -8,9 +8,9 @@
 --- B's picture and the primary button A's (`PadGlyph`), so a player sees at once that A accepts and
 --- B closes.
 ---
---- - The panel's size comes from the screen (`DialogGeometry`), worked out again whenever the screen,
----   its inset or Roblox's top bar changes, so a rotation never leaves it off the edge.
---- - It pops in (0.9 to 1, Back) and shrinks out, so opening reads as one movement.
+--- - The panel's size comes from the screen (`DialogGeometry`), drawn at Roblox's scale of its bar
+---   (half again on a television), worked out again as the screen, its inset or the bar changes.
+--- - It pops in (0.9 to 1 of that scale, Back) and shrinks out, so opening reads as one movement.
 --- - A transparent blocker under the panel's content eats taps, so a press on the panel never
 ---   reaches the backdrop and closes it.
 --- - The touch thumbstick and jump button step aside while it is up (`TouchControls`), since they
@@ -197,12 +197,13 @@ function Dialog.new(
 		end
 	end)
 
-	local open = false
-
-	-- The panel fits the screen; worked out again whenever the screen or its inset moves.
+	local open, chrome = false, 1
+	-- The panel fits the screen; worked out again whenever the screen, its inset or the bar moves.
 	const function place()
-		const frame =
-			DialogGeometry.layout(gui.AbsoluteSize.X, gui.AbsoluteSize.Y, SafeArea.topStrip(gui), width, height, bottom)
+		chrome = SafeArea.chromeScale()
+		const size, strip = gui.AbsoluteSize, SafeArea.topStrip(gui)
+		const frame = DialogGeometry.scaled(size.X, size.Y, strip, width, height, bottom, chrome)
+		scale.Scale = if open then chrome else scale.Scale
 		if cover then
 			cover(open and not frame.clearsBottom)
 		end
@@ -216,7 +217,7 @@ function Dialog.new(
 	local token = 0
 	-- the button A accepts with, and its picture
 	local accept: GuiButton? = nil
-	local acceptCap: ImageLabel? = nil
+	local acceptCap: Frame? = nil
 	local setOpen: (want: boolean) -> ()
 	const function shut()
 		setOpen(false)
@@ -239,9 +240,9 @@ function Dialog.new(
 		if want then
 			gui.Enabled = true
 			place()
-			scale.Scale = 0.9
+			scale.Scale = 0.9 * chrome
 			game:GetService("TweenService")
-				:Create(scale, TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 })
+				:Create(scale, TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = chrome })
 				:Play()
 			Focus.push(scope, panel, {
 				back = shut,
@@ -254,9 +255,11 @@ function Dialog.new(
 				cover(false)
 			end
 			Focus.pop(scope)
-			const shrink =
-				game:GetService("TweenService")
-					:Create(scale, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Scale = 0.9 })
+			const shrink = game:GetService("TweenService"):Create(
+				scale,
+				TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+				{ Scale = 0.9 * chrome }
+			)
 			shrink.Completed:Once(function()
 				-- Opened again while shrinking: leave it up.
 				if mine == token then

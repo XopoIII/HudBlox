@@ -16,12 +16,15 @@
 ---
 --- On a gamepad the bumpers turn the strip a tab left or right while the panel it stands in holds
 --- the pad (`Focus`), the left bumper always to the left, and the two end tabs wear the bumpers'
---- pictures (`PadGlyph`). A strip that should not answer them says `bumpers = false`.
+--- pictures (`PadGlyph`). The tabs are then left out of the ring's walk, and a turn puts the ring
+--- on the first control of the page (`PadPage.ring`). A strip that should not answer the bumpers
+--- says `bumpers = false`, and its tabs are walked as any button.
 const Bindable = require("./Bindable")
 const Focus = require("./Focus")
 const Host = require("./Host")
 const Native = require("./Native")
 const PadGlyph = require("./PadGlyph")
+const PadPage = require("./PadPage")
 const TabFit = require("./TabFit")
 
 const Tabs = {}
@@ -204,6 +207,12 @@ function Tabs.mount(parent: Instance, entries: { Entry }, options: Options?): Ha
 				end
 			end
 			pick(entries[TabFit.step(#entries, place, by * ahead)].key)
+			-- the ring to the new page's first control, once it is drawn
+			PadPage.ring(parent, frame)
+		end
+		-- the bumpers turn the tabs, so the ring does not stop on them on its way to the page
+		for _, button in buttons do
+			button.Selectable = false
 		end
 		frame.Destroying:Connect(function()
 			strips[frame] = nil

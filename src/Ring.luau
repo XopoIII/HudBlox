@@ -45,6 +45,32 @@ function Ring.round(): Frame
 	return ring
 end
 
+--> Rounds the square ring as `object`, the control in focus, is rounded, so the ring lies on its
+--> outline: by its own UICorner, or, for an unseen button laid over a tile walked whole
+--> (`PadPage.tile`), by the tile's; `Ring.CORNER` for a control not rounded.
+function Ring.fit(object: GuiObject)
+	const ring = square and square:FindFirstChildWhichIsA("UICorner")
+	if not ring then
+		return
+	end
+	local corner = object:FindFirstChildWhichIsA("UICorner")
+	const parent = object.Parent
+	if not corner and object.BackgroundTransparency >= 1 and parent and parent:IsA("GuiObject") then
+		corner = parent:FindFirstChildWhichIsA("UICorner")
+	end
+	-- a radius in points grows with every UIScale the control is drawn under, and the ring is drawn
+	-- in pixels: a round button half again as large on a television is rounded half again as much
+	local drawn = 1
+	local at: Instance? = object
+	while at and not at:IsA("LayerCollector") do
+		const scale = at:FindFirstChildWhichIsA("UIScale")
+		drawn *= if scale then scale.Scale else 1
+		at = at.Parent
+	end
+	const radius = if corner then corner.CornerRadius else UDim.new(0, Ring.CORNER)
+	ring.CornerRadius = UDim.new(radius.Scale, radius.Offset * drawn)
+end
+
 --> Every control under `playerGui` wears the square ring unless it names its own.
 function Ring.install(playerGui: PlayerGui)
 	playerGui.SelectionImageObject = Ring.square()

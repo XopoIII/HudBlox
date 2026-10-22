@@ -16,6 +16,11 @@ Measure.EDGE = 16
 Measure.TOP = 12
 --- Between two things on the top line. Roblox's menu ends at 60 and its chat starts at 68.
 Measure.GAP = 8
+--- The height of Roblox's strip, `GuiService.TopbarInset.Height`, on the computer the numbers above
+--- were read on. Where Roblox draws its bar larger it says so by a taller strip, and draws all of it
+--- in proportion: on a television (Studio's ten-foot interface, 2026-10-22) the strip was 87, the
+--- menu button 66 x 66 at x 24 and y 18, the chat's 54 in a 66 capsule, all half again as large.
+Measure.STRIP = 58
 
 --- The plate of Roblox's capsules: RGB 18, 18, 21 at transparency 0.08.
 Measure.PLATE_R = 18

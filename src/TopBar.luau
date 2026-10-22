@@ -7,6 +7,10 @@
 --- only while it really shares their line, and fits itself again whenever the inset or the screen
 --- changes. The arithmetic is `Layout.top`, where the specs are.
 ---
+--- It is drawn at Roblox's own scale (`SafeArea.chromeScale`): where Roblox draws its bar larger,
+--- as on a television, the capsules, the buttons, the margins and the gaps grow with it, so the
+--- line stays the same size as Roblox's own and in the same places.
+---
 --- THE FAILURE MODE IS NOT A CLIPPED CAPSULE. IT IS A SECOND LINE, WHERE NOBODY WILL SEE IT. The
 --- row is right-anchored, so a width that is too small shows as neither a gap nor a clip: it only
 --- decides where wrapping begins. Once a wrapped line landed exactly behind an icon column; once the
@@ -69,17 +73,32 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 	list.Wraps = true
 	list.SortOrder = Enum.SortOrder.LayoutOrder
 	list.Parent = row
+	-- Roblox's scale: the row is laid out as written and drawn at it
+	const rowScale = Instance.new("UIScale")
+	rowScale.Name = "ChromeScale"
+	rowScale.Parent = row
 	row.Parent = gui
 
-	const lefts: { TextButton } = {}
+	-- each left button in a holder of its own, which wears Roblox's scale: the button's squash rides
+	-- a UIScale already, and an object is drawn at one UIScale only (a television's left buttons
+	-- stood at a computer's size beside Roblox's, a game's owner saw)
+	const lefts: { Frame } = {}
 	const connections: { RBXScriptConnection } = {}
 
 	const function fit()
-		const top = Layout.top(SafeArea.measure(gui), SafeArea.insetMinX(), #lefts)
-		for index, button in lefts do
-			button.Position = UDim2.fromOffset(top.lefts[index], Measure.TOP)
+		const s = SafeArea.chromeScale()
+		const top = Layout.top(SafeArea.measure(gui), SafeArea.insetMinX(), #lefts, nil, s)
+		for index, holder in lefts do
+			holder.Position = UDim2.fromOffset(top.lefts[index], Measure.TOP * s)
+			const scale = holder:FindFirstChild("ChromeScale")
+			if scale and scale:IsA("UIScale") then
+				scale.Scale = s
+			end
 		end
-		row.Size = UDim2.fromOffset(top.rowWidth, Measure.HEIGHT)
+		rowScale.Scale = s
+		row.Position = UDim2.new(1, -Measure.EDGE * s, 0, Measure.TOP * s)
+		-- in the row's own units: the scale draws it as wide as the screen has room for
+		row.Size = UDim2.fromOffset(top.rowWidth / s, Measure.HEIGHT)
 	end
 	const unbind = SafeArea.bind(gui, fit)
 	table.insert(connections, game:GetService("GuiService"):GetPropertyChangedSignal("TopbarInset"):Connect(fit))
@@ -100,7 +119,8 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 	table.insert(
 		connections,
 		row:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-			wrap.seen(row.AbsoluteSize.Y)
+			-- in the row's own units, at whatever scale it is drawn
+			wrap.seen(row.AbsoluteSize.Y / rowScale.Scale)
 		end)
 	)
 
@@ -134,7 +154,8 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 		-- The holder tracks the capsule's UNSCALED width: dividing the live size back out by the
 		-- scale keeps the row's spacing honest while the capsule is mid-pulse.
 		const function fitHolder()
-			holder.Size = UDim2.fromOffset(plate.AbsoluteSize.X / scale.Scale, Measure.HEIGHT)
+			-- the plate's drawn width is the row's scale times its own: both divided out
+			holder.Size = UDim2.fromOffset(plate.AbsoluteSize.X / (scale.Scale * rowScale.Scale), Measure.HEIGHT)
 		end
 		fitHolder()
 		-- Dies with the row anyway; listed with the rest so `destroy` disconnects everything.
@@ -149,8 +170,16 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 	end
 
 	const function addLeftButton(icon: string): TextButton
-		const button = Button.round(gui, theme, icon, { name = "LeftButton" })
-		table.insert(lefts, button)
+		const holder = Instance.new("Frame")
+		holder.Name = "LeftHolder"
+		holder.BackgroundTransparency = 1
+		holder.Size = UDim2.fromOffset(Measure.HEIGHT, Measure.HEIGHT)
+		const scale = Instance.new("UIScale")
+		scale.Name = "ChromeScale"
+		scale.Parent = holder
+		holder.Parent = gui
+		const button = Button.round(holder, theme, icon, { name = "LeftButton" })
+		table.insert(lefts, holder)
 		fit()
 		return button
 	end
@@ -161,8 +190,8 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 		for _, connection in connections do
 			connection:Disconnect()
 		end
-		for _, button in lefts do
-			button:Destroy()
+		for _, holder in lefts do
+			holder:Destroy()
 		end
 		row:Destroy()
 	end

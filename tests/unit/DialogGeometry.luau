@@ -110,4 +110,26 @@ Spec.test("a narrow dialog is centred with the air its width leaves", function()
 	Spec.equal(DialogGeometry.layout(870, 639, 58, 620, 600, BAR).width, 620, "a wider one")
 end)
 
+Spec.test("at Roblox's scale of its bar the panel is laid out in its points and fits", function()
+	-- a television: 1920 by 1080 under a strip of 87, half again a computer's 58
+	const points = DialogGeometry.layout(1280, 720, 58, 760, 600, nil)
+	const tv = DialogGeometry.scaled(1920, 1080, 87, 760, 600, nil, 1.5)
+	Spec.equal(tv.width, points.width, "its width in points")
+	Spec.equal(tv.height, points.height, "its height in points")
+	Spec.equal(tv.top, math.floor(points.top * 1.5), "its top in pixels")
+	Spec.truthy(tv.top + tv.height * 1.5 <= 1080, "drawn at the scale, it ends on the screen")
+	-- the band is in pixels too, read in points
+	const band = DialogGeometry.scaled(1920, 1080, 87, 760, 600, { band = 123, room = 540 }, 1.5)
+	const read = DialogGeometry.layout(1280, 720, 58, 760, 600, BAR)
+	Spec.equal(band.height, read.height, "the band read in points")
+	Spec.equal(band.top, math.floor(read.top * 1.5), "and the top under it in pixels")
+	Spec.equal(band.clearsBottom, read.clearsBottom, "cleared as in points")
+end)
+
+Spec.test("at a computer's scale, or none read, the panel is laid out as it always was", function()
+	const flat = DialogGeometry.layout(1920, 1080, 58, 760, 600, BAR)
+	Spec.equal(DialogGeometry.scaled(1920, 1080, 58, 760, 600, BAR, 1), flat, "a scale of 1")
+	Spec.equal(DialogGeometry.scaled(1920, 1080, 58, 760, 600, BAR, 0), flat, "none read")
+end)
+
 return nil

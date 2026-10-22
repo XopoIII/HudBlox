@@ -19,6 +19,7 @@ const Band = require("@self/Band")
 const Button = require("@self/Button")
 const Clearance = require("@self/Clearance")
 const Dialog = require("@self/Dialog")
+const DialogColumn = require("@self/DialogColumn")
 const DialogGeometry = require("@self/DialogGeometry")
 const Flight = require("@self/Flight")
 const FlightPath = require("@self/FlightPath")
@@ -30,15 +31,20 @@ const Indicator = require("@self/Indicator")
 const Layout = require("@self/Layout")
 const Measure = require("@self/Measure")
 const Native = require("@self/Native")
+const PadCard = require("@self/PadCard")
+const PadChord = require("@self/PadChord")
 const PadGlyph = require("@self/PadGlyph")
 const PadInput = require("@self/PadInput")
 const PadMenu = require("@self/PadMenu")
+const PadPage = require("@self/PadPage")
+const PadScroll = require("@self/PadScroll")
 const Pick = require("@self/Pick")
 const Pill = require("@self/Pill")
 const Ring = require("@self/Ring")
 const Rtl = require("@self/Rtl")
 const SafeArea = require("@self/SafeArea")
 const Stack = require("@self/Stack")
+const Steer = require("@self/Steer")
 const TabFit = require("@self/TabFit")
 const Tabs = require("@self/Tabs")
 const Theme = require("@self/Theme")
@@ -58,6 +64,13 @@ export type BadgeOptions = Badge.Options
 export type BadgeHandle = Badge.Handle
 export type TabsEntry = Tabs.Entry
 export type TabsOptions = Tabs.Options
+export type PadCardOptions = PadCard.Options
+export type PadPageKey = PadPage.Key
+export type PadGlyphShape = PadGlyph.Shape
+export type DialogColumnOptions = DialogColumn.Options
+export type PadChordKey = PadChord.Key
+export type PadChordChord = PadChord.Chord
+export type PadChordHandle = PadChord.Handle
 export type TabsHandle = Tabs.Handle
 export type FlightOptions = Flight.Options
 export type FlightPhase = FlightPath.Phase
@@ -119,18 +132,27 @@ return {
 	Rtl = Rtl,
 	--- What a game says of itself once: its reader's direction, its pad counter.
 	Host = Host,
-	--- A whole dialog, and the arithmetic of where it sits.
+	--- A whole dialog, the column its body scrolls in, and the arithmetic of where it sits.
 	Dialog = Dialog,
+	DialogColumn = DialogColumn,
 	DialogGeometry = DialogGeometry,
-	--- Where a gamepad's selection is, one panel at a time; its ring, and the pure parts.
+	--- Where a gamepad's selection is, one panel at a time; its ring, where each way goes, the right
+	--- stick on its list, and the pure parts.
 	Focus = Focus,
 	Ring = Ring,
+	Steer = Steer,
+	PadScroll = PadScroll,
 	Pick = Pick,
 	Stack = Stack,
 	--- Whether the player is on a gamepad, a button's picture, and the D-pad's way to the top bar.
 	PadInput = PadInput,
 	PadGlyph = PadGlyph,
 	PadMenu = PadMenu,
+	--- A game's own card that holds the pad, a part's first control and a tile walked whole, and a
+	--- bumper held as a chord.
+	PadCard = PadCard,
+	PadPage = PadPage,
+	PadChord = PadChord,
 	--- Hides the touch controls and holds the character under a dialog.
 	TouchControls = TouchControls,
 	--- A hotbar and the inventory above it in the stock layout, drawn for the game's own Tools; and
