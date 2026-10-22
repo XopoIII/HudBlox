@@ -3,6 +3,23 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.12.2 - 2026-10-22
+
+A game's owner, on a television, found the gamepad's ring drawn over a button's key picture, half
+of it hidden. The engine draws its selection mark over the control and all that is on it, and
+draws none of the mark's own children, so nothing could be put above it.
+
+### Fixed
+
+- **The ring is the kit's own drawing**, in a layer of its own over every gui
+  (`Ring.DISPLAY_ORDER`, 1000), following the control in focus each frame and cut where the list
+  it stands in ends. The engine is given an empty mark (`Ring.square` and `Ring.round` return it).
+  **`Ring.say`** draws the pictures the control or its tile wears again over the outline, where
+  they stand, and hides them under it meanwhile; a control with none gets A's.
+- **A gui's own UIScale counts**: what a point is drawn at (the ring's corners, the margin a list
+  scrolls by) included the UIScales up to a ScreenGui but not one on the ScreenGui itself, as
+  `SafeArea.follow` puts on a column of buttons down the edge.
+
 ## 0.12.1 - 2026-10-22
 
 A game's owner, checking 0.12.0 on a television, found a picked card's outline cut off at the
