@@ -34,6 +34,37 @@ function SafeArea.insetMinX(): number
 	return game:GetService("GuiService").TopbarInset.Min.X
 end
 
+--> Roblox's own scale of its top bar on this device (`Layout.scale`): 1 on a computer, half again on
+--> a television. Whatever stands beside or under the bar and should match it is drawn at it.
+function SafeArea.chromeScale(): number
+	return Layout.scale(game:GetService("GuiService").TopbarInset.Height)
+end
+
+--> Draws `gui`, and all that is in it, at Roblox's scale of its bar from now on: a UIScale named
+--> `ChromeScale`, made the first time the scale is not 1 and kept to it as the bar changes. For what
+--> stands beside the bar and should match it, a column of round buttons down the screen's edge.
+--> Returns the function that stops it.
+function SafeArea.follow(gui: LayerCollector): () -> ()
+	const function apply()
+		const scale = SafeArea.chromeScale()
+		local made = gui:FindFirstChild("ChromeScale")
+		if not made and scale ~= 1 then
+			const fresh = Instance.new("UIScale")
+			fresh.Name = "ChromeScale"
+			fresh.Parent = gui
+			made = fresh
+		end
+		if made and made:IsA("UIScale") then
+			made.Scale = scale
+		end
+	end
+	apply()
+	const watch = game:GetService("GuiService"):GetPropertyChangedSignal("TopbarInset"):Connect(apply)
+	return function()
+		watch:Disconnect()
+	end
+end
+
 --> X in `gui` where the top line's free span begins, right of Roblox's own buttons.
 function SafeArea.topbarFreeX(gui: GuiBase2d): number
 	return Layout.freeX(SafeArea.insetMinX(), gui.AbsolutePosition.X)

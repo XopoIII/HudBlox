@@ -115,6 +115,10 @@ end
 -- The screen, read and as arithmetic.
 const screen: HudBlox.Screen = HudBlox.SafeArea.measure(gui)
 const top: HudBlox.Top = HudBlox.Layout.top(screen, HudBlox.SafeArea.insetMinX(), 1)
+-- Roblox's own scale of its bar, for what stands beside it
+const chromeScale: number = HudBlox.SafeArea.chromeScale()
+const _scaled: number = HudBlox.Layout.scale(HudBlox.Measure.STRIP) * chromeScale
+const _fitsScaled: boolean = HudBlox.Layout.fits(HudBlox.Layout.top(screen, 208, 1, nil, chromeScale), 300, chromeScale)
 const needs = HudBlox.Layout.rowNeeds({
 	HudBlox.Layout.pillWidth({ { ink = 60, lead = true }, { ink = 44, lead = true } }),
 	HudBlox.Measure.HEIGHT,

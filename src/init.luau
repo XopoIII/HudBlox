@@ -30,9 +30,12 @@ const Indicator = require("@self/Indicator")
 const Layout = require("@self/Layout")
 const Measure = require("@self/Measure")
 const Native = require("@self/Native")
+const PadCard = require("@self/PadCard")
+const PadChord = require("@self/PadChord")
 const PadGlyph = require("@self/PadGlyph")
 const PadInput = require("@self/PadInput")
 const PadMenu = require("@self/PadMenu")
+const PadPage = require("@self/PadPage")
 const Pick = require("@self/Pick")
 const Pill = require("@self/Pill")
 const Ring = require("@self/Ring")
@@ -58,6 +61,10 @@ export type BadgeOptions = Badge.Options
 export type BadgeHandle = Badge.Handle
 export type TabsEntry = Tabs.Entry
 export type TabsOptions = Tabs.Options
+export type PadCardOptions = PadCard.Options
+export type PadChordKey = PadChord.Key
+export type PadChordChord = PadChord.Chord
+export type PadChordHandle = PadChord.Handle
 export type TabsHandle = Tabs.Handle
 export type FlightOptions = Flight.Options
 export type FlightPhase = FlightPath.Phase
@@ -131,6 +138,11 @@ return {
 	PadInput = PadInput,
 	PadGlyph = PadGlyph,
 	PadMenu = PadMenu,
+	--- A game's own card that holds the pad, a part's first control and a tile walked whole, and a
+	--- bumper held as a chord.
+	PadCard = PadCard,
+	PadPage = PadPage,
+	PadChord = PadChord,
 	--- Hides the touch controls and holds the character under a dialog.
 	TouchControls = TouchControls,
 	--- A hotbar and the inventory above it in the stock layout, drawn for the game's own Tools; and

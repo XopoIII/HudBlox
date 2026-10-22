@@ -3,6 +3,53 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.12.0 - 2026-10-22
+
+The top line is drawn at Roblox's own scale. On a television Roblox draws its bar half again as
+large (a strip of 87 against a computer's 58, the menu button 66 x 66 at x 24 and y 18), and the
+kit's capsules and buttons stood beside it at a computer's size, smaller than Roblox's and out of
+its line. A phone or any device that draws the bar at another size is followed the same way.
+
+### Added
+
+- **`Measure.STRIP`**, 58: Roblox's strip on the computer the other numbers were read on.
+- **`Layout.scale(strip)`**: Roblox's scale of its bar, the strip's height over `Measure.STRIP`, 1
+  for a strip that is not reported. 1 spec and 2 mutants.
+- **`SafeArea.chromeScale()`**: that scale on the running device, for what a game stands beside or
+  under the bar. **`SafeArea.follow(gui)`** keeps a gui of the game's own (a column of round
+  buttons down the edge) at it, as the bar changes.
+
+The rest of a game's pad, which a game had to write for itself and the next would again:
+
+- **`PadCard.hold(name, root, first, options)`**: a card the game draws by hand holds the pad
+  while it is shown, as a dialog does, the ring on `first` with A's picture, B doing `back` with
+  its picture on `cancel`; a card built hidden takes the pad as it is shown.
+- **`PadPage.first(root)`**, **`PadPage.ring(root)`**, **`PadPage.whole(frame, inner, press)`**: the
+  first control of a part of the screen as `Pick` orders it; the ring put on it once a page drawn a
+  share of a frame at a time is there; a tile walked whole by the ring, A pressing its button.
+- **`PadChord.bind(chords)`**: a bumper held as a chord, the face buttons and the D-pad pressing what
+  the game names from anywhere, each control wearing its key while the bumper is down and the
+  bumper's own picture standing where the game says while it is up; the world's prompts off while
+  a chord is held. **`PadChord.match`**, the rule, is plain data: 2 specs and 3 mutants.
+- **`Tabs`' bumpers** leave the tabs out of the ring's walk and put the ring on the turned page's
+  first control.
+
+### Changed
+
+- **`Layout.top(screen, insetMinX, leftCount, rowTop?, scale?)`** lays the line out at `scale`:
+  the edge margin, the top, the gaps and each left button's step grow with it. Without a scale it
+  is the line it was. **`Layout.fits(top, needs, scale?)`** draws written widths at the scale.
+  The arithmetic's mutants were moved onto the scaled lines, and 2 more added.
+- **`TopBar.mount`** draws the row and the left buttons at `SafeArea.chromeScale()` (a UIScale
+  named `ChromeScale` on each), placed at that scale, and fits again as the bar changes. The wrap
+  check and a capsule's holder read the row in its own units.
+
+### Not done
+
+- The UIScale on the row and the left buttons, `SafeArea.follow`, `PadCard`, `PadPage` and the
+  chords' binding and pictures build Instances or read the engine's input, so they are not run by
+  the suite; they are looked at in a game in Studio's ten-foot interface with a pad.
+
 ## 0.11.0 - 2026-10-22
 
 A dialog says on a gamepad what its keys do, and a strip of tabs turns on the bumpers. A game's

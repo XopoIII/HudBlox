@@ -148,4 +148,34 @@ Spec.test("a mirrored element sits as far from the opposite edge as it sat from 
 	Spec.equal({ Layout.mirrorX(0.5, 0.5, 0) }, { 0.5, 0.5, 0 }, "centred")
 end)
 
+Spec.test("Roblox's own scale is its strip's height over a computer's", function()
+	Spec.equal(Layout.scale(58), 1, "a computer")
+	-- Studio's ten-foot interface, 2026-10-22: a strip of 87, the menu button 66 at x 24, y 18
+	Spec.equal(Layout.scale(87), 1.5, "a television")
+	Spec.equal(Layout.scale(0), 1, "a strip not reported")
+	Spec.equal(Layout.scale(-4), 1, "nor a negative one")
+end)
+
+Spec.test("at a television's scale every distance and size of the line grows with Roblox's", function()
+	-- the screen measured there: 1918 wide, Roblox's buttons ending at 246
+	const tv: Layout.Screen = { width = 1918, left = 0, top = -87 }
+	-- the first left button 12 past Roblox's, the next 78 on, the row 12 past the last and 24 off
+	-- the right edge: 8, 52 and 16 half again
+	Spec.equal(
+		Layout.top(tv, 246, 2, nil, 1.5),
+		{ onChromeLine = true, lefts = { 258, 336 }, rowLeft = 414, rowWidth = 1480 }
+	)
+	-- below the line the first left button starts 24 in, the edge margin at that scale
+	Spec.equal(Layout.top(below(801), INSET, 1, nil, 1.5).lefts, { 24 }, "below the line")
+	-- the row's top is 18 into a strip of 87: on the line
+	Spec.equal(Layout.top({ width = 1918, left = 0, top = -18 }, 246, 0, nil, 1.5).onChromeLine, false, "18 deep")
+	Spec.equal(Layout.top({ width = 1918, left = 0, top = -19 }, 246, 0, nil, 1.5).onChromeLine, true, "19 deep")
+	-- written widths are drawn at the scale: 216 written is 324 drawn
+	const row = Layout.top(below(348), 0, 0, nil, 1.5)
+	Spec.equal(row.rowWidth, 324, "the row")
+	Spec.equal(Layout.fits(row, 216, 1.5), true, "exactly enough")
+	Spec.equal(Layout.fits(row, 217, 1.5), false, "one over")
+	Spec.equal(Layout.fits(row, 217), true, "as written, the same contents fit")
+end)
+
 return nil

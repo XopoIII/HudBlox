@@ -70,30 +70,45 @@ function Layout.chromeFreeX(screen: Screen, insetMinX: number, rowTop: number): 
 	return Layout.freeX(insetMinX, screen.left)
 end
 
---> Where the first left button starts: `Measure.GAP` past Roblox's own buttons when there are any
---> on this line, as Roblox spaces its own, and at the edge margin when there are none.
-function Layout.leftStart(free: number): number
-	return if free > 0 then free + Measure.GAP else Measure.EDGE
+--> Roblox's own scale of its top bar on this device: the strip's height, `GuiService.TopbarInset`'s,
+--> over the computer's (`Measure.STRIP`). A television draws the bar half again as large and says so
+--> by a strip of 87. 1 for a strip that is not reported.
+function Layout.scale(strip: number): number
+	if strip <= 0 then
+		return 1
+	end
+	return strip / Measure.STRIP
 end
 
---> The whole top line for `leftCount` left buttons. `rowTop` is `Measure.TOP` unless the host moved
---> the row. The right row begins `Measure.GAP` past the last left button, so the two never meet;
---> when the screen is too narrow for that, the row's width is 0 rather than negative.
-function Layout.top(screen: Screen, insetMinX: number, leftCount: number, rowTop: number?): Top
-	const top = rowTop or Measure.TOP
+--> Where the first left button starts: `Measure.GAP` past Roblox's own buttons when there are any
+--> on this line, as Roblox spaces its own, and at the edge margin when there are none; both at
+--> Roblox's `scale`, 1 when left out.
+function Layout.leftStart(free: number, scale: number?): number
+	const s = scale or 1
+	return if free > 0 then free + Measure.GAP * s else Measure.EDGE * s
+end
+
+--> The whole top line for `leftCount` left buttons, at Roblox's `scale` (1 when left out): every
+--> measured distance and size grows with it, as Roblox's own do. `rowTop` is `Measure.TOP` at that
+--> scale unless the host moved the row. The right row begins a gap past the last left button, so
+--> the two never meet; when the screen is too narrow for that, the row's width is 0 rather than
+--> negative.
+function Layout.top(screen: Screen, insetMinX: number, leftCount: number, rowTop: number?, scale: number?): Top
+	const s = scale or 1
+	const top = rowTop or Measure.TOP * s
 	const free = Layout.chromeFreeX(screen, insetMinX, top)
 	const lefts = table.create(leftCount) :: { number }
-	local x = Layout.leftStart(free)
+	local x = Layout.leftStart(free, s)
 	for _ = 1, leftCount do
 		table.insert(lefts, x)
-		x += Measure.HEIGHT + Measure.GAP
+		x += (Measure.HEIGHT + Measure.GAP) * s
 	end
 	const bound = if leftCount > 0 then x else free
-	const rowWidth = math.max(0, screen.width - Measure.EDGE - bound)
+	const rowWidth = math.max(0, screen.width - Measure.EDGE * s - bound)
 	return {
 		onChromeLine = Layout.onChromeLine(screen.top, top),
 		lefts = lefts,
-		rowLeft = screen.width - Measure.EDGE - rowWidth,
+		rowLeft = screen.width - Measure.EDGE * s - rowWidth,
 		rowWidth = rowWidth,
 	}
 end
@@ -129,8 +144,9 @@ end
 
 --> Whether contents `needs` wide stay on one line of the row. A row that does not fit WRAPS, and
 --> the wrapped line is drawn where nobody looks; this is the question to ask of a worst case.
-function Layout.fits(top: Top, needs: number): boolean
-	return needs <= top.rowWidth
+--> `needs` is measured as written, and drawn at Roblox's `scale` (1 when left out).
+function Layout.fits(top: Top, needs: number, scale: number?): boolean
+	return needs * (scale or 1) <= top.rowWidth
 end
 
 --> The fixed width of a label pinned to its widest text: rounded up, and 2 more so a hinting
