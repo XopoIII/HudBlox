@@ -53,9 +53,13 @@ end
 const function drawn(object: Instance): number
 	local scale = 1
 	local at: Instance? = object
-	while at and not at:IsA("LayerCollector") do
+	-- the gui's own UIScale too: a whole ScreenGui drawn at Roblox's scale (`SafeArea.follow`)
+	while at do
 		const found = at:FindFirstChildWhichIsA("UIScale")
 		scale *= if found then found.Scale else 1
+		if at:IsA("LayerCollector") then
+			break
+		end
 		at = at.Parent
 	end
 	return scale

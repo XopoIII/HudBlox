@@ -60,6 +60,8 @@ end
 function PadGlyph.cap(parent: GuiObject, code: Enum.KeyCode, size: number): Frame
 	const cap = Instance.new("Frame")
 	cap.Name = "PadCap"
+	-- the key it says, by name: what the ring reads to draw it again over its outline (`Ring.say`)
+	cap:SetAttribute("PadKey", code.Name)
 	cap.BackgroundTransparency = 1
 	cap.Size = UDim2.fromOffset(size, size)
 	const z = parent.ZIndex + 10
