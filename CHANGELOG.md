@@ -3,6 +3,24 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.12.3 - 2026-10-22
+
+A game that turns the world's prompts off for a camera shot of its own found them on again as
+soon as any panel opened or closed: `Focus` wrote `ProximityPromptService.Enabled` on every push
+and pop, true whenever no pad held the panel, whatever the game had set.
+
+### Fixed
+
+- **The world's prompts are the game's.** `Focus` writes the switch only when its own hold
+  begins or ends: off as a pad takes a panel, and back to what the game had it at as it lets go.
+  With no pad in hand, a panel opening or closing leaves it alone. The rule is **`PromptHold`**
+  (`new`, `step`, `apply`), plain Luau with its specs and three slips.
+
+### Not done
+
+- A game that changes the switch while a pad holds a panel gets back what it had when the hold
+  began, not what it wrote meanwhile.
+
 ## 0.12.2 - 2026-10-22
 
 A game's owner, on a television, found the gamepad's ring drawn over a button's key picture, half

@@ -25,6 +25,7 @@ const Host = require("./Host")
 const PadInput = require("./PadInput")
 const PadScroll = require("./PadScroll")
 const Pick = require("./Pick")
+const PromptHold = require("./PromptHold")
 const Ring = require("./Ring")
 const Stack = require("./Stack")
 const Steer = require("./Steer")
@@ -59,6 +60,8 @@ Focus.PRIORITY = 2100
 
 const stack: Stack.Stack<Scope> = { entries = {} }
 local ringed = false
+-- the world's prompts, held off while the pad owns a panel and given back as the game had them
+const prompts = PromptHold.new()
 local started = false
 
 const shown = Steer.shown
@@ -128,7 +131,7 @@ const function settle()
 	const guiService = game:GetService("GuiService")
 	const top = Stack.top(stack)
 	const held = top ~= nil and PadInput.active()
-	game:GetService("ProximityPromptService").Enabled = not held
+	PromptHold.apply(prompts, held, game:GetService("ProximityPromptService"))
 	const selected = guiService.SelectedObject
 	if not top then
 		return

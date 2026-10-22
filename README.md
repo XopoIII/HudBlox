@@ -9,8 +9,8 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **Status: 0.12.2.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
-> the hands" button are proven by specs that run on every push, and each of 256 small slips in them
+> **Status: 0.12.3.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
+> the hands" button are proven by specs that run on every push, and each of 259 small slips in them
 > makes the suite fail (`tests/Mutate.luau`). The modules that build Instances cannot run off
 > Roblox, so the suite does not run them; they are checked against the Roblox API by the type gate,
 > under both type solvers.
@@ -40,7 +40,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.12.2", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.12.3", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -381,7 +381,8 @@ holds one. It hands back `gui`, `panel`, `title`, `body`, `footer`, `setOpen(ope
 
 - `Focus.push(name, root, { back?, first? }?)` gives the pad to a panel: the selection is kept
   inside `root`, B runs `back` for the newest panel alone, the world's prompts are off and the
-  character stands. `Focus.pop(name)` takes it back, `Focus.open()` says whether any panel has it
+  character stands; letting go gives the prompts back as the game had them (`PromptHold`), and
+  with no pad in hand the kit never writes them. `Focus.pop(name)` takes it back, `Focus.open()` says whether any panel has it
   and `Focus.holds(name)` whether that one does, on top of every other.
   Only while the player is on a gamepad (`PadInput`): a mouse or a finger sees no ring.
 - `Focus.start()` switches the engine's own auto-selection off and begins to follow the selection.
