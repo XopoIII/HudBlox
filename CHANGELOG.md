@@ -3,6 +3,36 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.13.0 - 2026-10-24
+
+A game's top row wrapped on phones whose players had set Roblox's text size to Larger or Largest:
+its live log showed a pinned number 97 points wide at Larger and 109 at Largest, where the game's
+own reckoning of the row had one width for every player. The engine measures text at the
+player's size, so `Pill.measure` had the right answer at first, but kept it by font, size and
+candidates alone: a player who changed the setting while playing got the old width back, and a
+pinned label stayed as narrow as it was.
+
+### Added
+
+- **`TextMemo.key` takes the player's text size**, an optional sixth argument (the name of
+  `GuiService.PreferredTextSize`), kept at the key's end behind a separator of its own, so no list
+  of candidates reads as a shorter list and a text size. Left out, a key is what it was.
+
+### Changed
+
+- **`Pill.measure` keeps an answer by the player's text size** as well, so a new setting is
+  measured again.
+- **`Pill.pinWidth` pins its label again when the player changes the text size**, and lets go of
+  the setting's signal when the label is destroyed.
+
+### Not done
+
+- `Layout.pillWidth` still adds the widths it is given and measures nothing: a game that works the
+  row out ahead of time gives it the measured width (`Layout.pinned` of what `Pill.measure`
+  answers), not a constant.
+- `Pill.pinWidth`'s second pin, on a change of the setting, runs only in a game: no spec here
+  changes the engine's text size, and Studio cannot.
+
 ## 0.12.3 - 2026-10-22
 
 A game that turns the world's prompts off for a camera shot of its own found them on again as
