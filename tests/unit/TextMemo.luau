@@ -41,6 +41,25 @@ Spec.test("another family, weight, style, size or candidate is another key", fun
 	)
 end)
 
+Spec.test("the player's text size, given, is another key; left out, the key is as it was", function()
+	const base = TextMemo.key("f", "Bold", "Normal", 20, { "00" })
+	const larger = TextMemo.key("f", "Bold", "Normal", 20, { "00" }, "Larger")
+	Spec.equal(TextMemo.key("f", "Bold", "Normal", 20, { "00" }, nil), base, "left out")
+	Spec.equal(larger == base, false, "a text size against none")
+	Spec.equal(larger == TextMemo.key("f", "Bold", "Normal", 20, { "00" }, "Largest"), false, "another text size")
+	Spec.equal(larger, TextMemo.key("f", "Bold", "Normal", 20, { "00" }, "Larger"), "the same text size")
+	Spec.equal(larger, "f\0Bold\0Normal\00020\00000\1Larger", "the key")
+end)
+
+Spec.test("a text size is never read as one more candidate", function()
+	Spec.equal(
+		TextMemo.key("f", "Bold", "Normal", 20, { "00" }, "Larger")
+			== TextMemo.key("f", "Bold", "Normal", 20, { "00", "Larger" }),
+		false,
+		"a candidate named as a text size"
+	)
+end)
+
 Spec.test("a new memo knows nothing, and a kept answer is handed back for its key alone", function()
 	const memo = TextMemo.new()
 	Spec.equal(TextMemo.get(memo, key({ "00" })), nil, "nothing yet")

@@ -4,6 +4,18 @@
 const MUTANTS = {
 	{
 		file = "src/TextMemo.luau",
+		from = "\treturn key .. TEXT_SIZE .. textSize\n",
+		to = "\treturn key\n",
+		breaks = "the player's text size, given, is another key",
+	},
+	{
+		file = "src/TextMemo.luau",
+		from = "return key .. TEXT_SIZE .. textSize",
+		to = "return key .. SEPARATOR .. textSize",
+		breaks = "a text size is never read as one more candidate",
+	},
+	{
+		file = "src/TextMemo.luau",
 		from = "\ttable.sort(sorted)\n",
 		to = "",
 		breaks = "the candidates' order does not change the key",

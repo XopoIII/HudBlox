@@ -14,18 +14,37 @@ export type Memo = { answers: { [string]: number }, count: number }
 
 -- Between the parts of a key: a character no font's name and no text a player reads holds.
 const SEPARATOR = "\0"
+-- Before the player's text size, at the key's end: another such character, so that no list of
+-- candidates can be read as a shorter list and a text size.
+const TEXT_SIZE = "\1"
 
 --> An empty memo.
 function TextMemo.new(): Memo
 	return { answers = {}, count = 0 }
 end
 
---> The key of a measurement: the font (`family`, `weight`, `style`), the `size`, and the
---> `candidates` in any order. `candidates` is not changed.
-function TextMemo.key(family: string, weight: string, style: string, size: number, candidates: { string }): string
+--> The key of a measurement: the font (`family`, `weight`, `style`), the `size`, the
+--> `candidates` in any order, and the player's `textSize` (`GuiService.PreferredTextSize`, by
+--> its name) when given. `candidates` is not changed.
+---
+--- The text size decides the answer as much as the size does: the engine draws and measures text
+--- larger at a larger setting (a game's live phones pinned the same "888.8M" at 97 points at
+--- Larger and at 109 at Largest), so an answer kept at one setting is not the answer at another.
+function TextMemo.key(
+	family: string,
+	weight: string,
+	style: string,
+	size: number,
+	candidates: { string },
+	textSize: string?
+): string
 	const sorted = table.clone(candidates)
 	table.sort(sorted)
-	return table.concat({ family, weight, style, tostring(size), table.concat(sorted, SEPARATOR) }, SEPARATOR)
+	const key = table.concat({ family, weight, style, tostring(size), table.concat(sorted, SEPARATOR) }, SEPARATOR)
+	if textSize == nil then
+		return key
+	end
+	return key .. TEXT_SIZE .. textSize
 end
 
 --> The answer kept under `key`, or nil.

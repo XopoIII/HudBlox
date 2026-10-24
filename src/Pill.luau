@@ -36,12 +36,14 @@ export type Capsule = { plate: GuiObject, segments: { Segment } }
 --> the text engine yields. A surface that is rebuilt measures once, keeps the number and applies
 --> it itself; the answer cannot change while the font and the size do not.
 ---
---- Answers are kept by font, size and candidates: a surface rebuilt whole (a respawn, a reopened
---- dialog) asks the text engine nothing it has already answered. `done` may be called before
+--- Answers are kept by font, size, candidates and the player's text size: a surface rebuilt whole
+--- (a respawn, a reopened dialog) asks the text engine nothing it has already answered, and a
+--- player who changes the text size is measured again. `done` may be called before
 --- `measure` returns: always for a kept answer, and whenever the text engine does not yield.
 function Pill.measure(font: Font, size: number, candidates: { string }, done: (widest: number) -> ())
 	const TextService = game:GetService("TextService")
-	const key = TextMemo.key(font.Family, font.Weight.Name, font.Style.Name, size, candidates)
+	const textSize = game:GetService("GuiService").PreferredTextSize.Name
+	const key = TextMemo.key(font.Family, font.Weight.Name, font.Style.Name, size, candidates, textSize)
 	const known = TextMemo.get(measured, key)
 	if known ~= nil then
 		task.spawn(done, known)
@@ -89,17 +91,27 @@ end
 function Pill.pinWidth(label: TextLabel, candidates: { string })
 	label.TextWrapped = false
 	label.TextTruncate = Enum.TextTruncate.None
-	Pill.measure(label.FontFace, label.TextSize, candidates, function(widest)
-		-- The capsule may be gone before the text engine answers (a respawn, a closed dialog).
-		-- The write is made all the same: a destroyed Instance takes it without an error and
-		-- shows nothing, and a label pinned before it has a parent must not be passed over.
-		if widest > 0 then
-			label.AutomaticSize = Enum.AutomaticSize.None
-			label.Size = UDim2.fromOffset(Layout.pinned(widest), Measure.HEIGHT)
-			-- Centred in its fixed box: left-aligned, a narrow value would sit against the lead and
-			-- a wide one against the capsule's edge, which is the jitter again in a smaller form.
-			label.TextXAlignment = Enum.TextXAlignment.Center
-		end
+	const function pin()
+		Pill.measure(label.FontFace, label.TextSize, candidates, function(widest)
+			-- The capsule may be gone before the text engine answers (a respawn, a closed dialog).
+			-- The write is made all the same: a destroyed Instance takes it without an error and
+			-- shows nothing, and a label pinned before it has a parent must not be passed over.
+			if widest > 0 then
+				label.AutomaticSize = Enum.AutomaticSize.None
+				label.Size = UDim2.fromOffset(Layout.pinned(widest), Measure.HEIGHT)
+				-- Centred in its fixed box: left-aligned, a narrow value would sit against the lead
+				-- and a wide one against the capsule's edge, which is the jitter again in a smaller
+				-- form.
+				label.TextXAlignment = Enum.TextXAlignment.Center
+			end
+		end)
+	end
+	pin()
+	-- The player's text size draws the text larger, and a label pinned at the one it had would
+	-- cut its widest text: pinned again when the player changes it, until the label is destroyed.
+	const changed = game:GetService("GuiService"):GetPropertyChangedSignal("PreferredTextSize"):Connect(pin)
+	label.Destroying:Once(function()
+		changed:Disconnect()
 	end)
 end
 
