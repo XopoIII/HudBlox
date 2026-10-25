@@ -3,6 +3,21 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.13.1 - 2026-10-25
+
+The package's code is 0.13.0's: two of its requires change places, and nothing else does. What
+changes is how far it is checked. LuneBlox 0.11.0's `luneblox setup` had put `Enum` and `warn` in
+`.luaurc`'s `globals`, and luau-lsp types a name listed there as `any` over the Roblox definitions,
+so no use of `Enum` in `src/` or the specs was type-checked. LuneBlox 0.11.1 takes them out again in a
+project that keeps the Roblox types, and with `Enum` typed the whole gate is still clean.
+
+### Changed
+
+- **The toolchain is at its latest releases**: LuneBlox 0.11.1, StyLua 2.6.0 and lefthook 2.2.2.
+  StyLua 2.6.0 sorts two requires differently, in `Backpack/init.luau` and the `Tabs` spec.
+- **`.luaurc` declares no globals**, so `Enum` is checked against the Roblox definitions:
+  `local n: number = Enum.KeyCode.A` is an error again.
+
 ## 0.13.0 - 2026-10-24
 
 A game's top row wrapped on phones whose players had set Roblox's text size to Larger or Largest:
