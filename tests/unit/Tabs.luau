@@ -1,7 +1,7 @@
 --!strict
 --- How wide a tab is in its strip.
-const TabFit = require("@hudblox/TabFit")
 const Spec = require("../Spec")
+const TabFit = require("@hudblox/TabFit")
 
 Spec.test("tabs that fit are each as wide as a tab may be", function()
 	Spec.equal(TabFit.WIDTH, 150, "the widest")
