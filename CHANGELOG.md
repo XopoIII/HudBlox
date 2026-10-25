@@ -3,6 +3,17 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.13.2 - 2026-10-25
+
+The package's code is 0.13.1's. The specs run on LuneBlox 0.11.2.
+
+### Changed
+
+- **LuneBlox 0.11.2**, from 0.11.1, runs the specs and the gates. It sets the fast flags of the Roblox
+  client 0.744, which turned `DebugCodegenOptSize` off, and its macOS binaries are built with Clang
+  21. Its `luneblox setup` leaves `.luaurc` as it is but for the alias, since this project keeps the
+  Roblox types. Every other tool and CI action was already at its latest release.
+
 ## 0.13.1 - 2026-10-25
 
 The package's code is 0.13.0's: two of its requires change places, and nothing else does. What
