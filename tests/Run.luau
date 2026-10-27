@@ -3,8 +3,9 @@
 ---
 --- Only what needs no Roblox runs here: the arithmetic (`Layout`, `Clearance`, `Band`,
 --- `DialogGeometry`, `Pick`, `Stack`), when the world's prompts are held off (`PromptHold`), a badge's count, the backpack's order, taps, presses and a gamepad's "in the hands" button, the hotbar's cover, and when the top row's wrap is reported.
---- The modules that build Instances are type-checked against the Roblox API
---- (`tests/consumer/` uses all of them) and are not run by this suite.
+--- Most modules that build Instances are type-checked against the Roblox API
+--- (`tests/consumer/` uses all of them) and are not run by this suite. Real UICorner instances are
+--- the exception: LuneBlox's Roblox library checks legacy property migration and model round-trips.
 ---
 --- Run from the repository root: `luneblox run tests/Run --yes` (or `sh scripts/run-tests.sh`).
 const Runtime = require("./Runtime")
@@ -33,5 +34,6 @@ require("./unit/Flight")
 require("./unit/FlightBook")
 require("./unit/TextMemo")
 require("./unit/Wrap")
+require("./unit/InstanceMigrations")
 
 Spec.finish()
