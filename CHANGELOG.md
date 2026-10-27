@@ -3,6 +3,16 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.13.3 - 2026-10-27
+
+The package's code is 0.13.2's. The specs and the demo build run on LuneBlox 0.11.3.
+
+### Changed
+
+- **LuneBlox 0.11.3**, from 0.11.2, runs the specs and the gates. Its reverse property migrations
+  include `UICorner.CornerRadius`, which is useful for local Instance and model tests, and its
+  compression dependencies include security fixes. The `@lune` alias follows it.
+
 ## 0.13.2 - 2026-10-25
 
 The package's code is 0.13.1's. The specs run on LuneBlox 0.11.2.
