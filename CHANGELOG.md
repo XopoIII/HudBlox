@@ -3,6 +3,17 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.13.4 - 2026-10-28
+
+The package's code is 0.13.3's. The suite gains specs over real `UICorner` instances.
+
+### Added
+
+- **Real `UICorner` specs on LuneBlox** (`tests/unit/InstanceMigrations.luau`): writing the retired
+  `CornerRadius` sets all four replacement radii, a replacement radius answers the legacy read, and
+  the migrated radii survive a Roblox binary model round-trip. The specs run in the suite on every
+  push. Behaviour inside Roblox does not change; the gain is for local Instance and model tests.
+
 ## 0.13.3 - 2026-10-27
 
 The package's code is 0.13.2's. The specs and the demo build run on LuneBlox 0.11.3.
