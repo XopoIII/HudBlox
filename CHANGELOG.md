@@ -3,6 +3,44 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.14.0 - 2026-11-05
+
+### Added
+
+- Independent `TouchControls.hold(reason) -> ControlRelease` tokens for all-input movement holds;
+  same-reason nesting, reversed/idempotent release and legacy set bits remain independent.
+- Pure ownership, protocol validation, boolean suppression and session modules with regression
+  specs, including suspended discovery scheduling. Thirty control semantic mutants must fail
+  exact named assertions in a disposable source/test snapshot; neither setup errors nor arbitrary
+  nonzero exits qualify.
+
+### Changed
+
+- Validated modern StarterPlayer ControlModule.Enabled first, PlayerScripts modern second, then
+  legacy GetControls. One backend only; active 0.1-second reconciliation retries missing/replaced
+  resources and reasserts modern plain-table changes. No require-time service access or runtime deps.
+- Late/recreated TouchGui adoption and observed reenable intent, deferred own-write generations,
+  synchronous observed reenable suppression and nonblocking generation-bound module discovery.
+  Final release restores existing resources even while discovery is suspended; teardown invalidates
+  first, restores controls, then adopted/live GUI resources without overwriting unadopted intent.
+  Both available replacement bindings are captured before sibling writes; own backend toggles
+  do not replace GUI intent. Synchronous and read-at-delivery queued side effects have fixtures.
+  A preexisting unadopted live GUI keeps its own captured value even if backend restore toggles it,
+  including one that arrived too late to be adopted; no snapshot means best-effort created state.
+- Legacy set bits still stop touch/gamepad movement only; the new hold API also stops keyboard
+  movement. Consumer fixture and demo exercise a separately owned all-input hold.
+
+### Not done
+
+- Native PlayerModule discovery/behavior, Roblox deferred signals, character respawn, real
+  desktop/touch/gamepad transitions and listener/polling teardown have not been run in Roblox.
+  Protocol fixtures are not native acceptance. The demo is built/read back, not playtested.
+- Legacy GetControls has no verified enabled getter: release is best-effort Enable, not exact
+  preservation of a prior disabled state. Outside false assignments while already forced false
+  are unobservable in native GUI signals/plain tables. Observed true intent is retained despite
+  deferred own false notifications. True-then-false transitions completed before native signal
+  delivery/plain-table reconciliation are also unobservable; queued mocks use current-value reads.
+
 ## 0.13.4 - 2026-10-28
 
 The package's code is 0.13.3's. The suite gains specs over real `UICorner` instances.

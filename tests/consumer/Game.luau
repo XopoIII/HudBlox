@@ -253,6 +253,11 @@ const menu: HudBlox.PadMenuConfig = {
 	toggleBag = shopDialog.toggle,
 }
 HudBlox.PadMenu.bind(menu)
+const releaseControls: HudBlox.ControlRelease = HudBlox.TouchControls.hold("help")
+const releaseOther = HudBlox.TouchControls.hold("help")
+releaseOther()
+releaseControls()
+releaseControls()
 HudBlox.TouchControls.set("help", true)
 HudBlox.TouchControls.set("help", false)
 stopPad()

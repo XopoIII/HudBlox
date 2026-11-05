@@ -39,6 +39,7 @@ experience and join it from the device.
 | The round buttons squash on a press | any of them | `Button` |
 | The left button stands just past Roblox's own and wears a "3" until the dialog has been opened once | the purple button | `TopBar`, `Badge` |
 | The dialog: backdrop, pop-in, tabs, a footer button; it closes by its X, a tap outside, the footer's button, a gamepad's B | the purple button | `Dialog`, `Tabs`, `Native` |
+| Character movement stops on every input while the dialog is open; close releases only the demo token | opening/closing the dialog on keyboard, touch or gamepad | `TouchControls.hold`, independent of Dialog's legacy set bit |
 | The clock in the bottom right corner stands above the jump button on a phone and steps aside while the dialog is up | opening the dialog | `Indicator`, `TouchClearance` |
 | On a gamepad: D-pad down puts a ring on the shop button, D-pad right opens the dialog, the ring stays inside the dialog while it is up, and the output prints each act | a gamepad, or `Workspace:SetAttribute("PadCheck", true)` in Studio | `PadMenu`, `Focus`, `Ring`, `PadGlyph`, `Host` |
 
