@@ -160,7 +160,24 @@ const refresh = HudBlox.Indicator.follow({
 	end,
 	busy = dialogUp,
 })
-playerGui:GetAttributeChangedSignal(HudBlox.Dialog.OPEN_ATTRIBUTE):Connect(refresh)
+-- The demo owns a token separately from Dialog's legacy bit; desktop movement is held too.
+local releaseControls: HudBlox.ControlRelease? = nil
+const function refreshDialog()
+	if dialogUp() and releaseControls == nil then
+		releaseControls = HudBlox.TouchControls.hold("demo-dialog")
+	elseif not dialogUp() and releaseControls then
+		releaseControls()
+		releaseControls = nil
+	end
+	refresh()
+end
+playerGui:GetAttributeChangedSignal(HudBlox.Dialog.OPEN_ATTRIBUTE):Connect(refreshDialog)
+gui.Destroying:Connect(function()
+	if releaseControls then
+		releaseControls()
+		releaseControls = nil
+	end
+end)
 
 -- The demo's own life: the wallet earns once a second, and the clock is read again.
 while true do

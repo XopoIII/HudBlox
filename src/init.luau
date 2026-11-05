@@ -52,6 +52,7 @@ const TopBar = require("@self/TopBar")
 const TouchClearance = require("@self/TouchClearance")
 const TouchControls = require("@self/TouchControls")
 
+export type ControlRelease = TouchControls.Release
 export type Theme = Theme.Theme
 export type Icon = Theme.Icon
 export type IconOptions = Icons.Options

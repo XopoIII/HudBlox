@@ -9,8 +9,8 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **Status: 0.13.4.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
-> the hands" button are proven by specs that run on every push, and each of 261 small slips in them
+> **0.14.0.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
+> the hands" button are proven by specs that run on every push, and each of 291 small slips in them
 > makes the suite fail (`tests/Mutate.luau`). The modules that build Instances cannot run off
 > Roblox, so the suite does not run them; they are checked against the Roblox API by the type gate,
 > under both type solvers.
@@ -40,7 +40,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.13.4", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.14.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -405,8 +405,47 @@ holds one. It hands back `gui`, `panel`, `title`, `body`, `footer`, `setOpen(ope
   draws it, shown only while they are on a pad.
 - `PadMenu.bind({ gui, buttons, first, bag, toggleBag })`: D-pad down puts the focus on a top bar's
   buttons, D-pad right opens the game's most used panel. Both stand down while a panel has the focus.
-- `TouchControls.set(reason, hide)`: hides the thumbstick and the jump button and holds the
-  character, keyed by reason so two surfaces can overlap.
+- `TouchControls.hold(reason) -> ControlRelease`: a separate, idempotent release closure for each
+  call, even with the same reason. Holds movement for keyboard, touch and gamepad; hides TouchGui
+  on touch devices. A camera or another owner releases only its own token.
+- `TouchControls.set(reason, hide)`: the legacy idempotent set bit, independent of all tokens.
+  Holds movement only on touch/gamepad, and hides TouchGui only on touch devices. Repeating true
+  does not nest; false clears only that reason's bit.
+
+`TouchControls` prefers a validated boolean `StarterPlayer.PlayerModule.ControlModule.Enabled`,
+then the modern ControlModule in PlayerScripts, then validated legacy `GetControls()` with
+`Enable`/`Disable`. It chooses one backend, retries missing/replaced resources, and reconciles
+plain modern tables at most once each 0.1 seconds while owned. Nothing is discovered or changed
+at require time. On the last release, listeners and queued write generations are invalidated
+before restoring controls, then adopted and live TouchGui resources (controls can rebuild them).
+Discovery is nonblocking and generation-bound: releasing during a suspended module load restores
+the existing session immediately, and a stale load cannot suppress later. A replacement GUI
+already present before teardown keeps its own intent, rather than inheriting the previous GUI's,
+even when restoring controls toggles that same live GUI before final handback, including a GUI
+that arrived too late to be adopted. If no GUI snapshot exists and restore first creates one, its
+backend-created state is best-effort, not an invented prior intent.
+
+Modern booleans and TouchGui preserve their adoption value, including false: both available
+replacement bindings are captured before sibling restoration/suppression writes. Internal backend
+toggles do not become GUI intent. Native GUI callbacks read current Enabled at delivery, not a
+stale captured event value; queued internal notifications see the reasserted false. Observed
+outside reenable intent is retained. A true-then-false transition completed before signal delivery
+or plain-table reconciliation, and an outside false while already forced false, are unobservable.
+Delayed own false notifications do not erase observed true intent. Legacy controls
+have no verified enabled getter: restoration is best-effort Enable, **not** an exact disabled
+snapshot. Native discovery/signals and real device movement still require Roblox testing; plain
+protocol specs and type checks do not prove them.
+
+Install `=0.14.0` only after verifying its published package. The following is also type-checked
+in the consumer fixture:
+
+```luau
+const releaseControls: HudBlox.ControlRelease = HudBlox.TouchControls.hold("camera")
+const releaseOther = HudBlox.TouchControls.hold("camera")
+releaseOther()
+releaseControls()
+releaseControls() -- harmless; does not release another owner's token
+```
 
 ### Backpack: the hotbar and the inventory
 

@@ -7,11 +7,13 @@
 ---     luneblox run tests/Mutate --yes -- Band     (only the mutants of files matching "Band")
 ---
 --- Every mutant's `from` must occur exactly once in its file, so a change to the code that moves it
---- fails here loudly instead of testing nothing. The source is always put back, even on an error.
+--- fails here loudly instead of testing nothing. Only a disposable source/test copy is mutated.
+--- Control mutants must load and fail their exact named assertion; an arbitrary nonzero exit is not a kill.
 const fs = require("@lune/fs")
 const process = require("@lune/process")
 
 const Mutants = require("./Mutants")
+const Workspace = require("./MutationWorkspace")
 
 type Mutant = Mutants.Mutant
 
@@ -27,8 +29,19 @@ const function count(text: string, pattern: string): number
 	end
 end
 
-const function suitePasses(): boolean
-	const result = process.exec("luneblox", { "run", "tests/Run", "--yes" })
+const function suitePasses(work: string, mutant: Mutant?): boolean
+	const result = process.exec("luneblox", { "run", "tests/Run", "--yes" }, { cwd = work })
+	if not result.ok and mutant and string.find(mutant.file, "/Control", 1, true) then
+		const text = string.gsub(result.stderr, "\27%[[%d;]*m", "")
+		const named = string.find(text, "FAIL " .. mutant.breaks .. "\n", 1, true)
+		const ending = if named then string.find(text, "\n\n", named, true) else nil
+		const block = if named then string.sub(text, named, ending or #text) else ""
+		assert(
+			string.find(block, "expected ", 1, true) and string.find(block, "tests/unit/Control", 1, true),
+			"not a named semantic assertion kill: " .. text
+		)
+		print("semantic assertion: " .. (string.match(block, "\n([^\n]+)") or block))
+	end
 	return result.ok
 end
 
@@ -48,28 +61,34 @@ for index, mutant in Mutants do
 	end
 end
 
+const work, cleanup = Workspace.new()
 const survivors: { Mutant } = {}
 local ran = 0
-for index, mutant in Mutants do
-	if chosen[index] == nil then
-		continue
+const okRun, problem = pcall(function()
+	assert(suitePasses(work, nil), "baseline suite failed before mutants")
+	for index, mutant in Mutants do
+		if chosen[index] == nil then
+			continue
+		end
+		const target = work .. "/" .. mutant.file
+		const original = fs.readFile(target)
+		const first, last = string.find(original, mutant.from, 1, true)
+		fs.writeFile(
+			target,
+			string.sub(original, 1, (first :: number) - 1) .. mutant.to .. string.sub(original, (last :: number) + 1)
+		)
+		const ok, passed = pcall(suitePasses, work, mutant)
+		fs.writeFile(target, original)
+		assert(ok, `mutant {index}: the suite could not run: {passed}`)
+		ran += 1
+		print(`{if passed then "SURVIVED" else "killed  "} {index} {mutant.file}: {mutant.breaks}`)
+		if passed then
+			table.insert(survivors, mutant)
+		end
 	end
-	const original = fs.readFile(mutant.file)
-	const first, last = string.find(original, mutant.from, 1, true)
-	fs.writeFile(
-		mutant.file,
-		string.sub(original, 1, (first :: number) - 1) .. mutant.to .. string.sub(original, (last :: number) + 1)
-	)
-	const ok, passed = pcall(suitePasses)
-	fs.writeFile(mutant.file, original)
-	assert(ok, `mutant {index}: the suite could not run: {passed}`)
-	ran += 1
-	print(`{if passed then "SURVIVED" else "killed  "} {index} {mutant.file}: {mutant.breaks}`)
-	if passed then
-		table.insert(survivors, mutant)
-	end
-end
-
+end)
+cleanup()
+assert(okRun, tostring(problem))
 assert(ran > 0, "no mutant ran: a check that checks nothing is not green")
 print(`{ran - #survivors} of {ran} mutants killed`)
 process.exit(if #survivors == 0 then 0 else 1)
