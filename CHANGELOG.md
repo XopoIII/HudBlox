@@ -3,6 +3,21 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.14.1 - 2026-11-06
+
+The package's code is 0.14.0's. The specs and the demo build run on LuneBlox 0.11.4.
+
+### Changed
+
+- **LuneBlox 0.11.4**, from 0.11.3, runs the specs and gates; the `@lune` typedef alias follows it.
+  It preserves numeric attribute precision, fixes empty-model DOM retention and conditional-spill
+  bookkeeping, and refreshes fast flags against Roblox client 0.746.0.7461267. Luau remains 0.740.
+
+### Not done
+
+- No new Roblox playtest was performed. The native acceptance and intent-observation limitations
+  recorded for 0.14.0 still apply; protocol fixtures are not native acceptance.
+
 ## 0.14.0 - 2026-11-05
 
 ### Added
