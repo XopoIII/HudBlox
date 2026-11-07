@@ -3,6 +3,28 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.14.2 - 2026-11-08
+
+The package's code is 0.14.1's except one type annotation in `Dialog.luau`, which carries no
+runtime behaviour. The type gate runs on XopoIII/luau-lsp 1.70.1-xopoiii.1.
+
+### Changed
+
+- **The type gate runs on XopoIII/luau-lsp 1.70.1-xopoiii.1**, the fork, from JohnnyMorganz/luau-lsp
+  1.70.1. The analyzer reads Luau 0.745, from 0.740, and carries the fork's fixes ahead of the
+  stable release: `analyze` reports each module's errors once instead of repeating a dependency's,
+  no longer warns about watcher registration it never uses, and `EnumItem.EnumType` is the item's
+  own enum. The Roblox definitions the gate loads now come from the fork's tag, so the pin and the
+  definitions are one thing.
+- **`Dialog.luau`'s `open` local is annotated `boolean`.** The new analyzer reads a bare
+  `local open = false` as the singleton `false` and refused the boolean assignment that opens and
+  shuts the panel. The annotation restores the widened type; no runtime behaviour changes.
+
+### Not done
+
+- No new Roblox playtest was performed. The native acceptance and intent-observation limitations
+  recorded for 0.14.0 still apply; protocol fixtures are not native acceptance.
+
 ## 0.14.1 - 2026-11-06
 
 The package's code is 0.14.0's. The specs and the demo build run on LuneBlox 0.11.4.

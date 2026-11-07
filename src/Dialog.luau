@@ -197,7 +197,7 @@ function Dialog.new(
 		end
 	end)
 
-	local open, chrome = false, 1
+	local open: boolean, chrome = false, 1
 	-- The panel fits the screen; worked out again whenever the screen, its inset or the bar moves.
 	const function place()
 		chrome = SafeArea.chromeScale()
