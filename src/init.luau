@@ -40,17 +40,21 @@ const PadPage = require("@self/PadPage")
 const PadScroll = require("@self/PadScroll")
 const Pick = require("@self/Pick")
 const Pill = require("@self/Pill")
+const Pointer = require("@self/Pointer")
+const Progress = require("@self/Progress")
 const Ring = require("@self/Ring")
 const Rtl = require("@self/Rtl")
 const SafeArea = require("@self/SafeArea")
 const Stack = require("@self/Stack")
 const Steer = require("@self/Steer")
+const Surface = require("@self/Surface")
 const TabFit = require("@self/TabFit")
 const Tabs = require("@self/Tabs")
 const Theme = require("@self/Theme")
 const TopBar = require("@self/TopBar")
 const TouchClearance = require("@self/TouchClearance")
 const TouchControls = require("@self/TouchControls")
+const Viewport = require("@self/Viewport")
 
 export type ControlRelease = TouchControls.Release
 export type Theme = Theme.Theme
@@ -101,7 +105,19 @@ export type BackpackOrder = Backpack.Order
 export type BackpackPlace = Backpack.Place
 export type BackpackHands = Backpack.Hands
 
+export type SurfaceOptions = Surface.Options
+export type SurfaceRowOptions = Surface.RowOptions
+export type ProgressOptions = Progress.Options
+export type ProgressHandle = Progress.Handle
+export type PointerHandle = Pointer.Handle
+export type PointerHold = Pointer.Hold
+export type PointerDrag = Pointer.Drag
+
 return {
+	Surface = Surface,
+	Progress = Progress,
+	Viewport = Viewport,
+	Pointer = Pointer,
 	--- The top line: the right row and the left buttons.
 	TopBar = TopBar,
 	--- A capsule on its own.

@@ -120,4 +120,17 @@ function Native.iconButton(parent: Instance, glyph: string, ring: GuiObject?): T
 	return button
 end
 
+--- Eligibility and native selected/disabled appearance; never a substitute for host state checks.
+function Native.state(button: GuiButton, enabled: boolean, selected: boolean?)
+	button.Interactable = enabled
+	button.AutoButtonColor = enabled
+	button.Selectable = enabled
+	if selected ~= nil then
+		button.BackgroundColor3 = if selected then Native.PRIMARY else Native.TEXT
+	end
+	button.BackgroundTransparency = if not enabled then 0.8 elseif selected == false then 0.9 else 0
+	if button:IsA("TextButton") then
+		button.TextTransparency = if enabled then 0 else 0.45
+	end
+end
 return Native

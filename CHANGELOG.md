@@ -3,6 +3,48 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.15.0 - 2026-11-09
+
+### Added
+
+- `Surface.mount` builds native plain/panel/tile containers with owned padding; `Surface.row`
+  owns horizontal flex layout. This is a styled component seam, not a raw property constructor.
+- `Progress.mount` owns a native track and fill with finite fraction clamping. `Viewport.mount`
+  provides an active transparent viewport slot; camera, world and 3D content belong to the host.
+- `Pointer.hold`, `Pointer.drag` and `Pointer.activate` own UI bindings. A hold accepts one
+  mouse/touch owner, releases it exactly once, and cancels on hidden/disabled ancestry,
+  lost window/text focus, removal or teardown. Terminal teardown disconnects global listeners
+  before invoking the host release callback. Drag ignores other fingers.
+- `Native.state` owns eligibility and selected/disabled native appearance.
+- `Dialog.observe`, `isOpen`, `destroy` and options `onClose`, `minimumHit`, `scale`. Observers
+  run synchronously after ownership effects. User close alone calls `onClose`; programmatic
+  close and destroy do not. Destroy is silent, idempotent and prevents reopening.
+- Seven pure regression specs and twelve named semantic mutants for fraction/hit safety,
+  synchronous/reentrant modal transitions and single-owner capture. A complete public
+  consumer and demo exercise the new signatures under both solvers.
+
+### Changed
+
+- Dialog Close is at least 44 pixels with a 48-pixel header; measured Native icon metrics remain
+  unchanged. Explicit dialog density never scales below one. Default device chrome is retained.
+- Dialog visibility now changes synchronously, without stale open/close animations. Unique
+  ownership scopes and SafeArea disconnects prevent one dialog releasing another or outliving
+  its destroyed GUI. Existing `changed` BindableEvent and all old signatures remain available;
+  use `observe` where queued lifecycle delivery would be unsafe.
+- Demo serialized verification includes its new UI ModuleScript. Mutation checks require the
+  exact named semantic assertion for the new ownership modules, not arbitrary load failure.
+
+### Not done
+
+- No new Roblox engine playtest or appearance acceptance. Instance construction, actual focus,
+  deferred engine signals, mouse/touch interruption, viewport rendering, multi-dialog teardown
+  and physical touch targets are type-checked, not proven by the pure suite or serialized demo.
+- This library release does not migrate or publish any game. Native acceptance limitations from
+  earlier releases remain open.
+- pesde 0.7.4 probes the absent upstream `lune` command during install and reports
+  `failed to extract lune version: failed to split lune version output`; it still generates
+  the correct no-dependency lockfile. The pinned LuneBlox test runner is unchanged.
+
 ## 0.14.1 - 2026-11-06
 
 The package's code is 0.14.0's. The specs and the demo build run on LuneBlox 0.11.4.

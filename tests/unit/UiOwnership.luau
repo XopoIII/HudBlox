@@ -1,0 +1,110 @@
+--!strict
+const Modal = require("@hudblox/ModalState")
+const Pointer = require("@hudblox/PointerState")
+const Rules = require("@hudblox/UiRules")
+const Spec = require("../Spec")
+Spec.test("progress accepts endpoints, clamps finite values and rejects nonfinite values", function()
+	for _, pair in
+		{ { -2, 0 }, { 0, 0 }, { 0.25, 0.25 }, { 1, 1 }, { 2, 1 }, { math.huge, 0 }, { -math.huge, 0 }, { 0 / 0, 0 } }
+	do
+		Spec.equal(Rules.fraction(pair[1]), pair[2])
+	end
+end)
+Spec.test("hit safety keeps 44 minimum without rewriting native measured metrics", function()
+	Spec.equal(Rules.hit(nil), 44)
+	Spec.equal(Rules.hit(36), 44)
+	Spec.equal(Rules.hit(44), 44)
+	Spec.equal(Rules.hit(48), 48)
+	Spec.equal(Rules.hit(0 / 0), 44)
+	Spec.equal(Rules.hit(math.huge), 44)
+end)
+Spec.test("modal effects precede synchronous observers and duplicate transitions are silent", function()
+	const effects: { boolean } = {}
+	const observed: { boolean } = {}
+	const m = Modal.new(function(want: boolean)
+		table.insert(effects, want)
+	end)
+	const stop = m.observe(function(want: boolean)
+		Spec.equal(effects[#effects], want)
+		Spec.equal(m.isOpen(), want)
+		table.insert(observed, want)
+	end)
+	m.set(false)
+	m.set(true)
+	m.set(true)
+	m.set(false)
+	Spec.equal(effects, { true, false })
+	Spec.equal(observed, { true, false })
+	stop()
+	m.set(true)
+	Spec.equal(observed, { true, false })
+end)
+Spec.test("modal destroy releases once without notifying or allowing reopen", function()
+	const effects: { boolean } = {}
+	local notices = 0
+	const m = Modal.new(function(want: boolean)
+		table.insert(effects, want)
+	end)
+	m.observe(function(_want: boolean)
+		notices += 1
+	end)
+	m.set(true)
+	m.destroy()
+	m.destroy()
+	m.set(true)
+	Spec.equal(m.isOpen(), false)
+	Spec.equal(effects, { true, false })
+	Spec.equal(notices, 1)
+end)
+Spec.test("synchronous close observer may open the next modal without stale hiding", function()
+	const effects: { boolean } = {}
+	const m = Modal.new(function(want: boolean)
+		table.insert(effects, want)
+	end)
+	m.observe(function(want: boolean)
+		if not want then
+			m.set(true)
+		end
+	end)
+	m.set(true)
+	m.set(false)
+	Spec.equal(m.isOpen(), true)
+	Spec.equal(effects, { true, false, true })
+end)
+Spec.test("capture rejects stealing and foreign end, releases once and invalidates before teardown", function()
+	const p: Pointer.Capture<string> = Pointer.new("type")
+	Spec.equal(p.begin("first"), true)
+	Spec.equal(p.begin("second"), false)
+	Spec.equal(p.owns("first"), true)
+	Spec.equal(p.owns("second"), false)
+	Spec.equal(p.finish("second"), false)
+	Spec.equal(p.finish("first"), true)
+	Spec.equal(p.finish("first"), false)
+	Spec.equal(p.cancel(), nil)
+	Spec.equal(p.begin("third"), true)
+	Spec.equal(p.cancel(), "third")
+	Spec.equal(p.cancel(), nil)
+	Spec.equal(p.begin("fourth"), true)
+	Spec.equal(p.destroy(), "fourth")
+	Spec.equal(p.destroy(), nil)
+	Spec.equal(p.begin("after"), false)
+end)
+Spec.test("reentrant transition invalidates old snapshot", function()
+	const m = Modal.new(function(_want: boolean) end)
+	local stale = 0
+	const function listener(want: boolean)
+		if want and not m.isOpen() then
+			stale += 1
+		end
+		if want then
+			m.set(false)
+		end
+	end
+	m.observe(listener)
+	m.observe(function(want: boolean)
+		listener(want)
+	end)
+	m.set(true)
+	Spec.equal(stale, 0)
+end)
+return true

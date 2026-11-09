@@ -9,8 +9,8 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **0.14.1.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
-> the hands" button are proven by specs that run on every push, and each of 291 small slips in them
+> **0.15.0.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
+> the hands" button are proven by specs that run on every push, and each of 303 small slips in them
 > makes the suite fail (`tests/Mutate.luau`). The modules that build Instances cannot run off
 > Roblox, so the suite does not run them; they are checked against the Roblox API by the type gate,
 > under both type solvers.
@@ -30,6 +30,35 @@ in a live game before it became a package.
 > the inventory. The demo place (`demo/`) has been built and read back, and run by nobody. Try a
 > new release in a test place first.
 
+## Native UI slots and lifecycle (0.15.0)
+
+Use the existing `Dialog`, `DialogColumn` and `Native` components for menu chrome and controls.
+[The complete consumer](<tests/consumer/Ui.luau>) and [demo module](<demo/Ui.luau>) show these additive APIs:
+
+- `Surface.mount(parent, { kind?, size?, position?, anchor?, padding? })` returns a styled
+  Frame; kinds are `plain`, `panel`, `tile`. `Surface.row(parent, { height?, gap? })` owns
+  horizontal flex layout (48 pixels and 12 pixels by default).
+- `Progress.mount(parent, { height?, color? })` returns `{ frame, set(fraction), destroy() }`.
+  Finite values clamp to 0..1; NaN/infinity produce zero.
+- `Viewport.mount(parent)` returns an active transparent ViewportFrame. The host owns its
+  camera, WorldModel and 3D specimen, not handwritten GUI siblings.
+- `Pointer.hold(button, { began(input), ended(input) })` and
+  `Pointer.drag(gui, { moved(dx, dy), ended? })` return `{ cancel(), destroy() }`. Release
+  the host action in `ended`, including interrupted presses. Capture is single-owner;
+  teardown invalidates it before the exactly-once terminal callback and disconnects listeners.
+  `Pointer.activate(button, callback)` returns a disconnect function.
+- `Native.state(button, enabled, selected?)` sets eligibility and native appearance. Pass
+  true/false selection explicitly for primary/secondary appearance. Keep host action checks.
+- `Dialog.observe(callback)` returns a disconnect. Notifications are synchronous after the
+  state/ownership effects; `isOpen()` reads authoritative state. Prefer this to the retained
+  engine-scheduled `changed` event for queues. `destroy()` is silent and idempotent.
+  `onClose` is user-close only, not programmatic close or destruction. `minimumHit` is
+  at least 44; explicit `scale` is at least one, never blanket UI shrinking.
+
+These Instance/input changes have **not been playtested in Roblox**. The pure ownership rules
+are specified and mutation-checked; both solvers and serialized demo/package gates are different
+checks, not engine input, appearance or real-phone proof.
+
 ## Install
 
 ```sh
@@ -40,7 +69,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.14.1", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.15.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -436,7 +465,7 @@ have no verified enabled getter: restoration is best-effort Enable, **not** an e
 snapshot. Native discovery/signals and real device movement still require Roblox testing; plain
 protocol specs and type checks do not prove them.
 
-Install `=0.14.1` only after verifying its published package. The following is also type-checked
+Install `=0.15.0` only after verifying its published package. The following is also type-checked
 in the consumer fixture:
 
 ```luau

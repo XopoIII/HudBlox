@@ -123,6 +123,13 @@ elseif scriptOf(demo).Disabled then
 	fault(`{demo:GetFullName()} is disabled`)
 end
 
+const ui = if scriptsFolder then scriptsFolder:FindFirstChild("Ui") else nil
+if ui == nil or ui.ClassName ~= "ModuleScript" then
+	fault("StarterPlayerScripts.Ui is not a ModuleScript")
+elseif scriptOf(ui).Source ~= fs.readFile("demo/Ui.luau") then
+	fault("StarterPlayerScripts.Ui does not hold demo/Ui.luau")
+end
+
 if #faults > 0 then
 	for _, text in faults do
 		print(`demo-place: {text}`)
