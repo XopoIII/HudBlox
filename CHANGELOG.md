@@ -3,6 +3,30 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.15.1 - 2026-11-09
+
+A tap on an empty part of a dialog's panel closed the dialog. The dialog's `ScreenGui` kept the
+engine's default global `ZIndexBehavior`, so the panel's transparent `TapBlocker` at `ZIndex` 0
+sorted behind the backdrop at `ZIndex` 1: `PlayerGui:GetGuiObjectsAtPosition` at a panel point
+listed Panel, Backdrop and TapBlocker, and the backdrop's `Activated` fired. The panel is the
+later sibling, so ordering the GUI by sibling draws its subtree over the backdrop while the
+blocker stays under the panel's own content.
+
+### Fixed
+
+- **A dialog orders its GUI by sibling**: `Dialog.new` sets `Enum.ZIndexBehavior.Sibling` on its
+  `ScreenGui`, so a press on the panel reaches `Panel.TapBlocker` and never the backdrop, and a
+  press outside the panel still reaches the backdrop and closes the dialog.
+
+### Not done
+
+- The instance-level tap ordering is not covered by an offline spec: `Dialog` builds Instances,
+  which the LuneBlox suite cannot run. It was verified in a live Roblox client (Fish, 2026-11-09):
+  with the default global ordering, a tap at a measured panel point of the open dialog fired
+  `Backdrop.Activated` and closed it; with only `ZIndexBehavior.Sibling` set at runtime, the same
+  tap fired `Panel.TapBlocker.Activated` and the dialog stayed open, while a tap outside the panel
+  fired the backdrop and closed it.
+
 ## 0.15.0 - 2026-11-09
 
 ### Added

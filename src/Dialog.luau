@@ -103,6 +103,11 @@ function Dialog.new(
 	gui.IgnoreGuiInset = true
 	gui.DisplayOrder = Dialog.DISPLAY_ORDER
 	gui.Enabled = false
+	-- Sibling ordering, not the default global one: the later panel's subtree then draws over the
+	-- backdrop, so the panel's ZIndex 0 TapBlocker sits above the ZIndex 1 backdrop but below the
+	-- panel's own content. Ordering globally puts the blocker behind the backdrop, and a tap on the
+	-- panel reaches the backdrop and closes the dialog.
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 	const backdrop = Instance.new("TextButton")
 	backdrop.Name = "Backdrop"
