@@ -14,6 +14,9 @@ const ReplicatedStorage = game:GetService("ReplicatedStorage")
 const HudBlox = require(ReplicatedStorage:WaitForChild("HudBlox"))
 
 const playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+const mountUi = require(script.Parent.Ui)
+const disposeUi = mountUi(playerGui)
+script.Destroying:Connect(disposeUi)
 
 -- What there is one of for the whole client is said once, before anything is built. The demo reads
 -- left to right, so it gives no `rtl`; it prints what a gamepad does, where a game would count it.

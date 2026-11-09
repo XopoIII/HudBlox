@@ -89,6 +89,11 @@ that "looks right" is not a measurement.
 - `Backpack/`: a hotbar and an inventory for the game's own Tools. `Order`, `Moves`, `Hands`, `Press` are
   plain data and arithmetic; `Items`, `Gesture`, `Keys`, `Pad` read the engine; `Slot`, `Bar`,
   `Grid`, `Paint` draw; `Mount` wires them. `HotbarCover` hides the bar under a dialog.
+- `Surface`, `Progress`, `Viewport`: native GUI components, not a raw constructor passthrough.
+  `Pointer` owns capture/listeners over pure `PointerState`; release host actions in `ended`.
+- `Dialog.observe` is synchronous after ownership effects; use it rather than engine-scheduled
+  Bindable delivery for queues. Teardown invalidates before callbacks, never reopens a destroyed
+  owner, and disconnects external signals. Pure `ModalState` carries that rule and its regressions.
 - `init.luau` exposes the modules and re-exports their types.
 
 ## Distribution

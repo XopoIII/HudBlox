@@ -40,4 +40,6 @@ require("./unit/ControlRunner")
 require("./unit/ControlEffects")
 require("./unit/InstanceMigrations")
 
+require("./unit/UiOwnership")
+
 Spec.finish()

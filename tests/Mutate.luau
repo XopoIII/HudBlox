@@ -31,13 +31,30 @@ end
 
 const function suitePasses(work: string, mutant: Mutant?): boolean
 	const result = process.exec("luneblox", { "run", "tests/Run", "--yes" }, { cwd = work })
-	if not result.ok and mutant and string.find(mutant.file, "/Control", 1, true) then
+	if
+		not result.ok
+		and mutant
+		and (
+			string.find(mutant.file, "/Control", 1, true)
+			or string.find(mutant.file, "/UiRules", 1, true)
+			or string.find(mutant.file, "/ModalState", 1, true)
+			or string.find(mutant.file, "/PointerState", 1, true)
+		)
+	then
 		const text = string.gsub(result.stderr, "\27%[[%d;]*m", "")
 		const named = string.find(text, "FAIL " .. mutant.breaks .. "\n", 1, true)
 		const ending = if named then string.find(text, "\n\n", named, true) else nil
 		const block = if named then string.sub(text, named, ending or #text) else ""
 		assert(
-			string.find(block, "expected ", 1, true) and string.find(block, "tests/unit/Control", 1, true),
+			string.find(block, "expected ", 1, true)
+				and string.find(
+					block,
+					if string.find(mutant.file, "/Control", 1, true)
+						then "tests/unit/Control"
+						else "tests/unit/UiOwnership",
+					1,
+					true
+				),
 			"not a named semantic assertion kill: " .. text
 		)
 		print("semantic assertion: " .. (string.match(block, "\n([^\n]+)") or block))

@@ -9,6 +9,7 @@
 		},
 		"StarterPlayer": {
 			"StarterPlayerScripts": {
+				"Ui": { "$path": "Ui.luau" },
 				"Demo": {
 					"$path": "Demo.client.luau"
 				}
