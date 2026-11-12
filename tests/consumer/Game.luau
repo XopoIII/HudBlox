@@ -25,8 +25,11 @@ const playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 const gui = HudBlox.SafeArea.screen(playerGui, "Hud")
 
 -- The top line: one capsule with two numbers, two round buttons beside it, one on the left.
-const row: HudBlox.Row = HudBlox.TopBar.mount(gui, theme)
+const barOptions: HudBlox.TopBarOptions = { rightReserve = 0 }
+const row: HudBlox.Row = HudBlox.TopBar.mount(gui, theme, barOptions)
 const shop = row.addButton("shop")
+-- A game that shows Roblox's own health bar keeps room for it; this demo shows none.
+row.rightReserve(0)
 const leaders = row.addButton("leaders")
 const wallet, pulse = row.addPill({
 	{ lead = "coin", pin = { "999.9K", "888.8M" } },
@@ -118,7 +121,8 @@ const top: HudBlox.Top = HudBlox.Layout.top(screen, HudBlox.SafeArea.insetMinX()
 -- Roblox's own scale of its bar, for what stands beside it
 const chromeScale: number = HudBlox.SafeArea.chromeScale()
 const _scaled: number = HudBlox.Layout.scale(HudBlox.Measure.STRIP) * chromeScale
-const _fitsScaled: boolean = HudBlox.Layout.fits(HudBlox.Layout.top(screen, 208, 1, nil, chromeScale), 300, chromeScale)
+const _fitsScaled: boolean =
+	HudBlox.Layout.fits(HudBlox.Layout.top(screen, 208, 1, { scale = chromeScale }), 300, chromeScale)
 const needs = HudBlox.Layout.rowNeeds({
 	HudBlox.Layout.pillWidth({ { ink = 60, lead = true }, { ink = 44, lead = true } }),
 	HudBlox.Measure.HEIGHT,

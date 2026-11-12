@@ -1,6 +1,9 @@
 # Local agent notes: never part of the repository
 .claude/
 
+# Local follow-up plan from the TopbarPlus review: never part of the repository
+hudblox-followup-plan.md
+
 # Build and tool output
 Packages/
 roblox_packages/

@@ -29,6 +29,16 @@ const Wrap = require("./Wrap")
 
 const TopBar = {}
 
+--- What a game may say about the line besides its gui and its theme.
+export type Options = {
+	--- Room the platform's own furniture keeps at the right of the line, in the same units as
+	--- `Measure` and drawn at Roblox's scale: the player's health bar, which Roblox draws inside
+	--- its own top bar and `GuiService.TopbarInset` does not describe. 0 when left out, which is a
+	--- game that shows no health bar.
+	--- The kit does not read the player's health itself: a game that shows one says how wide it is.
+	rightReserve: number?,
+}
+
 export type Row = {
 	--- The row's frame, so a caller can hang something of its own on the same line.
 	frame: Frame,
@@ -42,6 +52,10 @@ export type Row = {
 	--- Adds a round button on the LEFT, past Roblox's own buttons, where a player looks for what
 	--- the platform itself would put there. Each one takes its width off the right row.
 	addLeftButton: (icon: string) -> TextButton,
+	--- Changes the room kept for the platform's own furniture at the right and places the row
+	--- again: a game whose health bar is only there sometimes keeps it only while it is, rather
+	--- than eating the width for nothing (`Measure`'s units, `options.rightReserve` at mount).
+	rightReserve: (width: number) -> (),
 	--- Places everything again. The row does this itself when the screen or the inset changes.
 	fit: () -> (),
 	--- Disconnects everything and destroys the row and its left buttons. A surface that can be
@@ -51,8 +65,10 @@ export type Row = {
 
 --> Mounts the top line into `gui`. For the row to share the line of Roblox's own buttons, `gui`
 --> must ignore the gui inset (`SafeArea.screen` makes one); in a gui that respects it the row sits
---> below them and uses the whole width.
-function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
+--> below them and uses the whole width. `options.rightReserve` keeps room for what the platform
+--> draws at the right of its own line.
+function TopBar.mount(gui: ScreenGui, theme: Theme.Theme, options: Options?): Row
+	local reserve = options and options.rightReserve or 0
 	const row = Instance.new("Frame")
 	row.Name = "TopRow"
 	row.AnchorPoint = Vector2.new(1, 0)
@@ -87,7 +103,8 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 
 	const function fit()
 		const s = SafeArea.chromeScale()
-		const top = Layout.top(SafeArea.measure(gui), SafeArea.insetMinX(), #lefts, nil, s)
+		const top =
+			Layout.top(SafeArea.measure(gui), SafeArea.insetMinX(), #lefts, { scale = s, rightReserve = reserve })
 		for index, holder in lefts do
 			holder.Position = UDim2.fromOffset(top.lefts[index], Measure.TOP * s)
 			const scale = holder:FindFirstChild("ChromeScale")
@@ -96,7 +113,7 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 			end
 		end
 		rowScale.Scale = s
-		row.Position = UDim2.new(1, -Measure.EDGE * s, 0, Measure.TOP * s)
+		row.Position = UDim2.new(1, -top.rowRightInset, 0, Measure.TOP * s)
 		-- in the row's own units: the scale draws it as wide as the screen has room for
 		row.Size = UDim2.fromOffset(top.rowWidth / s, Measure.HEIGHT)
 	end
@@ -201,6 +218,10 @@ function TopBar.mount(gui: ScreenGui, theme: Theme.Theme): Row
 		addPill = addPill,
 		addButton = addButton,
 		addLeftButton = addLeftButton,
+		rightReserve = function(width: number)
+			reserve = width
+			fit()
+		end,
 		fit = fit,
 		destroy = destroy,
 	}
