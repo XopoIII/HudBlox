@@ -43,7 +43,9 @@ const theme: HudBlox.Theme = {
 -- The top line. The right row fills left to right and hugs the right edge: the wallet, added
 -- last, keeps the corner.
 const gui = HudBlox.SafeArea.screen(playerGui, "Hud")
-const row = HudBlox.TopBar.mount(gui, theme)
+-- Roblox draws the player's health bar inside its own top bar, and `TopbarInset` does not describe
+-- it: a game that shows one says how wide it is. This demo has none, so nothing is kept.
+const row = HudBlox.TopBar.mount(gui, theme, { rightReserve = 0 })
 const shop = row.addButton("shop")
 -- Both values are pinned to the widest text they can hold, so the row does not move as they tick.
 const wallet, pulse = row.addPill({

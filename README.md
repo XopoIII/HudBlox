@@ -148,13 +148,14 @@ A name with no id draws a plain disc, so a missing picture never breaks a screen
 
 ### TopBar: the row
 
-`TopBar.mount(gui: ScreenGui, theme: Theme): Row`
+`TopBar.mount(gui: ScreenGui, theme: Theme, options?: { rightReserve: number? }): Row`
 
 | `Row` | |
 | --- | --- |
 | `addPill(parts: { Part }, tappable: boolean?): (Capsule, UIScale)` | A capsule in the right row, one segment per part. The `UIScale` is yours to animate: a pulse does not move the row. `tappable` makes the plate a `TextButton`. |
 | `addButton(icon: string): TextButton` | A round button in the right row. |
 | `addLeftButton(icon: string): TextButton` | A round button on the left, past Roblox's own buttons. |
+| `rightReserve(width: number)` | Changes the room kept for the platform's own furniture at the right (Roblox's health bar) and places the row again. |
 | `fit()` | Places everything again. The row calls it itself on every screen or inset change. |
 | `destroy()` | Disconnects and destroys the row and its left buttons. |
 | `frame: Frame` | The row's frame. |
@@ -162,6 +163,14 @@ A name with no id draws a plain disc, so a missing picture never breaks a screen
 For the row to share the line of Roblox's own buttons the gui must ignore the gui inset
 (`SafeArea.screen` makes one). In a gui that respects the inset the row sits below Roblox's buttons,
 reserves nothing for them, and the first left button starts at the edge margin, 16.
+
+Roblox draws the player's **health bar** inside its own top bar, and `GuiService.TopbarInset` does
+not describe it: it only says where Roblox's buttons end on the left. A game that shows one passes
+its width in the same units as `Measure` — so it is drawn at Roblox's scale with the rest of the
+line — as `rightReserve`, and the right row ends that much further from the edge. A game whose bar
+is only there sometimes calls `row.rightReserve(width)` and `row.rightReserve(0)` as it comes and
+goes. The kit does not read the player's character or its health; the number is the game's, like a
+theme.
 
 ### Pill: a capsule
 
@@ -339,7 +348,8 @@ No Instances, so a game can put its own worst case in a spec:
 ```lua
 local Layout = HudBlox.Layout
 local top = Layout.top({ width = 801, left = 0, top = -58 }, 208, 1) -- screen, TopbarInset.Min.X, left buttons
--- top.lefts = { 216 }, top.rowLeft = 268, top.rowWidth = 517, top.onChromeLine = true
+-- top.lefts = { 216 }, top.rowLeft = 268, top.rowWidth = 517, top.rowRightInset = 16, top.onChromeLine = true
+-- A game that shows Roblox's health bar keeps its width: Layout.top(..., { rightReserve = 100 })
 local needs = Layout.rowNeeds({
 	Layout.pillWidth({ { ink = 44, lead = true }, { ink = 44, lead = true } }), -- 186
 	44, -- a round button

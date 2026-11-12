@@ -21,10 +21,26 @@ export type Top = {
 	onChromeLine: boolean,
 	--- The left edge of each left button, first to last.
 	lefts: { number },
-	--- The right row: it ends `Measure.EDGE` from the right edge and is this wide. 0 when the screen
-	--- has no room left at all.
+	--- The right row: it ends `rowRightInset` from the right edge and is this wide. 0 when the
+	--- screen has no room left at all.
 	rowLeft: number,
 	rowWidth: number,
+	--- From the gui's right edge to the row's right edge: the edge margin at Roblox's scale, and
+	--- the room a game keeps for what the platform draws there itself (`rightReserve`).
+	rowRightInset: number,
+}
+
+--- What `Layout.top` is told besides the screen and the buttons.
+export type TopOptions = {
+	--- Where the row's top is, in the gui's coordinates. `Measure.TOP` at `scale` when left out.
+	rowTop: number?,
+	--- Roblox's own scale of its top bar (`Layout.scale`). 1 when left out.
+	scale: number?,
+	--- Room the platform's own furniture takes at the right of the line, in the same units as
+	--- `Measure` and so drawn at `scale`: Roblox draws the player's health bar inside its top bar
+	--- and `GuiService.TopbarInset` does not describe it. 0 when left out, which is a game that
+	--- shows no health bar.
+	rightReserve: number?,
 }
 
 --- One segment of a capsule, for the width model: the pixel width of its text, and whether a lead
@@ -89,13 +105,16 @@ function Layout.leftStart(free: number, scale: number?): number
 end
 
 --> The whole top line for `leftCount` left buttons, at Roblox's `scale` (1 when left out): every
---> measured distance and size grows with it, as Roblox's own do. `rowTop` is `Measure.TOP` at that
---> scale unless the host moved the row. The right row begins a gap past the last left button, so
---> the two never meet; when the screen is too narrow for that, the row's width is 0 rather than
---> negative.
-function Layout.top(screen: Screen, insetMinX: number, leftCount: number, rowTop: number?, scale: number?): Top
-	const s = scale or 1
-	const top = rowTop or Measure.TOP * s
+--> measured distance and size grows with it, as Roblox's own do. The row's top is
+--> `Measure.TOP` at that scale unless the host moved it. The right row begins a gap past the last
+--> left button, so the two never meet; when the screen is too narrow for that, the row's width is 0
+--> rather than negative. `rightReserve` is room the platform's own furniture keeps at the right
+--> (`TopOptions`).
+function Layout.top(screen: Screen, insetMinX: number, leftCount: number, options: TopOptions?): Top
+	const s = options and options.scale or 1
+	const given = options and options.rowTop
+	const top = if given ~= nil then given else Measure.TOP * s
+	const reserve = options and options.rightReserve or 0
 	const free = Layout.chromeFreeX(screen, insetMinX, top)
 	const lefts = table.create(leftCount) :: { number }
 	local x = Layout.leftStart(free, s)
@@ -104,11 +123,13 @@ function Layout.top(screen: Screen, insetMinX: number, leftCount: number, rowTop
 		x += (Measure.HEIGHT + Measure.GAP) * s
 	end
 	const bound = if leftCount > 0 then x else free
-	const rowWidth = math.max(0, screen.width - Measure.EDGE * s - bound)
+	const inset = Measure.EDGE * s + reserve * s
+	const rowWidth = math.max(0, screen.width - inset - bound)
 	return {
 		onChromeLine = Layout.onChromeLine(screen.top, top),
 		lefts = lefts,
-		rowLeft = screen.width - Measure.EDGE * s - rowWidth,
+		rowLeft = screen.width - inset - rowWidth,
+		rowRightInset = inset,
 		rowWidth = rowWidth,
 	}
 end

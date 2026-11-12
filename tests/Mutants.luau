@@ -55,13 +55,13 @@ const MUTANTS: { Mutant } = {
 	},
 	{
 		file = "src/Layout.luau",
-		from = "const rowWidth = math.max(0, screen.width - Measure.EDGE * s - bound)",
-		to = "const rowWidth = screen.width - Measure.EDGE * s - bound",
+		from = "const rowWidth = math.max(0, screen.width - inset - bound)",
+		to = "const rowWidth = screen.width - inset - bound",
 		breaks = "a screen with no room gives the row no width, not a negative one",
 	},
 	{
 		file = "src/Layout.luau",
-		from = "const rowWidth = math.max(0, screen.width - Measure.EDGE * s - bound)",
+		from = "const rowWidth = math.max(0, screen.width - inset - bound)",
 		to = "const rowWidth = math.max(0, screen.width - bound)",
 		breaks = "the row's width leaves the edge margin on the right",
 	},
@@ -205,8 +205,8 @@ const MUTANTS: { Mutant } = {
 	},
 	{
 		file = "src/Layout.luau",
-		from = "const top = rowTop or Measure.TOP * s",
-		to = "const top = rowTop or Measure.TOP",
+		from = "const top = if given ~= nil then given else Measure.TOP * s",
+		to = "const top = if given ~= nil then given else Measure.TOP",
 		breaks = "the row's top grows with the scale",
 	},
 	{
@@ -214,6 +214,18 @@ const MUTANTS: { Mutant } = {
 		from = "return needs * (scale or 1) <= top.rowWidth",
 		to = "return needs <= top.rowWidth",
 		breaks = "contents are measured as written and drawn at the scale",
+	},
+	{
+		file = "src/Layout.luau",
+		from = "const inset = Measure.EDGE * s + reserve * s",
+		to = "const inset = Measure.EDGE * s",
+		breaks = "the right row leaves the room a game keeps for the platform's own health bar",
+	},
+	{
+		file = "src/Layout.luau",
+		from = "const inset = Measure.EDGE * s + reserve * s",
+		to = "const inset = Measure.EDGE * s + reserve",
+		breaks = "a reserve is written at the line's scale, as Roblox's own furniture is",
 	},
 	{
 		file = "src/Host.luau",

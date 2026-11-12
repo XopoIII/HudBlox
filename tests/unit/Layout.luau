@@ -50,15 +50,48 @@ end)
 
 Spec.test("the right row takes what the chrome and the left buttons leave", function()
 	-- No left buttons: the two widths recorded in that game, 577 and 481.
-	Spec.equal(Layout.top(over(801), INSET, 0), { onChromeLine = true, lefts = {}, rowLeft = 208, rowWidth = 577 })
+	Spec.equal(
+		Layout.top(over(801), INSET, 0),
+		{ onChromeLine = true, lefts = {}, rowLeft = 208, rowWidth = 577, rowRightInset = 16 }
+	)
 	Spec.equal(Layout.top(over(705), INSET, 0).rowWidth, 481, "705 wide")
 	-- One left button, 216..260, and the row begins 8 past it.
-	Spec.equal(Layout.top(over(801), INSET, 1), { onChromeLine = true, lefts = { 216 }, rowLeft = 268, rowWidth = 517 })
+	Spec.equal(
+		Layout.top(over(801), INSET, 1),
+		{ onChromeLine = true, lefts = { 216 }, rowLeft = 268, rowWidth = 517, rowRightInset = 16 }
+	)
 	-- Below the chrome line nothing is reserved for Roblox.
 	Spec.equal(Layout.top(below(705), INSET, 0).rowWidth, 689, "inset gui, no lefts")
-	Spec.equal(Layout.top(below(705), INSET, 1), { onChromeLine = false, lefts = { 16 }, rowLeft = 68, rowWidth = 621 })
+	Spec.equal(
+		Layout.top(below(705), INSET, 1),
+		{ onChromeLine = false, lefts = { 16 }, rowLeft = 68, rowWidth = 621, rowRightInset = 16 }
+	)
 	-- A row the host moved below the strip of an edge-to-edge gui is off the line too.
-	Spec.equal(Layout.top(over(705), INSET, 0, 70).rowWidth, 689, "row at 70")
+	Spec.equal(Layout.top(over(705), INSET, 0, { rowTop = 70 }).rowWidth, 689, "row at 70")
+end)
+
+Spec.test("the right row leaves the room a game keeps for the platform's own health bar", function()
+	-- No reserve: the edge margin alone, and the row where it was.
+	const plain = Layout.top(over(801), INSET, 0)
+	Spec.equal(plain.rowRightInset, 16, "no reserve")
+	Spec.equal(Layout.top(over(801), INSET, 0, { rightReserve = 0 }), plain, "a reserve of 0 is no reserve")
+	-- 100 in: the row ends 116 from the right and is 100 narrower.
+	const kept = Layout.top(over(801), INSET, 0, { rightReserve = 100 })
+	Spec.equal(kept.rowRightInset, 116, "rowRightInset")
+	Spec.equal(kept.rowLeft, 208, "rowLeft")
+	Spec.equal(kept.rowWidth, 477, "rowWidth")
+	-- A reserve wider than the line gives the row no width, never a negative one.
+	const swamped = Layout.top(over(420), INSET, 0, { rightReserve = 400 })
+	Spec.equal(swamped.rowWidth, 0, "rowWidth")
+	Spec.equal(swamped.rowRightInset, 416, "rowRightInset")
+	Spec.equal(swamped.rowLeft, 4, "rowLeft")
+end)
+
+Spec.test("a reserve is written at the line's scale, as Roblox's own furniture is", function()
+	-- 100 written, half again on a television: 150, with the edge margin at 24.
+	const tv = Layout.top({ width = 1918, left = 0, top = -87 }, 246, 0, { scale = 1.5, rightReserve = 100 })
+	Spec.equal(tv.rowRightInset, 174, "rowRightInset")
+	Spec.equal(tv.rowWidth, 1498, "rowWidth")
 end)
 
 Spec.test("the right row never overlaps the left buttons, down to an upright phone", function()
@@ -69,8 +102,10 @@ Spec.test("the right row never overlaps the left buttons, down to an upright pho
 			for count = 0, 3 do
 				for width = 320, 1920 do
 					const top = Layout.top(screen(width), inset, count)
-					if top.rowLeft + top.rowWidth ~= width - 16 then
-						error(`the row does not end 16 from the edge at {width}, inset {inset}, {count} lefts`)
+					if top.rowLeft + top.rowWidth ~= width - top.rowRightInset then
+						error(
+							`the row does not end {top.rowRightInset} from the edge at {width}, inset {inset}, {count} lefts`
+						)
 					end
 					if top.rowWidth > 0 and count > 0 then
 						const lastRight = top.lefts[count] + 44
@@ -98,6 +133,7 @@ Spec.test("a screen with no room gives the row no width rather than a negative o
 	const top = Layout.top(over(320), INSET, 2)
 	Spec.equal(top.rowWidth, 0, "rowWidth")
 	Spec.equal(top.rowLeft, 304, "rowLeft")
+	Spec.equal(top.rowRightInset, 16, "rowRightInset")
 	Spec.equal(Layout.fits(top, 44), false, "one button does not fit")
 	Spec.equal(Layout.top(over(100), INSET, 0).rowWidth, 0, "narrower than the chrome")
 end)
@@ -162,16 +198,20 @@ Spec.test("at a television's scale every distance and size of the line grows wit
 	-- the first left button 12 past Roblox's, the next 78 on, the row 12 past the last and 24 off
 	-- the right edge: 8, 52 and 16 half again
 	Spec.equal(
-		Layout.top(tv, 246, 2, nil, 1.5),
-		{ onChromeLine = true, lefts = { 258, 336 }, rowLeft = 414, rowWidth = 1480 }
+		Layout.top(tv, 246, 2, { scale = 1.5 }),
+		{ onChromeLine = true, lefts = { 258, 336 }, rowLeft = 414, rowWidth = 1480, rowRightInset = 24 }
 	)
 	-- below the line the first left button starts 24 in, the edge margin at that scale
-	Spec.equal(Layout.top(below(801), INSET, 1, nil, 1.5).lefts, { 24 }, "below the line")
+	Spec.equal(Layout.top(below(801), INSET, 1, { scale = 1.5 }).lefts, { 24 }, "below the line")
 	-- the row's top is 18 into a strip of 87: on the line
-	Spec.equal(Layout.top({ width = 1918, left = 0, top = -18 }, 246, 0, nil, 1.5).onChromeLine, false, "18 deep")
-	Spec.equal(Layout.top({ width = 1918, left = 0, top = -19 }, 246, 0, nil, 1.5).onChromeLine, true, "19 deep")
+	Spec.equal(
+		Layout.top({ width = 1918, left = 0, top = -18 }, 246, 0, { scale = 1.5 }).onChromeLine,
+		false,
+		"18 deep"
+	)
+	Spec.equal(Layout.top({ width = 1918, left = 0, top = -19 }, 246, 0, { scale = 1.5 }).onChromeLine, true, "19 deep")
 	-- written widths are drawn at the scale: 216 written is 324 drawn
-	const row = Layout.top(below(348), 0, 0, nil, 1.5)
+	const row = Layout.top(below(348), 0, 0, { scale = 1.5 })
 	Spec.equal(row.rowWidth, 324, "the row")
 	Spec.equal(Layout.fits(row, 216, 1.5), true, "exactly enough")
 	Spec.equal(Layout.fits(row, 217, 1.5), false, "one over")
