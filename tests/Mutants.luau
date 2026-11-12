@@ -215,6 +215,18 @@ const MUTANTS: { Mutant } = {
 		to = "return needs <= top.rowWidth",
 		breaks = "contents are measured as written and drawn at the scale",
 	},
+	{
+		file = "src/Host.luau",
+		from = "\tif forced then\n\t\treturn forced\n\tend\n\t",
+		to = "",
+		breaks = "a game's own word wins over the player's motion setting",
+	},
+	{
+		file = "src/Host.luau",
+		from = '\treturn if reduced then "Reduced" else "Full"',
+		to = '\treturn if reduced then "Full" else "Reduced"',
+		breaks = "Roblox's Reduce Motion setting is honoured",
+	},
 }
 
 -- The dialog's geometry, the gamepad's focus and the backpack keep theirs in files of their own.

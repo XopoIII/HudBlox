@@ -87,6 +87,7 @@ export type Follow = Indicator.Follow
 export type RtlReader = Rtl.Reader
 export type HostHooks = Host.Hooks
 export type PadAct = Host.PadAct
+export type Motion = Host.Motion
 export type DialogOptions = Dialog.Options
 export type DialogHandle = Dialog.Dialog
 export type DialogBottom = DialogGeometry.Bottom
