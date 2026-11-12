@@ -9,8 +9,8 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **0.15.1.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
-> the hands" button are proven by specs that run on every push, and each of 303 small slips in them
+> **0.16.0.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
+> the hands" button are proven by specs that run on every push, and each of 307 small slips in them
 > makes the suite fail (`tests/Mutate.luau`). The modules that build Instances cannot run off
 > Roblox, so the suite does not run them; they are checked against the Roblox API by the type gate,
 > under both type solvers.
@@ -27,8 +27,9 @@ in a live game before it became a package.
 > `Clearance`, `Pick`, `Stack` and `TouchControls` called by a game directly, `Ring.square` and
 > `Ring.round` named by a game, and whatever else of `tests/consumer/` a game of your own
 > uses differently. New in 0.10.0 and not yet run in a game: the gamepad's "in the hands" button in
-> the inventory. The demo place (`demo/`) has been built and read back, and run by nobody. Try a
-> new release in a test place first.
+> the inventory. New in 0.16.0 and not yet run in a game: Reduce Motion's effects, and
+> `rightReserve`, whose width has not been measured yet. The demo place (`demo/`) has been built
+> and read back, and run by nobody. Try a new release in a test place first.
 
 ## Native UI slots and lifecycle (0.15.0)
 
@@ -70,7 +71,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.15.1", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.16.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -487,7 +488,7 @@ have no verified enabled getter: restoration is best-effort Enable, **not** an e
 snapshot. Native discovery/signals and real device movement still require Roblox testing; plain
 protocol specs and type checks do not prove them.
 
-Install `=0.15.1` only after verifying its published package. The following is also type-checked
+Install `=0.16.0` only after verifying its published package. The following is also type-checked
 in the consumer fixture:
 
 ```luau
