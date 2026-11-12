@@ -10,8 +10,8 @@
 --- up to be moved. A dark shade stands over a thing that cannot be used again yet and empties
 --- downward as its rest runs out (`Rest`) - that sweep is a timer, so it runs under Reduce Motion
 --- too. The pulse is decoration and holds still when the player asked for less movement.
-const Items = require("./Items")
 const Host = require("../Host")
+const Items = require("./Items")
 const Native = require("../Native")
 const Order = require("./Order")
 const Rest = require("./Rest")
