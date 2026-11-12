@@ -587,6 +587,11 @@ inventory closes when a dialog opens, and reports itself to `Band` as `"hotbar"`
 Its icon ids, its locale and its text direction, what its dialogs hold, what its Tools are and how
 they are pictured, and every colour beyond Roblox's measured plate. A kit module reads nothing of the game it is in.
 
+Roblox's own top bar animates its icons in. HudBlox's row appears complete, and that is a decision
+rather than a gap: the row belongs to the game and is built at whatever moment the game mounts it, a
+chain animation would have to answer Reduce Motion, a television's scale and every rebuild, and the
+settled geometry is what the wrap warning judges. Revisit it only with all three answered.
+
 ## The measurements
 
 Read off CoreGui's `TopBarApp` in a live client (last on 2026-09-22 and 2026-09-23):
