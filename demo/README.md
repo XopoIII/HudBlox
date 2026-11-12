@@ -51,3 +51,7 @@ device you try.
 - `Backpack` and `HotbarCover`: they draw a game's own Tools, and the demo has none.
 - `Rtl`: the demo reads left to right.
 - `Band`: nothing stands at the bottom of the demo's screen for a read-out to clear.
+- A one-line facade (`icon("shop"):setLabel("Shop")`). The kit's shape is the point: the ids, the
+  text and the theme are the game's, and the README's top line is already a table of icons and one
+  connection per thing that opens; a wrapper here would teach the opposite of what the package is.
+  A game that wants one writes it in a dozen lines over the public API.
