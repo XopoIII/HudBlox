@@ -201,6 +201,9 @@ function Mount.mount(player: Player, config: Config): Handle
 		end,
 	})
 
+	-- A phone is a touch device with a narrow viewport, not "the player last used a finger": the
+	-- stock backpack asks this of the device once, and `PreferredInput` would resize the bar under
+	-- a player who plugged in a gamepad.
 	const function fit()
 		const camera = game:GetService("Workspace").CurrentCamera
 		const phone = game:GetService("UserInputService").TouchEnabled

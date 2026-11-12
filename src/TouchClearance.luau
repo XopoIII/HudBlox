@@ -20,6 +20,9 @@ end
 
 --> Pixels from the screen's bottom edge to the top of the highest visible control.
 function TouchClearance.height(): number
+	-- `TouchEnabled`, not `PreferredInput`: this asks whether the device has touch controls at all.
+	-- `PreferredInput` says what the player is holding this second, and a laptop with a touchscreen
+	-- has the controls whether or not a finger was the last thing to move.
 	if not game:GetService("UserInputService").TouchEnabled then
 		return 0
 	end
@@ -46,6 +49,7 @@ end
 --> Calls `changed` whenever the controls arrive, move, hide or the screen turns. Returns the
 --> function that stops it. Does nothing on a screen without touch.
 function TouchClearance.follow(changed: () -> ()): () -> ()
+	-- See `height`: the device's own controls, not the input the player last used.
 	if not game:GetService("UserInputService").TouchEnabled then
 		return function() end
 	end

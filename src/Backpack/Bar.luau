@@ -83,6 +83,8 @@ function Bar.new(parent: Instance, made: (slot: Slot.Slot) -> (), draw: Slot.Dra
 			end
 		end,
 		layout = function(all: boolean): number
+			-- `KeyboardEnabled`, not `PreferredInput`: the digits are a hint about keys that exist on
+			-- this keyboard, and they should not blink away because the player last used a finger.
 			const keys = game:GetService("UserInputService").KeyboardEnabled
 			const rtl = Host.rtl().active()
 			local x = Slot.GAP
