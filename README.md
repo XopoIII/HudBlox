@@ -46,7 +46,8 @@ Use the existing `Dialog`, `DialogColumn` and `Native` components for menu chrom
   `Pointer.drag(gui, { moved(dx, dy), ended? })` return `{ cancel(), destroy() }`. Release
   the host action in `ended`, including interrupted presses. Capture is single-owner;
   teardown invalidates it before the exactly-once terminal callback and disconnects listeners.
-  `Pointer.activate(button, callback)` returns a disconnect function.
+  `Pointer.activate(button, callback)` returns a disconnect function. A button takes a hold or
+  an activate, never both: the same press reaches both, and the action runs twice.
 - `Native.state(button, enabled, selected?)` sets eligibility and native appearance. Pass
   true/false selection explicitly for primary/secondary appearance. Keep host action checks.
 - `Dialog.observe(callback)` returns a disconnect. Notifications are synchronous after the

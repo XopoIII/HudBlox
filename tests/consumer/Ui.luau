@@ -9,6 +9,9 @@ const function mount(parent: Instance)
 	const row = Hud.Surface.row(surface, { height = 48, gap = 8 })
 	const button = Hud.Native.button(row, "", "secondary")
 	Hud.Native.state(button, true, true)
+	-- A press and a tap are different questions, so they get different buttons: a hold reports the
+	-- finger, a tap reports the activation. One button with both would run an action twice.
+	const tapped = Hud.Native.button(row, "", "secondary")
 	const progress: Hud.ProgressHandle = Hud.Progress.mount(surface, { height = 8, color = Hud.Native.PRIMARY })
 	progress.set(0.5)
 	const viewport = Hud.Viewport.mount(surface)
@@ -26,7 +29,7 @@ const function mount(parent: Instance)
 			print(input.UserInputType)
 		end,
 	})
-	const stopClick = Hud.Pointer.activate(button, dialog.toggle)
+	const stopClick = Hud.Pointer.activate(tapped, dialog.toggle)
 	const stop = dialog.observe(function(open: boolean)
 		print(open)
 	end)
