@@ -3,6 +3,63 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.16.0 - 2026-11-12
+
+Roblox's Reduce Motion setting is now honoured, and the right row can be kept clear of the health
+bar Roblox draws at the right of its own top bar.
+
+### Added
+
+- **Reduce Motion.** `Host.motion()` answers `"Full"` or `"Reduced"` (`HudBlox.Motion`) for anything
+  about to move, and `Host.set({ motion = ... })` overrules Roblox's
+  `GuiService.ReducedMotionEnabled` for a game that treats a movement as information. The setting is
+  read each time, never cached: it can be flipped in Roblox's menu while a game runs.
+- Under `"Reduced"`, `Flight.send` makes no icon, touches no pool and opens no connection, and every
+  `landed` runs at once in order, so a reward still counts; `Flight.pulse` does nothing; `Button`'s
+  press squash is skipped with the press and its sound kept; the backpack's picked-slot pulse holds
+  still. A rest running out is a timer, not movement, and keeps sweeping.
+- `TopBar.mount(gui, theme, { rightReserve = n })` and `row.rightReserve(n)` keep room at the right
+  of the line for what the platform draws there itself — the player's health bar, which
+  `GuiService.TopbarInset` does not describe. The width is the game's word, in `Measure`'s units, so
+  it is drawn at Roblox's scale with the rest of the line. `row.rightReserve(0)` gives the width
+  back while the bar is not there.
+- `Layout.top(screen, insetMinX, leftCount, { rowTop, scale, rightReserve })`, and `Layout.Top`
+  carries `rowRightInset`: the gui's right edge to the row's right edge. `HudBlox.TopOptions` and
+  `HudBlox.TopBarOptions` name the two tables.
+
+### Fixed
+
+- A row whose top is exactly 0 is placed there. `Layout.top` used to read `rowTop = 0` as "not
+  given", which is where a gui that respects the inset puts its row.
+- The public pointer examples no longer put `Pointer.hold` and `Pointer.activate` on one button: the
+  same press reaches both, and a game copying that would run its action twice.
+
+### Changed
+
+- `Layout.top`'s trailing `rowTop` and `scale` numbers are one options table.
+- The icon frames' dressing and pooling moved from `Flight` to the new `FlightIcons` module, which is
+  internal; nothing about the pool changed.
+- `tests/unit/Host.luau` specs the motion arithmetic; two mutants (the game's word ignored, the
+  setting inverted) and two more for the reserve (reserve ignored, reserve not scaled) joined
+  `tests/Mutants.luau`. `luneblox run tests/Mutate --yes` kills 307 of 307.
+
+### Not done
+
+- `GuiService.ReducedMotionEnabled` itself was not exercised off Roblox: `Host.motion` is one
+  service read, unproven by the suite. No live client had the setting flipped in its menu during
+  this change, and the `Flight`, `Button` and `Slot` wiring is type-checked, not played.
+- The health bar's width was not measured, so `Measure` holds no number for it and the kit offers no
+  default: a game passes its own `rightReserve` until a live measurement exists. The overlap itself
+  is also unverified in a live game, on a phone, at `HealthDisplayType.AlwaysOn` and at television
+  scale.
+- The mobile multi-touch checklist was not run on a real phone: a thumb holding the joystick while
+  an icon is tapped, two fingers on one button, a tap during a drag, and a tap while a text field is
+  focused. The single-owner capture is specified and mutation-checked, but the device run is the
+  proof, and it has not happened.
+- The same PR lessons that TopbarPlus learned were checked and needed no change: no `tick()`, no
+  `typeof` guard, no loop that mutates what it walks, and every device test is about the device
+  rather than `PreferredInput`.
+
 ## 0.15.1 - 2026-11-09
 
 A tap on an empty part of a dialog's panel closed the dialog. The dialog's `ScreenGui` kept the
