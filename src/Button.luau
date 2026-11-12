@@ -4,6 +4,7 @@
 --- It is the capsule's sibling: the same plate, the same transparency, and a radius of half its
 --- size, which makes a square plate a circle. `TopBar` puts these on Roblox's own line; a game can
 --- put more down a screen edge.
+const Host = require("./Host")
 const Measure = require("./Measure")
 const Theme = require("./Theme")
 
@@ -65,17 +66,31 @@ function Button.round(parent: Instance, theme: Theme.Theme, icon: string, option
 	const up = tweens:Create(scale, info, { Scale = 1 })
 	-- Down, not Activated: a tap is confirmed by the finger landing, and a button that waits for
 	-- the release is correct and feels broken. The sound rides the squash for the same reason.
-	button.MouseButton1Down:Connect(function()
+	-- Under Reduce Motion there is no squash; the press still lands and still sounds.
+	const function settle()
 		up:Cancel()
-		down:Play()
+		down:Cancel()
+		scale.Scale = 1
+	end
+	button.MouseButton1Down:Connect(function()
+		if Host.motion() == "Reduced" then
+			settle()
+		else
+			up:Cancel()
+			down:Play()
+		end
 		const press = theme.press
 		if press then
 			press()
 		end
 	end)
 	const function release()
-		down:Cancel()
-		up:Play()
+		if Host.motion() == "Reduced" then
+			settle()
+		else
+			down:Cancel()
+			up:Play()
+		end
 	end
 	button.MouseButton1Up:Connect(release)
 	button.MouseLeave:Connect(release)

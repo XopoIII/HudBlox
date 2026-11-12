@@ -271,6 +271,11 @@ fly at once, one RenderStepped connection steps them all, and the frame each ico
 from a pool: it reaches `draw` without children and looking as a new frame does, outside the layer,
 and what `draw` adds to it is destroyed on landing. A `landed` may send or cancel a flight.
 
+Under Roblox's Reduce Motion setting (`Host.motion`) nothing leaves the ground: no frame is made,
+`draw` is not called, and every `landed` runs at once in order, so a reward still counts. `Button`'s
+press squash and the backpack's picked-slot pulse hold still; a rest running out is a timer, not
+movement, and keeps sweeping.
+
 - `Flight.layer(playerGui, name?): ScreenGui`: where they fly, ten layers over a dialog; made once.
 - `Flight.centre(object): Vector2`: the middle of a GuiObject, for `from`.
 - `Flight.pulse(scale: UIScale, peak: number?)`: swells a counter and settles it. `TopBar`'s
@@ -368,6 +373,7 @@ HudBlox.Host.set({
 	rtl = HudBlox.Rtl.reader(function() return myLocaleIsRtl end),
 	padUsed = function(act) countPadUse(act) end,
 	backPriority = 2200, -- where a panel's B sits against the game's own binding of B
+	motion = nil, -- Roblox's Reduce Motion setting when nil; "Full" or "Reduced" to overrule it
 })
 ```
 
@@ -379,6 +385,11 @@ nobody counts. `padUsed` hears `"Panel"`, `"Back"`, `"Hud"`, `"Bag"`, `"Move"` a
 is a type error in the game until it is counted. `backPriority` moves the panel's B ("back"), and
 the backpack's "in the hands" button with it, above or below the game's own binding of the same
 button; `Focus.PRIORITY` when left out.
+
+`Host.motion()` answers `"Full"` or `"Reduced"` (`HudBlox.Motion`) for anything about to move: a
+game's `motion` wins, else Roblox's Reduce Motion setting. Ask it each time rather than caching it —
+the player can flip the setting while a game runs and it has no change signal. Left alone, the kit
+honours the setting in `Flight`, `Button` and the backpack's picked-slot pulse.
 
 ### Dialog: a whole dialog
 

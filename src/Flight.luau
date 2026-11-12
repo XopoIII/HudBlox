@@ -24,9 +24,15 @@
 --- What an icon is, how many fly and what a landing does are the game's. The times and the path
 --- are `FlightPath`'s, and the list of flights and the pools are `FlightBook`'s: both plain data
 --- and specified.
+---
+--- REDUCE MOTION. Under `Host.motion()`'s "Reduced" nothing leaves the ground: no frame is made,
+--- no pool is touched and no connection is made, and every `landed` runs at once, in order. A
+--- reward is information, so the landing still happens; only the flying is gone.
 const Dialog = require("./Dialog")
 const FlightBook = require("./FlightBook")
+const FlightIcons = require("./FlightIcons")
 const FlightPath = require("./FlightPath")
+const Host = require("./Host")
 
 const Flight = {}
 
@@ -48,8 +54,9 @@ export type Options = {
 	count: number,
 	--- Fills one icon's frame, which is not in the layer yet. The frame is square, clear, and
 	--- sized by the flight, and may have flown before: the pool hands it back without children
-	--- and with its look as a new frame's (`dress`), for `draw` to fill again. A connection or an
+	--- and with its look as a new frame's, for `draw` to fill again. A connection or an
 	--- attribute `draw` hangs on the frame itself is not undone: hang those on what it adds.
+	--- Not called at all under Reduce Motion: there is no frame to fill.
 	draw: (frame: Frame, index: number) -> (),
 	--- Called as each icon lands, in order. It must not yield. It may send a flight and may
 	--- cancel one, its own included.
@@ -105,42 +112,6 @@ function Flight.layer(playerGui: Instance, name: string?): ScreenGui
 	return gui
 end
 
--- An icon frame's look, the same for a new frame and for one that has flown: what a `draw` set
--- on the frame itself does not reach the next flight.
-const function dress(frame: Frame, index: number, size: number)
-	frame.Name = `Icon{index}`
-	frame.Visible = false
-	frame.AnchorPoint = Vector2.new(0.5, 0.5)
-	frame.Position = UDim2.fromOffset(0, 0)
-	frame.Size = UDim2.fromOffset(size, size)
-	frame.Rotation = 0
-	frame.ZIndex = 1
-	frame.LayoutOrder = 0
-	frame.ClipsDescendants = false
-	frame.BackgroundColor3 = Color3.fromRGB(163, 162, 165)
-	frame.BackgroundTransparency = 1
-	frame.BorderSizePixel = 0
-end
-
--- Not in the layer yet: `send` puts a flight's icons there once every one is drawn.
-const function takeIcon(layer: ScreenGui, index: number, size: number): Frame
-	const frame = FlightBook.take(pools, layer) or Instance.new("Frame")
-	dress(frame, index, size)
-	return frame
-end
-
--- Only ever called with the layer alive: a destroyed layer took its icons with it.
-const function freeIcon(layer: ScreenGui, frame: Frame)
-	frame.Visible = false
-	frame:ClearAllChildren()
-	frame.Parent = nil
-	if FlightBook.give(pools, layer, frame) then
-		layer.Destroying:Once(function()
-			FlightBook.drop(pools, layer)
-		end)
-	end
-end
-
 const function land(flight: Active, index: number)
 	const frame = flight.icons[index]
 	if frame == nil then
@@ -149,7 +120,7 @@ const function land(flight: Active, index: number)
 	flight.icons[index] = nil
 	flight.left -= 1
 	if flight.layer:IsDescendantOf(game) then
-		freeIcon(flight.layer, frame)
+		FlightIcons.free(pools, flight.layer, frame)
 	end
 	const landed = flight.landed
 	if landed then
@@ -208,10 +179,21 @@ end
 --> Sends `options.count` icons from `options.from` into `options.to` on `layer`. Returns how
 --> many fly, and the function that calls back the icons still in the air without landing them.
 --> A target that leaves the tree mid-flight lands every icon still in the air at once.
+--> Under Reduce Motion every icon lands at once, in order, and nothing is drawn: it returns the
+--> count and a cancel that has nothing to cancel.
 function Flight.send(layer: ScreenGui, options: Options): (number, () -> ())
 	const count = FlightPath.count(options.count)
 	if count == 0 then
 		return 0, function() end
+	end
+	const landed = options.landed
+	if Host.motion() == "Reduced" then
+		if landed then
+			for index = 1, count do
+				task.spawn(landed, index, count)
+			end
+		end
+		return count, function() end
 	end
 	const size = options.size or FlightPath.SIZE
 	const flight: Active = {
@@ -224,13 +206,13 @@ function Flight.send(layer: ScreenGui, options: Options): (number, () -> ())
 		size = size,
 		radius = options.radius or FlightPath.RADIUS,
 		startedAt = os.clock(),
-		landed = options.landed,
+		landed = landed,
 	}
 	-- Every icon is drawn before any is put in the layer: a `draw` that throws leaves the layer
 	-- as it was, with nothing of a flight that never started in it.
 	const icons = flight.icons
 	for index = 1, count do
-		const frame = takeIcon(layer, index, size)
+		const frame = FlightIcons.take(pools, layer, index, size)
 		options.draw(frame, index)
 		icons[index] = frame
 	end
@@ -253,7 +235,7 @@ function Flight.send(layer: ScreenGui, options: Options): (number, () -> ())
 				if frame then
 					flight.icons[index] = nil
 					if layer:IsDescendantOf(game) then
-						freeIcon(layer, frame)
+						FlightIcons.free(pools, layer, frame)
 					end
 				end
 			end
@@ -265,7 +247,11 @@ end
 
 --> Swells `scale` to `peak` and settles it back to one: a counter taking an icon. `PEAK` when
 --> left out. A swell under way is started again, so a run of landings reads as one quick beat.
+--> Does nothing under Reduce Motion: the count it shows has already changed.
 function Flight.pulse(scale: UIScale, peak: number?)
+	if Host.motion() == "Reduced" then
+		return
+	end
 	const tweens = game:GetService("TweenService")
 	const up = tweens:Create(
 		scale,

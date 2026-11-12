@@ -8,8 +8,10 @@
 ---
 --- Two outlines sit over it, both white: solid while the thing is in hand, pulsing while it is picked
 --- up to be moved. A dark shade stands over a thing that cannot be used again yet and empties
---- downward as its rest runs out (`Rest`).
+--- downward as its rest runs out (`Rest`) - that sweep is a timer, so it runs under Reduce Motion
+--- too. The pulse is decoration and holds still when the player asked for less movement.
 const Items = require("./Items")
+const Host = require("../Host")
 const Native = require("../Native")
 const Order = require("./Order")
 const Rest = require("./Rest")
@@ -122,9 +124,11 @@ function Slot.new(parent: Instance, place: Order.Place, draw: Draw): Slot
 		end
 		if picked then
 			stroke.Transparency = 0
-			const tween = game:GetService("TweenService"):Create(stroke, PULSE, { Transparency = 0.75 })
-			tween:Play()
-			pulse = tween
+			if Host.motion() ~= "Reduced" then
+				const tween = game:GetService("TweenService"):Create(stroke, PULSE, { Transparency = 0.75 })
+				tween:Play()
+				pulse = tween
+			end
 		else
 			stroke.Transparency = if held then 0 else 1
 		end

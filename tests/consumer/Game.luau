@@ -186,9 +186,11 @@ const hooks: HudBlox.HostHooks = {
 	rtl = rtl,
 	padUsed = function(_act: HudBlox.PadAct) end,
 	backPriority = 2200,
+	motion = "Reduced",
 }
 HudBlox.Host.set(hooks)
 const _reader: HudBlox.RtlReader, _backPriority: number? = HudBlox.Host.rtl(), HudBlox.Host.backPriority()
+const _motion: HudBlox.Motion = HudBlox.Host.motion()
 HudBlox.Host.padUsed("Panel")
 HudBlox.Host.padUsed("Equip")
 
