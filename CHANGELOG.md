@@ -3,6 +3,27 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.16.1 - 2026-11-14
+
+A dialog taken away by the gui it was made in no longer destroys itself a second time.
+
+### Fixed
+
+- **A dialog laid down by its holder is released, not destroyed again.** `Dialog.new` connected the
+  gui's `Destroying` to the `destroy` a game calls by hand, and that function ended with
+  `gui:Destroy()`: a game that destroyed the instance the dialog was parented to ran it while the
+  gui's parent had its `Parent` property locked, and every such teardown warned `The Parent
+  property of ... is locked`. The cleanup -- the modal state, the safe-area binding, the backdrop's
+  and the close button's connections, the `changed` event -- is `release` now; `destroy` runs
+  `release` and then destroys the gui, so a gui the engine is already taking is only released. The
+  handle's `destroy`, `setOpen`, `observe`, `changed` and every other name are as they were.
+
+### Not done
+
+- Not covered by this repository's suite: `Dialog.new` builds Instances and reads `game`, which the
+  LuneBlox specs cannot run. The evidence is a consuming game's cloud suite, where the same specs
+  produced ten of those warnings under 0.16.0 and none under this release.
+
 ## 0.16.0 - 2026-11-12
 
 Roblox's Reduce Motion setting is now honoured, and the right row can be kept clear of the health
