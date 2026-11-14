@@ -239,7 +239,7 @@ function Dialog.new(
 	end)
 	const backConnection = backdrop.Activated:Connect(shut)
 	const closeConnection = close.Activated:Connect(shut)
-	const function destroy()
+	const function release()
 		if dead then
 			return
 		end
@@ -249,9 +249,18 @@ function Dialog.new(
 		backConnection:Disconnect()
 		closeConnection:Disconnect()
 		changed:Destroy()
+	end
+	--- The gui lays the dialog down by itself when it is destroyed, and destroying an instance
+	--- whose parent is already going warns that the parent's Parent is locked: a gui taken by its
+	--- holder is only released, never destroyed a second time.
+	const function destroy()
+		if dead then
+			return
+		end
+		release()
 		gui:Destroy()
 	end
-	gui.Destroying:Connect(destroy)
+	gui.Destroying:Connect(release)
 	gui.Parent = playerGui
 
 	return {
