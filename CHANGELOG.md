@@ -3,6 +3,19 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.17.2 - 2026-11-16
+
+A page is drawn in the device's own safe area.
+
+### Fixed
+
+- **A page ran under a notch or an island.** `ScreenInsets.None` gave a page the whole device screen,
+  which is right on a plain phone and wrong on a notched one: the Dynamic Island takes 62 pixels a
+  side in landscape on an iPhone 17 Pro, so the page's title and its corner tabs were drawn under it,
+  and the page read crooked beside the same page on an iPhone 7. A page takes
+  `ScreenInsets.DeviceSafeInsets` now: the device's safe area and not the core UI's insets, so it
+  still begins on Roblox's own line and no longer under the hardware.
+
 ## 0.17.1 - 2026-11-15
 
 A page begins at the device's own top edge.

@@ -109,10 +109,11 @@ function Dialog.new(
 	gui.Name = name
 	gui.ResetOnSpawn = false
 	gui.IgnoreGuiInset = true
-	-- A page begins at the device's own top edge: a gui kept inside the safe insets is lifted by the
-	-- strip, and a page that shared Roblox's line would start a strip's height above the screen.
+	-- A page is drawn in the device's own safe area: not inside the core UI's insets, which would
+	-- lift it a strip above the screen, and never under a notch or an island, where a page's line and
+	-- its corner would be cut. Roblox's own bar stands in that same area, so the page's line meets it.
 	if page then
-		gui.ScreenInsets = Enum.ScreenInsets.None
+		gui.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
 	end
 	gui.DisplayOrder = Dialog.DISPLAY_ORDER
 	gui.Enabled = false
