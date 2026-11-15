@@ -155,6 +155,24 @@ const MUTANTS: { { file: string, from: string, to: string, breaks: string } } = 
 	},
 	{
 		file = "src/DialogGeometry.luau",
+		from = "	const divisor = if scale > 0 then scale else 1\n	return {",
+		to = "	const divisor = scale\n	return {",
+		breaks = "a page is never divided by nothing",
+	},
+	{
+		file = "src/DialogGeometry.luau",
+		from = "		top = 0,\n		clearsBottom = true,",
+		to = "		top = 96,\n		clearsBottom = true,",
+		breaks = "a page begins at the device's own top edge",
+	},
+	{
+		file = "src/DialogGeometry.luau",
+		from = "		width = math.floor(width / divisor),\n		height = math.floor(height / divisor),",
+		to = "		width = width,\n		height = height,",
+		breaks = "a page is laid out at the bar's scale",
+	},
+	{
+		file = "src/DialogGeometry.luau",
 		from = "const s = if scale > 0 then scale else 1",
 		to = "const s = scale",
 		breaks = "a scale not read lays the panel out as on a computer",
