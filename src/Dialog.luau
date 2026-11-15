@@ -109,6 +109,11 @@ function Dialog.new(
 	gui.Name = name
 	gui.ResetOnSpawn = false
 	gui.IgnoreGuiInset = true
+	-- A page begins at the device's own top edge: a gui kept inside the safe insets is lifted by the
+	-- strip, and a page that shared Roblox's line would start a strip's height above the screen.
+	if page then
+		gui.ScreenInsets = Enum.ScreenInsets.None
+	end
 	gui.DisplayOrder = Dialog.DISPLAY_ORDER
 	gui.Enabled = false
 	-- Sibling ordering, not the default global one: the later panel's subtree then draws over the

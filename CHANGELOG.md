@@ -3,6 +3,17 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.17.1 - 2026-11-15
+
+A page begins at the device's own top edge.
+
+### Fixed
+
+- **A page was a strip's height above the screen.** The dialog's gui is kept inside the device's safe
+  insets, which is right for a panel that stands below Roblox's buttons and wrong for a page that
+  shares their line: the whole page was lifted by the strip (58 pixels on a phone) and the bottom of
+  the screen was left bare. A page's gui is `ScreenInsets.None` now.
+
 ## 0.17.0 - 2026-11-15
 
 A dialog can be a page, and a tab can carry a picture over its word.
