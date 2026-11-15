@@ -20,13 +20,14 @@
 ---
 --- The close button stands on the left and the title beside it, as in the Escape menu; the title's
 --- text starts where the game's reader starts (`Host`).
+const DialogFooter = require("./DialogFooter")
 const DialogGeometry = require("./DialogGeometry")
 const DialogHeader = require("./DialogHeader")
 const Focus = require("./Focus")
 const Host = require("./Host")
 const ModalState = require("./ModalState")
 const Native = require("./Native")
-const PadGlyph = require("./PadGlyph")
+
 const SafeArea = require("./SafeArea")
 const TouchControls = require("./TouchControls")
 
@@ -54,6 +55,10 @@ export type Options = {
 	scale: number?,
 	--- Only the X, backdrop and gamepad back call this, synchronously after closing.
 	onClose: (() -> ())?,
+	--- A page rather than a dialog: the panel is the whole screen from its own top edge, with its
+	--- header and its padding taken away, so that a game's page begins on Roblox's own line. The
+	--- backdrop stays to hold the taps, and is not seen.
+	page: boolean?,
 }
 
 export type Dialog = {
@@ -93,6 +98,9 @@ function Dialog.new(
 ): Dialog
 	const bottom = if options then options.bottom else nil
 	const cover = if options then options.cover else nil
+	const page = options ~= nil and options.page == true
+	const room = if page then 0 else Native.PAD
+	const above = if page then 0 else Dialog.TOP_PAD
 	guiCounter += 1
 	const rtl = Host.rtl()
 	const scope = `modal:{guiCounter}`
@@ -114,7 +122,7 @@ function Dialog.new(
 	backdrop.Text = ""
 	backdrop.AutoButtonColor = false
 	backdrop.BackgroundColor3 = Color3.new(0, 0, 0)
-	backdrop.BackgroundTransparency = Native.BACKDROP_T
+	backdrop.BackgroundTransparency = if page then 1 else Native.BACKDROP_T
 	backdrop.Size = UDim2.fromScale(1, 1)
 	-- Neither it nor the blocker is a control: a gamepad never lands on them.
 	backdrop.Selectable = false
@@ -131,10 +139,10 @@ function Dialog.new(
 	const scale = Instance.new("UIScale")
 	scale.Parent = panel
 	const pad = Instance.new("UIPadding")
-	pad.PaddingLeft = UDim.new(0, Native.PAD)
-	pad.PaddingRight = UDim.new(0, Native.PAD)
-	pad.PaddingBottom = UDim.new(0, Native.PAD)
-	pad.PaddingTop = UDim.new(0, Dialog.TOP_PAD)
+	pad.PaddingLeft = UDim.new(0, room)
+	pad.PaddingRight = UDim.new(0, room)
+	pad.PaddingBottom = UDim.new(0, room)
+	pad.PaddingTop = UDim.new(0, above)
 	pad.Parent = panel
 
 	-- A Frame, even an Active one, lets a tap through to the backdrop button behind it (measured);
@@ -144,30 +152,24 @@ function Dialog.new(
 	blocker.Text = ""
 	blocker.AutoButtonColor = false
 	blocker.BackgroundTransparency = 1
-	blocker.Position = UDim2.fromOffset(-Native.PAD, -Dialog.TOP_PAD)
-	blocker.Size = UDim2.new(1, Native.PAD * 2, 1, Native.PAD + Dialog.TOP_PAD)
+	blocker.Position = UDim2.fromOffset(-room, -above)
+	blocker.Size = UDim2.new(1, room * 2, 1, room + above)
 	blocker.ZIndex = 0
 	blocker.Selectable = false
 	blocker.Parent = panel
 
 	const head, close = DialogHeader.mount(panel, title, if options then options.minimumHit else nil)
+	-- A page carries its own line: the header and its divider are not drawn, and the body is the
+	-- whole panel
+	if page then
+		for _, child in panel:GetChildren() do
+			if child:IsA("GuiObject") and (child.Name == "Header" or child.Name == "Divider") then
+				child.Visible = false
+			end
+		end
+	end
 
-	const footer = Instance.new("Frame")
-	footer.Name = "Footer"
-	footer.BackgroundTransparency = 1
-	footer.AnchorPoint = Vector2.new(0, 1)
-	footer.Position = UDim2.fromScale(0, 1)
-	footer.Size = UDim2.fromScale(1, 0)
-	footer.Parent = panel
-	const row = Instance.new("UIListLayout")
-	row.FillDirection = Enum.FillDirection.Horizontal
-	-- Buttons are added in reading order; in a right-to-left locale that runs from the right.
-	row.HorizontalAlignment = if rtl.active() then Enum.HorizontalAlignment.Right else Enum.HorizontalAlignment.Left
-	row.HorizontalFlex = Enum.UIFlexAlignment.Fill
-	row.Padding = UDim.new(0, 12)
-	row.Parent = footer
-
-	const top = Dialog.HEAD_H + 1 + Native.GAP / 2
+	const top = if page then 0 else Dialog.HEAD_H + 1 + Native.GAP / 2
 	const body = Instance.new("Frame")
 	body.Name = "Body"
 	body.BackgroundTransparency = 1
@@ -175,22 +177,16 @@ function Dialog.new(
 	body.Size = UDim2.new(1, 0, 1, -top)
 	body.Parent = panel
 
-	-- A footer with buttons takes a button's height and a gap off the body.
-	footer.ChildAdded:Connect(function(child: Instance)
-		if child:IsA("GuiButton") then
-			footer.Size = UDim2.new(1, 0, 0, Native.BUTTON_H)
-			body.Size = UDim2.new(1, 0, 1, -top - Native.BUTTON_H - Native.GAP)
-		end
-	end)
+	const footer = DialogFooter.mount(panel, body, top, page, rtl.active())
 
 	local open, dead = false, false
 	const changed = Instance.new("BindableEvent")
-	local accept: GuiButton? = nil
-	local acceptCap: Frame? = nil
 	const function place()
 		const chrome = math.max(1, if options and options.scale then options.scale else SafeArea.chromeScale())
 		const size, strip = gui.AbsoluteSize, SafeArea.topStrip(gui)
-		const frame = DialogGeometry.scaled(size.X, size.Y, strip, width, height, bottom, chrome)
+		const frame = if page
+			then DialogGeometry.page(size.X, size.Y, chrome)
+			else DialogGeometry.scaled(size.X, size.Y, strip, width, height, bottom, chrome)
 		scale.Scale = chrome
 		if cover then
 			cover(open and not frame.clearsBottom)
@@ -224,7 +220,7 @@ function Dialog.new(
 			Focus.push(scope, panel, {
 				back = shut,
 				first = function(): GuiObject?
-					return accept
+					return footer.accept()
 				end,
 			})
 		else
@@ -268,7 +264,7 @@ function Dialog.new(
 		panel = panel,
 		title = head,
 		body = body,
-		footer = footer,
+		footer = footer.frame,
 		setOpen = state.set,
 		observe = state.observe,
 		isOpen = state.isOpen,
@@ -277,15 +273,9 @@ function Dialog.new(
 			state.set(not open)
 		end,
 		primary = function(button: GuiButton?)
-			if dead then
-				return
+			if not dead then
+				footer.primary(button)
 			end
-			if acceptCap then
-				acceptCap:Destroy()
-				acceptCap = nil
-			end
-			accept = button
-			acceptCap = if button then PadGlyph.corner(button, Enum.KeyCode.ButtonA, Dialog.CAP) else nil
 		end,
 		changed = changed,
 	}

@@ -78,11 +78,17 @@ const function bind()
 	)
 end
 
+--- The picture over a tab's word: an image's id, or a drawing of the game's own into the holder the
+--- kit gives it — a glyph drawn of frames, as a game may prefer to its own pictures.
+export type Face = string | ((holder: Frame) -> GuiObject?)
+
 export type Entry = {
 	--- What `picked` is told, and the tab's name in the tree.
 	key: string,
 	--- The word on the tab.
 	label: string,
+	--- The picture over that word, if the tab has one: the tab is taller for it
+	icon: Face?,
 }
 
 export type Options = {
@@ -120,7 +126,13 @@ export type Handle = {
 --> its handle. At least one entry is needed.
 function Tabs.mount(parent: Instance, entries: { Entry }, options: Options?): Handle
 	assert(#entries > 0, "Tabs.mount: no entries")
-	const height = (options and options.height) or TabFit.HEIGHT
+	local faces = false
+	for _, entry in entries do
+		if entry.icon then
+			faces = true
+		end
+	end
+	const height = (options and options.height) or (if faces then TabFit.HEIGHT + TabFit.ICON else TabFit.HEIGHT)
 	const most = (options and options.width) or TabFit.WIDTH
 	const gap = (options and options.gap) or TabFit.GAP
 	const reader = Host.rtl()
@@ -173,8 +185,31 @@ function Tabs.mount(parent: Instance, entries: { Entry }, options: Options?): Ha
 		const button = Native.button(frame, entry.label, "secondary")
 		button.Name = entry.key
 		button.LayoutOrder = reader.slot(i)
-		button.TextSize = (options and options.text) or TabFit.TEXT
+		button.TextSize = (options and options.text) or (if entry.icon then TabFit.ICON_TEXT else TabFit.TEXT)
 		button.Size = UDim2.fromOffset(most, height)
+		if entry.icon then
+			-- the word goes to the tab's foot and the picture stands over it, in a holder the game
+			-- may fill with a drawing of its own
+			button.TextYAlignment = Enum.TextYAlignment.Bottom
+			const holder = Instance.new("Frame")
+			holder.Name = "Face"
+			holder.AnchorPoint = Vector2.new(0.5, 0)
+			holder.Position = UDim2.new(0.5, 0, 0, 4)
+			holder.Size = UDim2.fromOffset(TabFit.ICON, TabFit.ICON)
+			holder.BackgroundTransparency = 1
+			holder.BorderSizePixel = 0
+			holder.Parent = button
+			if type(entry.icon) == "string" then
+				const image = Instance.new("ImageLabel")
+				image.Name = "Image"
+				image.Size = UDim2.fromScale(1, 1)
+				image.BackgroundTransparency = 1
+				image.Image = entry.icon
+				image.Parent = holder
+			else
+				entry.icon(holder)
+			end
+		end
 		buttons[entry.key] = button
 		button.Activated:Connect(function()
 			pick(entry.key)

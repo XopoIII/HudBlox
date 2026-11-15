@@ -9,6 +9,9 @@ TabFit.HEIGHT = 40
 TabFit.WIDTH = 150
 TabFit.GAP = 8
 TabFit.TEXT = 20
+--- A tab's picture, and the word under one: pixels. A tab with a picture is taller by `ICON`.
+TabFit.ICON = 20
+TabFit.ICON_TEXT = 11
 --- The narrowest a tab is squeezed to. A strip narrower than that for each of its tabs overflows.
 TabFit.NARROWEST = 44
 

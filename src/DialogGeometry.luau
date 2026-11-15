@@ -146,4 +146,17 @@ function DialogGeometry.scaled(
 	}
 end
 
+--> A page's panel: the whole of a screen `width` by `height`, less nothing, at `scale` — it begins
+--> at the device's own top edge and shares the line of Roblox's buttons, which is what a page is for.
+--> The game's own line keeps clear of the capsules it does not own (`SafeArea.insetMinX`).
+function DialogGeometry.page(width: number, height: number, scale: number): Frame
+	const divisor = if scale > 0 then scale else 1
+	return {
+		width = math.floor(width / divisor),
+		height = math.floor(height / divisor),
+		top = 0,
+		clearsBottom = true,
+	}
+end
+
 return DialogGeometry

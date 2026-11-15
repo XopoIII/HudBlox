@@ -132,4 +132,13 @@ Spec.test("at a computer's scale, or none read, the panel is laid out as it alwa
 	Spec.equal(DialogGeometry.scaled(1920, 1080, 58, 760, 600, BAR, 0), flat, "none read")
 end)
 
-return nil
+Spec.test("a page takes the whole screen, from its own top edge, at the bar's scale", function()
+	Spec.equal(DialogGeometry.page(1920, 1080, 1), { width = 1920, height = 1080, top = 0, clearsBottom = true })
+	-- A television draws its bar half again as large, and the page is laid out in its own pixels
+	Spec.equal(DialogGeometry.page(1920, 1080, 1.5), { width = 1280, height = 720, top = 0, clearsBottom = true })
+	-- A tiny phone, and a scale that is nonsense: never a page divided by nothing
+	Spec.equal(DialogGeometry.page(666, 375, 1), { width = 666, height = 375, top = 0, clearsBottom = true })
+	Spec.equal(DialogGeometry.page(666, 375, 0), { width = 666, height = 375, top = 0, clearsBottom = true })
+end)
+
+return {}
