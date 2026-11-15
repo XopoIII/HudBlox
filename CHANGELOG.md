@@ -3,6 +3,25 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.17.0 - 2026-11-15
+
+A dialog can be a page, and a tab can carry a picture over its word.
+
+### Added
+
+- **`Dialog`'s `page` option: a page rather than a dialog.** With `page = true` the panel is the whole
+  screen from its own top edge (`DialogGeometry.page`), its header and its divider are not drawn, its
+  padding is nothing and its body is the whole panel, so a game's page begins on Roblox's own line
+  and takes every pixel under it. The backdrop stays to hold the taps and is not seen. The page's own
+  line keeps clear of the capsules it does not own (`SafeArea.insetMinX`), and every other part of
+  the dialog is as it was: the safe area, the bar's scale, the modal state, the touch controls
+  stepping aside, the focus ring, `setOpen`, `observe`, `changed`, `destroy`.
+- **`DialogGeometry.page(width, height, scale)`.** The page's panel as plain numbers, held by
+  `tests/unit/DialogGeometry.luau`: the whole screen, divided by the bar's scale and never by nothing.
+- **`Tabs`' `icon`.** An entry may carry a picture over its word — an image's id, or a function that
+  draws the game's own face into the holder the kit gives it. A strip with pictures is taller by
+  `TabFit.ICON` and its words are drawn at `TabFit.ICON_TEXT`, under the picture.
+
 ## 0.16.1 - 2026-11-14
 
 A dialog taken away by the gui it was made in no longer destroys itself a second time.
