@@ -3,6 +3,21 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.18.2 - 2026-11-18
+
+A game can paint its own sign.
+
+### Added
+
+- **`World.surface(part, options)` paints one face of a part** with the kit's UI: the board a
+  player reads instead of a plate that follows the camera. The game chooses the face, the pixels
+  per stud and how much world light the paint takes, and fills it with `Native.text` and its own
+  frames.
+- **`World.portrait(parent, options)` is a round picture with a rim**, the mark a game hangs over a
+  player's own thing: a head shot cut to a circle, a rim that keeps it readable over water or
+  grass, and a dark plate left showing while the picture has not come. Both are Instances and are
+  proven by the type gate and the demo, not by a spec; nobody has looked at them in Roblox yet.
+
 ## 0.18.1 - 2026-11-18
 
 A plate in the world is drawn.

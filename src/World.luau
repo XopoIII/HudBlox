@@ -109,4 +109,88 @@ function World.image(parent: Instance, asset: string, options: ImageOptions?): I
 	return image
 end
 
+export type SurfaceOptions = {
+	--- Which face of the part is painted; its front when left out.
+	face: Enum.NormalId?,
+	--- How many pixels one stud of the part's face holds; 50 when left out.
+	pixelsPerStud: number?,
+	--- Drawn over everything else instead of inside the world; inside when left out.
+	alwaysOnTop: boolean?,
+	--- How much of the world's light the paint takes, from 0 (a lit sign) to 1 (plain paint);
+	--- lit when left out.
+	lightInfluence: number?,
+}
+
+--> A face painted on a part, for a sign the player reads instead of a plate that follows the
+--> camera. The game names the board and paints it with `Native.text` and its own frames.
+function World.surface(part: BasePart, options: SurfaceOptions?): SurfaceGui
+	const gui = Instance.new("SurfaceGui")
+	gui.Name = "HudSurface"
+	gui.Adornee = part
+	gui.Face = if options and options.face then options.face else Enum.NormalId.Front
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = math.clamp(if options and options.pixelsPerStud then options.pixelsPerStud else 50, 1, 512)
+	gui.AlwaysOnTop = options ~= nil and options.alwaysOnTop == true
+	gui.LightInfluence = math.clamp(if options and options.lightInfluence then options.lightInfluence else 0, 0, 1)
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.Parent = part
+	return gui
+end
+
+export type PortraitOptions = {
+	--- The medallion's size; the whole parent when left out.
+	size: UDim2?,
+	--- The rim's thickness in pixels; 3 when left out.
+	rim: number?,
+	--- The rim's colour; white when left out.
+	rimColor: Color3?,
+	--- The plate behind a picture that has not come yet; the kit's own surface when left out.
+	plate: Color3?,
+}
+
+export type Portrait = {
+	--- The round frame, for placing it and for handing it back to the game.
+	frame: Frame,
+	--- The picture; empty until `set` is called.
+	image: ImageLabel,
+	--- Wears `asset` from now on, or leaves the plate showing when it is empty.
+	set: (string) -> (),
+}
+
+--> A round picture with a rim, the mark a game hangs over a player's own thing.
+---
+--> The picture is cut to a circle, a failed or missing one leaves the plate's own dark disc, and
+--> the rim keeps the mark readable over any water or grass behind it.
+function World.portrait(parent: Instance, options: PortraitOptions?): Portrait
+	const width = math.max(0, if options and options.rim then options.rim else 3)
+	const frame = Instance.new("Frame")
+	frame.Name = "Portrait"
+	frame.BorderSizePixel = 0
+	frame.BackgroundColor3 = if options and options.rimColor then options.rimColor else Color3.new(1, 1, 1)
+	frame.Size = if options and options.size then options.size else UDim2.fromScale(1, 1)
+	const round = Instance.new("UICorner")
+	round.CornerRadius = UDim.new(1, 0)
+	round.Parent = frame
+	const image = Instance.new("ImageLabel")
+	image.Name = "Picture"
+	image.AnchorPoint = Vector2.new(0.5, 0.5)
+	image.Position = UDim2.fromScale(0.5, 0.5)
+	image.Size = UDim2.new(1, -2 * width, 1, -2 * width)
+	image.BackgroundColor3 = if options and options.plate then options.plate else Native.SURFACE
+	image.BorderSizePixel = 0
+	image.ScaleType = Enum.ScaleType.Crop
+	const inner = Instance.new("UICorner")
+	inner.CornerRadius = UDim.new(1, 0)
+	inner.Parent = image
+	image.Parent = frame
+	frame.Parent = parent
+	return {
+		frame = frame,
+		image = image,
+		set = function(asset: string)
+			image.Image = asset
+		end,
+	}
+end
+
 return World

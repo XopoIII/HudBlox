@@ -119,6 +119,9 @@ export type PointerDrag = Pointer.Drag
 export type WorldOptions = World.Options
 export type WorldPlate = World.Plate
 export type WorldImageOptions = World.ImageOptions
+export type WorldSurfaceOptions = World.SurfaceOptions
+export type WorldPortraitOptions = World.PortraitOptions
+export type WorldPortrait = World.Portrait
 
 return {
 	Surface = Surface,

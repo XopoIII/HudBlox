@@ -12,6 +12,14 @@ const function mount(parent: Instance)
 	-- A press and a tap are different questions, so they get different buttons: a hold reports the
 	-- finger, a tap reports the activation. One button with both would run an action twice.
 	const tapped = Hud.Native.button(row, "", "secondary")
+	-- A board painted in the world, and the round mark a game hangs over its own thing.
+	const board = Instance.new("Part")
+	const painted: SurfaceGui = Hud.World.surface(board, { face = Enum.NormalId.Front, pixelsPerStud = 64 })
+	Hud.Native.text(painted, "Berth 3", 40, { weight = Enum.FontWeight.Bold, align = Enum.TextXAlignment.Center })
+	const medallion: Hud.WorldPortrait = Hud.World.portrait(parent, { size = UDim2.fromOffset(56, 56) })
+	medallion.set("rbxthumb://type=AvatarHeadShot&id=1&w=150&h=150")
+	const plate: Hud.WorldPlate = Hud.World.mount(board, { size = Vector2.new(200, 60), kind = "tile" })
+	plate.destroy()
 	const progress: Hud.ProgressHandle = Hud.Progress.mount(surface, { height = 8, color = Hud.Native.PRIMARY })
 	progress.set(0.5)
 	const viewport = Hud.Viewport.mount(surface)

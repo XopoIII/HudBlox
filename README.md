@@ -9,7 +9,7 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **0.18.1.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
+> **0.18.2.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
 > the hands" button are proven by specs that run on every push, and each of 310 small slips in them
 > makes the suite fail (`tests/Mutate.luau`). The modules that build Instances cannot run off
 > Roblox, so the suite does not run them; they are checked against the Roblox API by the type gate,
@@ -85,7 +85,9 @@ plate.destroy()
 The plate ignores the world's lighting (`LightInfluence = 0`) so it stays readable at night, states
 its own `ZIndexBehavior` as the dialog does, and is removed with the part it is over. `World.image`
 is a corner-rounded image slot; an empty asset draws nothing and the plate's material shows through.
-It is type-checked only: nobody has looked at it in Roblox yet, so check it in a test place first.
+A board is painted instead of a plate that follows the camera: `World.surface(part, { face, pixelsPerStud, lightInfluence })` returns a SurfaceGui to fill with `Native.text`. A round mark with a rim is `World.portrait(parent, { size, rim, rimColor, plate })`, which returns `{ frame, image, set(asset) }`.
+
+It is type-checked only in the kit's demo; check it in a test place first.
 
 ## Install
 
@@ -97,7 +99,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.18.1", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.18.2", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -514,7 +516,7 @@ have no verified enabled getter: restoration is best-effort Enable, **not** an e
 snapshot. Native discovery/signals and real device movement still require Roblox testing; plain
 protocol specs and type checks do not prove them.
 
-Install `=0.18.1` only after verifying its published package. The following is also type-checked
+Install `=0.18.2` only after verifying its published package. The following is also type-checked
 in the consumer fixture:
 
 ```luau
