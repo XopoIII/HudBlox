@@ -55,6 +55,7 @@ const TopBar = require("@self/TopBar")
 const TouchClearance = require("@self/TouchClearance")
 const TouchControls = require("@self/TouchControls")
 const Viewport = require("@self/Viewport")
+const World = require("@self/World")
 
 export type ControlRelease = TouchControls.Release
 export type Theme = Theme.Theme
@@ -115,12 +116,17 @@ export type ProgressHandle = Progress.Handle
 export type PointerHandle = Pointer.Handle
 export type PointerHold = Pointer.Hold
 export type PointerDrag = Pointer.Drag
+export type WorldOptions = World.Options
+export type WorldPlate = World.Plate
+export type WorldImageOptions = World.ImageOptions
 
 return {
 	Surface = Surface,
 	Progress = Progress,
 	Viewport = Viewport,
 	Pointer = Pointer,
+	--- A plate in the world: a BillboardGui over a part, its face drawn by the kit.
+	World = World,
 	--- The top line: the right row and the left buttons.
 	TopBar = TopBar,
 	--- A capsule on its own.
