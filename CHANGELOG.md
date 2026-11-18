@@ -3,6 +3,15 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.18.1 - 2026-11-18
+
+A plate in the world is drawn.
+
+### Fixed
+
+- **`World.mount` returned a BillboardGui that was never parented, so nothing appeared.** The gui
+  now hangs off the part it adorns. A plate's `destroy()` still removes it with the shell.
+
 ## 0.18.0 - 2026-11-18
 
 A plate can stand in the world.

@@ -55,6 +55,8 @@ function World.mount(adornee: Instance, options: Options): Plate
 		gui.MaxDistance = math.max(0, limit)
 	end
 	const frame = Surface.mount(gui, { kind = options.kind or "tile", padding = options.padding })
+	-- A BillboardGui that is never parented is never drawn: it hangs off the part it adorns.
+	gui.Parent = adornee
 	local dead = false
 	const function destroy()
 		if dead then
