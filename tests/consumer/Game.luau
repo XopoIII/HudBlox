@@ -268,6 +268,23 @@ HudBlox.TouchControls.set("help", true)
 HudBlox.TouchControls.set("help", false)
 stopPad()
 
+-- A plate in the world: a sign over a part, its face filled by the kit's own rows and images.
+const signPart = Instance.new("Part")
+const plate: HudBlox.WorldPlate = HudBlox.World.mount(signPart, {
+	size = Vector2.new(220, 96),
+	maxDistance = 120,
+	kind = "tile",
+	padding = 8,
+})
+const signText: TextLabel = HudBlox.Native.text(plate.frame, "Berth 3", 20, { weight = Enum.FontWeight.Bold })
+const portrait = HudBlox.World.image(plate.frame, "rbxthumb://type=AvatarHeadShot&id=1&w=150&h=150", {
+	size = UDim2.fromOffset(48, 48),
+})
+signText.Text = "Berth 3"
+portrait.ImageTransparency = 0
+plate.destroy()
+plate.destroy()
+
 -- The backpack and the hotbar's cover are in `tests/consumer/Bag.luau`.
 
 -- A surface that can be unmounted stops everything it started.

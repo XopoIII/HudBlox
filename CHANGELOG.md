@@ -3,6 +3,28 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.18.0 - 2026-11-18
+
+A plate can stand in the world.
+
+### Added
+
+- **`World.mount(adornee, options)` holds a plate over a part.** A BillboardGui carrying the kit's
+  own `Surface` face, so a sign beside a pier, a card over a boat or a name over a stall reads as
+  the same material as the top bar. The game passes the size in BillboardGui offset pixels and the
+  draw distance, because how big a sign must be is a question about the world it stands in; the
+  plate ignores the world's lighting so it stays legible at night, and states its own
+  `ZIndexBehavior` as the dialog does. `destroy()` is silent and removes the plate with the shell.
+- **`World.image(parent, asset, options)` is a corner-rounded image slot** for the pictures a game
+  owns: a player's head shot, a painted map, a species portrait. An empty asset draws nothing.
+
+### Not done
+
+- Both are built from Instances only, so the suite cannot run them and no mutant covers them: they
+  are checked against the Roblox API by the type gate under both solvers, drawn in the demo place,
+  and **nobody has looked at them in Roblox yet**. The size that reads well at a distance, and the
+  draw distance for a pier, are a game's measurements, not the kit's.
+
 ## 0.17.2 - 2026-11-16
 
 A page is drawn in the device's own safe area.

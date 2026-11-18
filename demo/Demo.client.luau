@@ -184,6 +184,23 @@ gui.Destroying:Connect(function()
 	end
 end)
 
+-- A plate in the world: the same styled face, held over a part. A sign that names a berth in a game
+-- is the same material as the HUD; the game names the part and the words.
+const signPart = Instance.new("Part")
+signPart.Name = "DemoSign"
+signPart.Size = Vector3.new(1, 3, 1)
+signPart.Position = Vector3.new(0, 2.5, -14)
+signPart.Anchored = true
+signPart.Parent = workspace
+const signPlate = HudBlox.World.mount(signPart, {
+	size = Vector2.new(260, 64),
+	maxDistance = 120,
+	kind = "tile",
+	padding = 10,
+	studsOffset = Vector3.new(0, 2.4, 0),
+})
+HudBlox.Native.text(signPlate.frame, "HudBlox demo", 20, { weight = Enum.FontWeight.Bold })
+
 -- The demo's own life: the wallet earns once a second, and the clock is read again.
 while true do
 	task.wait(1)

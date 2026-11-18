@@ -9,8 +9,8 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **0.17.2.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
-> the hands" button are proven by specs that run on every push, and each of 307 small slips in them
+> **0.18.0.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
+> the hands" button are proven by specs that run on every push, and each of 310 small slips in them
 > makes the suite fail (`tests/Mutate.luau`). The modules that build Instances cannot run off
 > Roblox, so the suite does not run them; they are checked against the Roblox API by the type gate,
 > under both type solvers. The dialog's teardown was proven in a consuming game's cloud suite: the
@@ -27,8 +27,8 @@ in a live game before it became a package.
 > **Only type-checked, never run in a game.** What that game does not call: a capsule or a segment
 > built on its own (`Pill.build`, `Pill.segment`, `Pill.pinWidth`), `SafeArea`, `Layout`,
 > `Clearance`, `Pick`, `Stack` and `TouchControls` called by a game directly, `Ring.square` and
-> `Ring.round` named by a game, and whatever else of `tests/consumer/` a game of your own
-> uses differently. New in 0.10.0 and not yet run in a game: the gamepad's "in the hands" button in
+> `Ring.round` named by a game, `World` (a plate in the world), and whatever else of
+> `tests/consumer/` a game of your own uses differently. New in 0.10.0 and not yet run in a game: the gamepad's "in the hands" button in
 > the inventory. New in 0.16.0 and not yet run in a game: Reduce Motion's effects, and
 > `rightReserve`, whose width has not been measured yet. The demo place (`demo/`) has been built
 > and read back, and run by nobody. Try a new release in a test place first.
@@ -63,6 +63,30 @@ These Instance/input changes have **not been playtested in Roblox**. The pure ow
 are specified and mutation-checked; both solvers and serialized demo/package gates are different
 checks, not engine input, appearance or real-phone proof.
 
+## A plate in the world (0.18.0)
+
+A sign beside a berth, a card over a boat, a name over a stall: the same styled face as the HUD,
+held over a part. The game names the part and the words; the kit owns the shell.
+
+```lua
+local plate = HudBlox.World.mount(signPart, {
+	size = Vector2.new(240, 96),   -- BillboardGui offset pixels, scaled by camera distance
+	maxDistance = 120,
+	kind = "tile",
+	padding = 8,
+})
+HudBlox.Native.text(plate.frame, ownerName, 20, { weight = Enum.FontWeight.Bold })
+local portrait = HudBlox.World.image(plate.frame, "rbxthumb://type=AvatarHeadShot&id=1&w=150&h=150", {
+	size = UDim2.fromOffset(48, 48),
+})
+plate.destroy()
+```
+
+The plate ignores the world's lighting (`LightInfluence = 0`) so it stays readable at night, states
+its own `ZIndexBehavior` as the dialog does, and is removed with the part it is over. `World.image`
+is a corner-rounded image slot; an empty asset draws nothing and the plate's material shows through.
+It is type-checked only: nobody has looked at it in Roblox yet, so check it in a test place first.
+
 ## Install
 
 ```sh
@@ -73,7 +97,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.17.2", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.18.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -490,7 +514,7 @@ have no verified enabled getter: restoration is best-effort Enable, **not** an e
 snapshot. Native discovery/signals and real device movement still require Roblox testing; plain
 protocol specs and type checks do not prove them.
 
-Install `=0.17.2` only after verifying its published package. The following is also type-checked
+Install `=0.18.0` only after verifying its published package. The following is also type-checked
 in the consumer fixture:
 
 ```luau
