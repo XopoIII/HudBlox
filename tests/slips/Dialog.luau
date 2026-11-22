@@ -213,6 +213,54 @@ const MUTANTS: { { file: string, from: string, to: string, breaks: string } } = 
 		to = "		top = 0,\n		clearsBottom = true,\n		tight = false,",
 		breaks = "a page is not a panel laid flush",
 	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "panelTransparency = (if skin then fraction(skin.panelTransparency) else nil) or defaults.panelTransparency,",
+		to = "panelTransparency = (if skin then fraction(skin.panelTransparency) else nil) or 0,",
+		breaks = "a skin that names no transparency is as open as the host's own panel",
+	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "corner = (if skin then length(skin.corner) else nil) or defaults.corner,",
+		to = "corner = (if skin then length(skin.corner) else nil) or 0,",
+		breaks = "a skin that names no corner keeps the panel's own",
+	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "\treturn math.clamp(value, 0, 1)",
+		to = "\treturn value",
+		breaks = "a share of the screen is clamped into it",
+	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "\treturn math.max(0, value)",
+		to = "\treturn value",
+		breaks = "a corner is never negative",
+	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "then rotation else DialogSkin.ROTATION",
+		to = "then rotation else 0",
+		breaks = "a skin with no direction shades down the screen",
+	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "\treturn math.max(floor, value)",
+		to = "\treturn value",
+		breaks = "header height and title size never go under their floors",
+	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "headerHeight = (if skin then atLeast(skin.headerHeight, 24) else nil) or defaultHeader,",
+		to = "headerHeight = defaultHeader,",
+		breaks = "a skin's compact header height is honoured",
+	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "sidePadding = (if skin then length(skin.sidePadding) else nil) or defaultSide,",
+		to = "sidePadding = defaultSide,",
+		breaks = "a skin's compact side padding is honoured",
+	},
 }
 
 return MUTANTS

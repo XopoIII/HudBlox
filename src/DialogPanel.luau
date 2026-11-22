@@ -60,25 +60,32 @@ export type Panel = {
 
 --> Where the body begins, in the panel's units: under a framed header, the whole panel for a page,
 --> and under the platform's own line for a sheet.
-function DialogPanel.bodyTop(sheeted: boolean, page: boolean): number
+function DialogPanel.bodyTop(sheeted: boolean, page: boolean, headerHeight: number?): number
 	if sheeted then
 		return Measure.TOP + Measure.HEIGHT + 1
 	end
-	return if page then 0 else DialogPanel.HEAD_H + 1 + Native.GAP / 2
+	const headH = headerHeight or DialogPanel.HEAD_H
+	const gap = if headH < DialogPanel.HEAD_H then 8 else Native.GAP / 2
+	return if page then 0 else headH + 1 + gap
 end
 
 --> Builds it closed, into `playerGui` when the caller parents it.
 function DialogPanel.new(options: Options): Panel
 	const page = options.page
-	const side = options.side
-	const above = options.above
 	const reserve = options.reserve
 	const skin = DialogSkin.resolve(options.skin, {
 		panel = Native.SURFACE,
 		panelTransparency = Native.MODAL_T,
 		corner = Native.CORNER,
 		backdropTransparency = Native.BACKDROP_T,
+		sidePadding = options.side,
+		topPadding = options.above,
+		headerHeight = DialogPanel.HEAD_H,
+		titleSize = Native.TITLE_SIZE,
 	})
+	const side = if page then 0 else skin.sidePadding
+	const above = if page then 0 else skin.topPadding
+	const headH = skin.headerHeight
 	const gui = Instance.new("ScreenGui")
 	gui.Name = options.name
 	gui.ResetOnSpawn = false
@@ -149,7 +156,7 @@ function DialogPanel.new(options: Options): Panel
 	blocker.Selectable = false
 	blocker.Parent = panel
 
-	const head = DialogHeader.mount(panel, options.title, options.minimumHit, side)
+	const head = DialogHeader.mount(panel, options.title, options.minimumHit, side, headH, skin.titleSize)
 	-- A page carries its own line: the header and its divider are not drawn, and the body is the
 	-- whole panel.
 	if page then
@@ -160,7 +167,7 @@ function DialogPanel.new(options: Options): Panel
 		end
 	end
 
-	const top = DialogPanel.bodyTop(false, page)
+	const top = DialogPanel.bodyTop(false, page, headH)
 	const body = Instance.new("Frame")
 	body.Name = "Body"
 	body.BackgroundTransparency = 1
@@ -190,7 +197,7 @@ function DialogPanel.new(options: Options): Panel
 				right = reserve,
 			}
 			else nil)
-		const edge = DialogPanel.bodyTop(sheeted, page)
+		const edge = DialogPanel.bodyTop(sheeted, page, headH)
 		body.Position = UDim2.fromOffset(0, edge)
 		body.Size = UDim2.new(1, 0, 1, -edge)
 		foot.top(edge)

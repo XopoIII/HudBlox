@@ -34,26 +34,35 @@ export type Header = {
 }
 
 --> Mounts the header in `panel`, whose side padding is `room`; `minimumHit` is the X's least side.
-function DialogHeader.mount(panel: Frame, title: string, minimumHit: number?, room: number?): Header
+function DialogHeader.mount(
+	panel: Frame,
+	title: string,
+	minimumHit: number?,
+	room: number?,
+	headerHeight: number?,
+	titleSize: number?
+): Header
 	const air = room or 0
+	const framedH = headerHeight or Dialog.HEAD_H
 	const header = Instance.new("Frame")
 	header.Name = "Header"
 	header.BackgroundTransparency = 1
-	header.Size = UDim2.new(1, 0, 0, Dialog.HEAD_H)
+	header.Size = UDim2.new(1, 0, 0, framedH)
 	header.Parent = panel
 
-	const head = Native.text(header, title, Native.TITLE_SIZE, { weight = Enum.FontWeight.Bold })
+	const head = Native.text(header, title, titleSize or Native.TITLE_SIZE, { weight = Enum.FontWeight.Bold })
 	head.Name = "Title"
 	head.TextWrapped = false
 	head.TextTruncate = Enum.TextTruncate.AtEnd
-	const hit = UiRules.hit(minimumHit)
-	head.Size = UDim2.new(1, -hit - 8, 0, Dialog.HEAD_H)
+	const hit = math.min(UiRules.hit(minimumHit), framedH)
+	head.Size = UDim2.new(1, -hit - 8, 0, framedH)
 
 	const close = Native.iconButton(header, "x")
 	close.Name = "Close"
 	close.Size = UDim2.fromOffset(hit, hit)
 	close.AnchorPoint = Vector2.new(1, 0)
-	close.Position = UDim2.new(1, 0, 0, 2)
+	const framedTop = math.max(0, (framedH - hit) // 2)
+	close.Position = UDim2.new(1, 0, 0, framedTop)
 	-- The last place a gamepad's focus starts (`Pick`).
 	close.SelectionOrder = 1000
 	-- Built with the close button at the right and mirrored once, whatever the locale: the X stands
@@ -66,23 +75,24 @@ function DialogHeader.mount(panel: Frame, title: string, minimumHit: number?, ro
 	divider.BackgroundColor3 = Native.DIVIDER
 	divider.BackgroundTransparency = Native.DIVIDER_T
 	divider.BorderSizePixel = 0
-	divider.Position = UDim2.fromOffset(0, Dialog.HEAD_H)
+	divider.Position = UDim2.fromOffset(0, framedH)
 	divider.Size = UDim2.new(1, 0, 0, 1)
 	divider.Parent = panel
 
 	const function fit(line: Line?)
 		const top = if line then line.top else 0
-		const height = if line then line.height else Dialog.HEAD_H
+		const height = if line then line.height else framedH
 		const left = if line then line.left else 0
 		const right = if line then line.right else 0
 		header.Position = UDim2.fromOffset(left, top)
 		header.Size = UDim2.new(1, -(left + right), 0, height)
 		head.Size = UDim2.new(1, -hit - 8, 0, height)
 		-- Only the X's line moves: its side was mirrored once at mount, and setting it again would
-		-- put it back on the right. A sheet's X shares the platform's line exactly; a framed dialog
-		-- keeps it 2 down in its own taller header.
+		-- put it back on the right. A sheet's X shares the platform's line; a framed dialog keeps
+		-- it centred in its own header.
 		const place = close.Position
-		close.Position = UDim2.new(place.X.Scale, place.X.Offset, 0, if line then 0 else 2)
+		const y = if line then math.max(0, (height - hit) // 2) else framedTop
+		close.Position = UDim2.new(place.X.Scale, place.X.Offset, 0, y)
 		divider.Position = UDim2.fromOffset(-air, top + height)
 		divider.Size = UDim2.new(1, air * 2, 0, 1)
 	end
