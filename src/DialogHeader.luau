@@ -78,9 +78,11 @@ function DialogHeader.mount(panel: Frame, title: string, minimumHit: number?, ro
 		header.Position = UDim2.fromOffset(left, top)
 		header.Size = UDim2.new(1, -(left + right), 0, height)
 		head.Size = UDim2.new(1, -hit - 8, 0, height)
-		-- A sheet's X shares the platform's line exactly: a framed dialog keeps it 2 down in its own
-		-- taller header.
-		close.Position = UDim2.new(1, 0, 0, if line then 0 else 2)
+		-- Only the X's line moves: its side was mirrored once at mount, and setting it again would
+		-- put it back on the right. A sheet's X shares the platform's line exactly; a framed dialog
+		-- keeps it 2 down in its own taller header.
+		const place = close.Position
+		close.Position = UDim2.new(place.X.Scale, place.X.Offset, 0, if line then 0 else 2)
 		divider.Position = UDim2.fromOffset(-air, top + height)
 		divider.Size = UDim2.new(1, air * 2, 0, 1)
 	end
