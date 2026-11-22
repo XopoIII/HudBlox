@@ -3,6 +3,18 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.19.1 - 2026-11-22
+
+The X stayed where the locale put it.
+
+### Fixed
+
+- **`DialogHeader.fit` put the X back on the right.** The X's side is mirrored once at mount, as the
+  Escape menu's is; the line that lays a header down for a sheet set the X's position again from
+  `1, 0`, so every dialog — framed or filled — drew its X past the header's right edge instead of on
+  its left. Only the X's own line moves now, and its side is left as the mirror put it. Found by
+  looking at a sheet in the game that asked for it, after 0.19.0 was published.
+
 ## 0.19.0 - 2026-11-22
 
 A phone's dialog fills the phone.
