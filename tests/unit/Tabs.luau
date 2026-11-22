@@ -44,4 +44,33 @@ Spec.test("a bumper steps one tab on, and stops at either end", function()
 	Spec.equal(TabFit.step(0, 1, 1), 1, "no tabs: where it was")
 end)
 
+Spec.test("vertical tabs that fit keep their height, and tabs that do not share the rail evenly", function()
+	Spec.equal(TabFit.RAIL_WIDTH, 88, "the rail's width")
+	Spec.equal(TabFit.SHORTEST, 40, "the shortest")
+	Spec.equal(TabFit.height(252, 2, 8, 60), 60, "two icon tabs in a phone sheet")
+	Spec.equal(TabFit.height(128, 2, 8, 60), 60, "two, with not a pixel to spare")
+	Spec.equal(TabFit.height(127, 2, 8, 60), 59, "two, one pixel short")
+	Spec.equal(TabFit.height(100, 1, 40, 120), 100, "one tab has no gap")
+	Spec.equal(TabFit.height(70, 3, 8, 60), 40, "never squeezed under the shortest")
+	Spec.equal(TabFit.height(200, 2, 8, 30), 30, "a tallest under the shortest is kept")
+	Spec.equal(TabFit.height(40, 3, 8, 30), 30, "and is what a squeezed tab falls back to")
+	Spec.equal(TabFit.height(252, 0, 8, 60), 60, "no tabs ask for nothing: the tallest")
+end)
+
+Spec.test("a vertical rail splits the body from the reader's leading side and never goes negative", function()
+	const ltr = TabFit.rail(420, 88, 12, false)
+	Spec.equal(ltr.railX, 0, "ltr rail on the left")
+	Spec.equal(ltr.contentX, 100, "ltr page after the rail and gap")
+	Spec.equal(ltr.contentWidth, 320, "ltr page takes the rest")
+
+	const rtl = TabFit.rail(420, 88, 12, true)
+	Spec.equal(rtl.railX, 332, "rtl rail on the right")
+	Spec.equal(rtl.contentX, 0, "rtl page on the left")
+	Spec.equal(rtl.contentWidth, 320, "rtl page takes the rest")
+
+	const tiny = TabFit.rail(60, 88, 12, true)
+	Spec.equal(tiny.railX, 0, "rtl rail clamped to zero in a narrow body")
+	Spec.equal(tiny.contentWidth, 0, "page width clamped to zero")
+end)
+
 return nil

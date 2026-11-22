@@ -71,6 +71,7 @@ export type BadgeOptions = Badge.Options
 export type BadgeHandle = Badge.Handle
 export type TabsEntry = Tabs.Entry
 export type TabsOptions = Tabs.Options
+export type TabRailSplit = TabFit.RailSplit
 export type PadCardOptions = PadCard.Options
 export type PadPageKey = PadPage.Key
 export type PadGlyphShape = PadGlyph.Shape

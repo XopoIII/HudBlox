@@ -9,8 +9,8 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **0.20.0.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
-> the hands" button are proven by specs that run on every push, and each of 319 small slips in them
+> **0.21.0.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
+> the hands" button are proven by specs that run on every push, and each of 324 small slips in them
 > makes the suite fail (`tests/Mutate.luau`). The modules that build Instances cannot run off
 > Roblox, so the suite does not run them; they are checked against the Roblox API by the type gate,
 > under both type solvers. The dialog's teardown was proven in a consuming game's cloud suite: the
@@ -106,7 +106,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.20.0", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.21.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -273,22 +273,29 @@ type TabsOptions = {
 	picked: ((key: string) -> ())?, -- told each time a tab is put on, by a press or by `pick`
 	first: string?,                 -- the tab that is on at first; the first one when left out
 	name: string?,                  -- the strip's name in the tree, "Tabs" when left out
+	vertical: boolean?,             -- a vertical rail on the reader's leading side instead of a top row
 	height: number?, width: number?, gap: number?, text: number?, -- TabFit's when left out
 }
 type TabsHandle = {
-	frame: Frame,                       -- as wide as its parent, one tab high; the game places it
+	frame: Frame,                       -- as wide as its parent, one tab high (or one rail wide and full height)
 	buttons: { [string]: TextButton },  -- each tab by its key, to pin a Badge to one
 	pick: (key: string) -> boolean,     -- puts a tab on; false for a key that is no tab's
 	on: () -> string,                   -- the key of the tab that is on
 }
 ```
 
-A row of the menu's buttons of which one wears the blue. The strip fills from the reader's own
-side (`Host`), and when it is narrower than its tabs ask for they share it evenly. What stands
-under a tab is the game's: `picked` shows it. `picked` is not called at mount.
+A row or vertical rail of the menu's buttons of which one wears the blue. The strip fills from the
+reader's own side (`Host`), and when it is narrower or shorter than its tabs ask for they share it
+evenly. What stands under or beside a tab is the game's: `picked` shows it. `picked` is not called
+at mount.
 
 - `TabFit.width(span, count, gap, most): number`: how wide each of `count` tabs is in a strip
-  `span` wide. `TabFit.HEIGHT` 40, `WIDTH` 150, `GAP` 8, `TEXT` 20, `NARROWEST` 44.
+  `span` wide. `TabFit.HEIGHT` 40, `WIDTH` 150, `RAIL_WIDTH` 88, `GAP` 8, `TEXT` 20, `NARROWEST` 44,
+  `SHORTEST` 40.
+- `TabFit.height(span, count, gap, most): number`: how tall each of `count` tabs is in a vertical
+  rail `span` tall.
+- `TabFit.rail(bodyWidth, railWidth, gap, rtl): TabRailSplit`: where a vertical rail and the page
+  beside it sit inside a body `bodyWidth` wide (`{ railX, contentX, contentWidth }`).
 
 The backpack's filters are this strip, a chip's size.
 
@@ -523,7 +530,7 @@ have no verified enabled getter: restoration is best-effort Enable, **not** an e
 snapshot. Native discovery/signals and real device movement still require Roblox testing; plain
 protocol specs and type checks do not prove them.
 
-Install `=0.20.0` only after verifying its published package. The following is also type-checked
+Install `=0.21.0` only after verifying its published package. The following is also type-checked
 in the consumer fixture:
 
 ```luau
