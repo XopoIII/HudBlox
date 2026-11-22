@@ -24,6 +24,7 @@ const DialogGeometry = require("@self/DialogGeometry")
 const Flight = require("@self/Flight")
 const FlightPath = require("@self/FlightPath")
 const Focus = require("@self/Focus")
+const Gradient = require("@self/Gradient")
 const Host = require("@self/Host")
 const HotbarCover = require("@self/HotbarCover")
 const Icons = require("@self/Icons")
@@ -45,6 +46,7 @@ const Progress = require("@self/Progress")
 const Ring = require("@self/Ring")
 const Rtl = require("@self/Rtl")
 const SafeArea = require("@self/SafeArea")
+const Shadow = require("@self/Shadow")
 const Stack = require("@self/Stack")
 const Steer = require("@self/Steer")
 const Surface = require("@self/Surface")
@@ -109,6 +111,13 @@ export type BackpackOrder = Backpack.Order
 export type BackpackPlace = Backpack.Place
 export type BackpackHands = Backpack.Hands
 
+export type ShadowOptions = Shadow.Spec
+export type ShadowHandle = Shadow.Handle
+export type ShadowMode = Shadow.Mode
+export type GradientOptions = Gradient.Spec
+export type GradientHandle = Gradient.Handle
+export type GradientKind = Gradient.Kind
+
 export type SurfaceOptions = Surface.Options
 export type SurfaceRowOptions = Surface.RowOptions
 export type ProgressOptions = Progress.Options
@@ -125,6 +134,11 @@ export type WorldPortrait = World.Portrait
 
 return {
 	Surface = Surface,
+	--- A soft shadow under a surface, drawn by the engine (`UIShadow`); it keeps its softness at
+	--- every `UIScale` and draws nothing on a client without the class.
+	Shadow = Shadow,
+	--- A colour ramp across a surface, with the radial and the sweeping kind where the client has them.
+	Gradient = Gradient,
 	Progress = Progress,
 	Viewport = Viewport,
 	Pointer = Pointer,

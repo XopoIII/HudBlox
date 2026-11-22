@@ -6,6 +6,18 @@ export type Mutant = { file: string, from: string, to: string, breaks: string }
 
 const MUTANTS: { Mutant } = {
 	{
+		file = "src/Shadow.luau",
+		from = "return math.max(0, math.floor(product + 0.5))",
+		to = "return product",
+		breaks = "a blur is a whole pixel count and never under zero",
+	},
+	{
+		file = "src/Shadow.luau",
+		from = "\tlocal factor = 1\n",
+		to = "\tlocal factor = 0\n",
+		breaks = "no scale above a surface leaves the authored blur alone",
+	},
+	{
 		file = "src/Layout.luau",
 		from = "then free + Measure.GAP * s else",
 		to = "then free else",

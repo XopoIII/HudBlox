@@ -3,6 +3,29 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.20.0 - 2026-11-22
+
+Depth under a surface, and a ramp across one.
+
+### Added
+
+- **`Shadow`: a soft shadow under a surface, drawn by the engine's `UIShadow`.** `Shadow.attach(target, spec?)` puts one on any `GuiObject` and hands back a handle with `setEnabled`, `refresh` and `destroy`. A build without the class draws nothing and raises nothing, so a game asks once and every client answers for itself. A shadow's `blur`, `offset` and `spread` are authored in pixels at scale 1, `inset` makes it a rim inside the surface instead of a drop under it, `mode` follows a text label's shape or its letters, and `behindParent` draws it behind a parent that would cover it.
+- **The blur follows `UIScale`, which the engine does not do for us.** The engine scales a shadow's offset and spread by every `UIScale` above the surface but leaves `BlurRadius` alone, so at scale 2 the shadow reads half as soft; `Shadow` re-reads the scales above and rewrites the blur, and does it again when a scale changes or the surface moves. `Shadow.pixels` and `Shadow.factor` are the arithmetic, and each has specs and mutants.
+- **`Gradient`: a colour ramp across a surface.** `Gradient.attach(target, spec?)` sets the engine's `UIGradient` with `from`, `to`, an optional `mid` stop, `rotation` and `transparency`, and a `kind` of `linear`, `radial` or `conical`. A client that knows only the straight ramp draws the straight ramp rather than failing. The handle's `set(from, to)` redraws the ramp without rebuilding it.
+
+### Notes from the look
+
+- The engine multiplies a `UIGradient` over the surface's own colour: the same amber over the kit's
+  dark plate reads brown, so a surface showing authored colours is drawn white first. The radial and
+  the sweeping ramp both draw, and a sweep whose ends differ shows its seam — the documented advice.
+- `UIShadow` is the right depth for a card standing over the world or over a dialog's own panel; under
+  a dialog, the backdrop already dims the world and the shadow has little to fall on.
+
+### Not done
+
+- `Shadow.attach` and `Gradient.attach` build Instances and read `Enum`, so the suite cannot run them: the type gate checks them under both solvers, the demo place draws them, and only the arithmetic inside `Shadow` is spec'd. What they were looked at in is the demo place, not a published game.
+- The numbers `Shadow` defaults to were chosen by eye against the kit's own panel in the demo: 28 pixels of blur, a 12-pixel drop, 18 per cent transparency. A game with a different plate may want its own.
+
 ## 0.19.1 - 2026-11-22
 
 The X stayed where the locale put it.

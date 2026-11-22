@@ -12,6 +12,12 @@ const function mount(parent: Instance)
 	-- A press and a tap are different questions, so they get different buttons: a hold reports the
 	-- finger, a tap reports the activation. One button with both would run an action twice.
 	const tapped = Hud.Native.button(row, "", "secondary")
+	const banner = Hud.Surface.mount(column, { kind = "tile", size = UDim2.new(1, 0, 0, 64) })
+	const ramp: Hud.GradientHandle? = Hud.Gradient.attach(
+		banner,
+		{ kind = "linear", from = Color3.fromRGB(252, 196, 96), to = Color3.fromRGB(232, 137, 78) }
+	)
+	const shadow: Hud.ShadowHandle? = Hud.Shadow.attach(dialog.panel, { blur = 28, offset = Vector2.new(0, 14) })
 	const progress: Hud.ProgressHandle = Hud.Progress.mount(surface, { height = 8, color = Hud.Native.PRIMARY })
 	progress.set(0.5)
 	const viewport = Hud.Viewport.mount(surface)
@@ -44,6 +50,12 @@ const function mount(parent: Instance)
 		drag.cancel()
 		drag.destroy()
 		progress.destroy()
+		if ramp then
+			ramp.destroy()
+		end
+		if shadow then
+			shadow.destroy()
+		end
 		dialog.destroy()
 		dialog.destroy()
 	end

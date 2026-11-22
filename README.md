@@ -457,6 +457,39 @@ holds one. It hands back `gui`, `panel`, `title`, `body`, `footer`, `setOpen(ope
   (`bottom`) while `room` is left over it. Where it is not, `clearsBottom` is false and `cover(true)`
   tells the game to hide the band until the dialog closes.
 
+### Shadow and Gradient: depth and ramps
+
+```lua
+local shop = HudBlox.Dialog.new(playerGui, "Shop", "Shop", 620, 600)
+local shadow = HudBlox.Shadow.attach(shop.panel, { blur = 28, offset = Vector2.new(0, 14) })
+local header = HudBlox.Gradient.attach(shop.title, { kind = "linear", from = gold, to = amber })
+```
+
+`Shadow.attach(target, spec?)` puts the engine's `UIShadow` under any `GuiObject` and returns a
+handle with `object`, `refresh()`, `setEnabled(on)` and `destroy()`, or nil where the client has no
+`UIShadow` — the call never fails. `blur`, `offset` and `spread` are authored in pixels at scale 1;
+`inset` makes a rim inside the surface instead of a drop under it, `mode` a text label's `"shape"` or
+its `"text"`, and `behindParent` draws the shadow behind a parent that would cover it. The colour is
+black unless a game gives one, and `transparency` is 0.18.
+
+- The engine scales a shadow's offset and spread by every `UIScale` above the surface but not its
+  blur, so `Shadow` re-reads the scales above and rewrites `BlurRadius` — when it attaches, when a
+  scale's `Scale` changes, when the surface's absolute size changes (a `UIScale` added later) and
+  when it is re-parented. A game that moves a surface between two frames calls `refresh()` itself.
+- An authored blur stays a whole pixel count and never goes under zero.
+
+`Gradient.attach(target, spec?)` sets the engine's `UIGradient` from `from` to `to`, with an optional
+`mid` stop at half way, `rotation` (90 runs top to bottom) and `transparency`. `kind` is `"linear"`,
+`"radial"` or `"conical"`; a client that knows only the straight ramp draws the straight ramp, so a
+game may ask for a sweep without asking which client it is on. The handle's `set(from, to)` redraws
+the ramp without building another, and `destroy()` takes it away.
+
+- **A ramp multiplies the surface's colour**, it does not replace it: the same amber over the kit's
+  dark plate reads as brown. A surface that should show the authored colours is drawn white first
+  (`BackgroundColor3 = Color3.new(1, 1, 1)`).
+- **A sweep whose two ends differ has a seam** where it meets itself; give a `conical` ramp the same
+  colour at both ends, or a `mid` stop that closes the turn.
+
 ### Focus, Ring, Pick, Stack: a gamepad's selection
 
 - `Focus.push(name, root, { back?, first? }?)` gives the pad to a panel: the selection is kept
