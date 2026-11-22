@@ -17,17 +17,18 @@
 ---   are core UI drawn over everything.
 --- - The panel keeps above the game's bottom band (a hotbar) where the screen has room, and tells
 ---   the game to hide the band while it is up where it has not (`Options.cover`).
+--- - A dialog asked for a `sheet` fills a screen too short to frame it (`DialogGeometry.tight`),
+---   from the device's own top edge to its bottom, its header on Roblox's own line and clear of the
+---   platform's capsules, which is what a phone's dialogs are.
 ---
 --- The close button stands on the left and the title beside it, as in the Escape menu; the title's
 --- text starts where the game's reader starts (`Host`).
-const DialogFooter = require("./DialogFooter")
 const DialogGeometry = require("./DialogGeometry")
-const DialogHeader = require("./DialogHeader")
+const DialogPanel = require("./DialogPanel")
 const Focus = require("./Focus")
 const Host = require("./Host")
 const ModalState = require("./ModalState")
 const Native = require("./Native")
-
 const SafeArea = require("./SafeArea")
 const TouchControls = require("./TouchControls")
 
@@ -59,6 +60,15 @@ export type Options = {
 	--- header and its padding taken away, so that a game's page begins on Roblox's own line. The
 	--- backdrop stays to hold the taps, and is not seen.
 	page: boolean?,
+	--- A dialog that fills a screen too short to frame it (`DialogGeometry.tight`): the panel takes
+	--- the whole screen from the device's own top edge to its bottom, and its header — the X and the
+	--- title — stands on Roblox's own line, clear of the platform's capsules at the left and of
+	--- `rightReserve` at the right, so a game's own corner may stand over it. A screen with room
+	--- keeps the framed dialog, and a page is never a sheet.
+	sheet: boolean?,
+	--- Room the game keeps at the right of a sheet's line for its own corner, in the kit's units and
+	--- drawn at the bar's scale, as `TopBar`'s own `rightReserve`. 0 when left out.
+	rightReserve: number?,
 }
 
 export type Dialog = {
@@ -79,12 +89,6 @@ export type Dialog = {
 	destroy: () -> (),
 }
 
-const function corner(parent: Instance, radius: number)
-	const round = Instance.new("UICorner")
-	round.CornerRadius = UDim.new(0, radius)
-	round.Parent = parent
-end
-
 --> A dialog named `name` in `playerGui`, `width` wide and `height` tall at most, titled `title`.
 --> The body fills what the title and the footer leave; the footer is a horizontal row for buttons,
 --> empty (and taking no room) until one is added.
@@ -99,107 +103,45 @@ function Dialog.new(
 	const bottom = if options then options.bottom else nil
 	const cover = if options then options.cover else nil
 	const page = options ~= nil and options.page == true
+	const sheet = options ~= nil and options.sheet == true
+	const reserve = if options and options.rightReserve then options.rightReserve else 0
 	const room = if page then 0 else Native.PAD
 	const above = if page then 0 else Dialog.TOP_PAD
 	guiCounter += 1
 	const rtl = Host.rtl()
 	const scope = `modal:{guiCounter}`
 
-	const gui = Instance.new("ScreenGui")
-	gui.Name = name
-	gui.ResetOnSpawn = false
-	gui.IgnoreGuiInset = true
-	-- A page is drawn in the device's own safe area: not inside the core UI's insets, which would
-	-- lift it a strip above the screen, and never under a notch or an island, where a page's line and
-	-- its corner would be cut. Roblox's own bar stands in that same area, so the page's line meets it.
-	if page then
-		gui.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
-	end
-	gui.DisplayOrder = Dialog.DISPLAY_ORDER
-	gui.Enabled = false
-	-- Sibling ordering, not the default global one: the later panel's subtree then draws over the
-	-- backdrop, so the panel's ZIndex 0 TapBlocker sits above the ZIndex 1 backdrop but below the
-	-- panel's own content. Ordering globally puts the blocker behind the backdrop, and a tap on the
-	-- panel reaches the backdrop and closes the dialog.
-	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-	const backdrop = Instance.new("TextButton")
-	backdrop.Name = "Backdrop"
-	backdrop.Text = ""
-	backdrop.AutoButtonColor = false
-	backdrop.BackgroundColor3 = Color3.new(0, 0, 0)
-	backdrop.BackgroundTransparency = if page then 1 else Native.BACKDROP_T
-	backdrop.Size = UDim2.fromScale(1, 1)
-	-- Neither it nor the blocker is a control: a gamepad never lands on them.
-	backdrop.Selectable = false
-	backdrop.Parent = gui
-
-	const panel = Instance.new("Frame")
-	panel.Name = "Panel"
-	panel.BackgroundColor3 = Native.SURFACE
-	panel.BackgroundTransparency = Native.MODAL_T
-	panel.BorderSizePixel = 0
-	panel.Active = true
-	panel.Parent = gui
-	corner(panel, Native.CORNER)
-	const scale = Instance.new("UIScale")
-	scale.Parent = panel
-	const pad = Instance.new("UIPadding")
-	pad.PaddingLeft = UDim.new(0, room)
-	pad.PaddingRight = UDim.new(0, room)
-	pad.PaddingBottom = UDim.new(0, room)
-	pad.PaddingTop = UDim.new(0, above)
-	pad.Parent = panel
-
-	-- A Frame, even an Active one, lets a tap through to the backdrop button behind it (measured);
-	-- a button the panel's size does not.
-	const blocker = Instance.new("TextButton")
-	blocker.Name = "TapBlocker"
-	blocker.Text = ""
-	blocker.AutoButtonColor = false
-	blocker.BackgroundTransparency = 1
-	blocker.Position = UDim2.fromOffset(-room, -above)
-	blocker.Size = UDim2.new(1, room * 2, 1, room + above)
-	blocker.ZIndex = 0
-	blocker.Selectable = false
-	blocker.Parent = panel
-
-	const head, close = DialogHeader.mount(panel, title, if options then options.minimumHit else nil)
-	-- A page carries its own line: the header and its divider are not drawn, and the body is the
-	-- whole panel
-	if page then
-		for _, child in panel:GetChildren() do
-			if child:IsA("GuiObject") and (child.Name == "Header" or child.Name == "Divider") then
-				child.Visible = false
-			end
-		end
-	end
-
-	const top = if page then 0 else Dialog.HEAD_H + 1 + Native.GAP / 2
-	const body = Instance.new("Frame")
-	body.Name = "Body"
-	body.BackgroundTransparency = 1
-	body.Position = UDim2.fromOffset(0, top)
-	body.Size = UDim2.new(1, 0, 1, -top)
-	body.Parent = panel
-
-	const footer = DialogFooter.mount(panel, body, top, page, rtl.active())
-
+	const deck = DialogPanel.new({
+		name = name,
+		title = title,
+		side = room,
+		above = above,
+		page = page,
+		sheet = sheet,
+		reserve = reserve,
+		minimumHit = if options then options.minimumHit else nil,
+		rtl = rtl.active(),
+		display = Dialog.DISPLAY_ORDER,
+	})
+	const gui, panel, body, backdrop = deck.gui, deck.panel, deck.body, deck.backdrop
 	local open, dead = false, false
 	const changed = Instance.new("BindableEvent")
 	const function place()
 		const chrome = math.max(1, if options and options.scale then options.scale else SafeArea.chromeScale())
 		const size, strip = gui.AbsoluteSize, SafeArea.topStrip(gui)
-		const frame = if page
+		local frame = if page
 			then DialogGeometry.page(size.X, size.Y, chrome)
 			else DialogGeometry.scaled(size.X, size.Y, strip, width, height, bottom, chrome)
-		scale.Scale = chrome
+		-- A sheet: the screen has no room to frame the dialog, so the panel takes all of it, from
+		-- the device's own top edge to its bottom, and its header stands on Roblox's own line.
+		const sheeted = sheet and not page and frame.tight
+		if sheeted then
+			frame = DialogGeometry.page(size.X, size.Y, chrome)
+		end
 		if cover then
 			cover(open and not frame.clearsBottom)
 		end
-		panel.AnchorPoint = Vector2.new(0.5, 0)
-		panel.Size = UDim2.fromOffset(frame.width, frame.height)
-		panel.Position = UDim2.new(0.5, 0, 0, frame.top)
+		deck.place(frame, sheeted, chrome)
 	end
 	const unbind = SafeArea.bind(gui, place)
 	local state: ModalState.Handle
@@ -226,7 +168,7 @@ function Dialog.new(
 			Focus.push(scope, panel, {
 				back = shut,
 				first = function(): GuiObject?
-					return footer.accept()
+					return deck.accept()
 				end,
 			})
 		else
@@ -240,7 +182,12 @@ function Dialog.new(
 		end
 	end)
 	const backConnection = backdrop.Activated:Connect(shut)
-	const closeConnection = close.Activated:Connect(shut)
+	const closeConnection = deck.close.Activated:Connect(shut)
+	-- A sheet's line is the platform's, and that line moves when a voice icon or a language load
+	-- arrives: the ink steps aside with it.
+	const insetConnection = if sheet and not page
+		then game:GetService("GuiService"):GetPropertyChangedSignal("TopbarInset"):Connect(place)
+		else nil
 	const function release()
 		if dead then
 			return
@@ -250,6 +197,9 @@ function Dialog.new(
 		unbind()
 		backConnection:Disconnect()
 		closeConnection:Disconnect()
+		if insetConnection then
+			insetConnection:Disconnect()
+		end
 		changed:Destroy()
 	end
 	--- The gui lays the dialog down by itself when it is destroyed, and destroying an instance
@@ -268,9 +218,9 @@ function Dialog.new(
 	return {
 		gui = gui,
 		panel = panel,
-		title = head,
+		title = deck.title,
 		body = body,
-		footer = footer.frame,
+		footer = deck.footer,
 		setOpen = state.set,
 		observe = state.observe,
 		isOpen = state.isOpen,
@@ -280,7 +230,7 @@ function Dialog.new(
 		end,
 		primary = function(button: GuiButton?)
 			if not dead then
-				footer.primary(button)
+				deck.primary(button)
 			end
 		end,
 		changed = changed,
