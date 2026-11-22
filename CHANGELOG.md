@@ -3,6 +3,34 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.20.0 - 2026-11-22
+
+A dialog can be the game's own room.
+
+### Added
+
+- **`Dialog`'s `skin` option: a panel a game paints rather than Roblox's own.** A fill, how much of
+  the world shows through it, the framed panel's corner, the scrim over the world, and a shading
+  gradient across the fill (`{ panel?, panelTransparency?, corner?, backdropTransparency?,
+  gradient?, gradientRotation? }`). Every field left out stays what was measured off Roblox's menu,
+  so a dialog that asks for nothing draws exactly what it drew before. A sheet still rounds its
+  corner off to nothing, and the scrim, the X, the gamepad's focus and the close rules are the
+  dialog's own, untouched.
+- **`Surface` paints a game's plate.** `Surface.mount` takes `fill`, `fillTransparency`, `corner`,
+  `gradient` and `gradientRotation`: a plate answerable to "where is the light" without a texture,
+  a square plate when the corner is 0, and Roblox's own panel or tile when nothing is asked.
+- **`DialogSkin`, the pure arithmetic behind a skin.** `DialogSkin.resolve(skin, defaults)` clamps a
+  share of the screen into 0..1, never lets a corner go negative and falls back to the default for a
+  value that is not a number; it builds no Instance, and `tests/unit/DialogSkin.luau` holds it with
+  five mutants of its own.
+
+### Not done
+
+- What a skin draws builds Instances and reads `GuiService`, so no spec runs it: the arithmetic it
+  rests on (`DialogSkin.resolve`) is held by the specs and their mutants, and the panel was looked at
+  in the game that asked for it. A gradient's own appearance on a rounded panel is judged by eye,
+  never by a spec.
+
 ## 0.19.1 - 2026-11-22
 
 The X stayed where the locale put it.

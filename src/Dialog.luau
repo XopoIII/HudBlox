@@ -25,6 +25,7 @@
 --- text starts where the game's reader starts (`Host`).
 const DialogGeometry = require("./DialogGeometry")
 const DialogPanel = require("./DialogPanel")
+const DialogSkin = require("./DialogSkin")
 const Focus = require("./Focus")
 const Host = require("./Host")
 const ModalState = require("./ModalState")
@@ -69,6 +70,9 @@ export type Options = {
 	--- Room the game keeps at the right of a sheet's line for its own corner, in the kit's units and
 	--- drawn at the bar's scale, as `TopBar`'s own `rightReserve`. 0 when left out.
 	rightReserve: number?,
+	--- The panel's fill, corner, scrim and shading, when a game wants its own room rather than
+	--- Roblox's Escape-menu panel. Every field left out is Roblox's own.
+	skin: DialogSkin.Skin?,
 }
 
 export type Dialog = {
@@ -120,6 +124,7 @@ function Dialog.new(
 		sheet = sheet,
 		reserve = reserve,
 		minimumHit = if options then options.minimumHit else nil,
+		skin = if options then options.skin else nil,
 		rtl = rtl.active(),
 		display = Dialog.DISPLAY_ORDER,
 	})
