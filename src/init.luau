@@ -21,6 +21,7 @@ const Clearance = require("@self/Clearance")
 const Dialog = require("@self/Dialog")
 const DialogColumn = require("@self/DialogColumn")
 const DialogGeometry = require("@self/DialogGeometry")
+const DialogSkin = require("@self/DialogSkin")
 const Flight = require("@self/Flight")
 const FlightPath = require("@self/FlightPath")
 const Focus = require("@self/Focus")
@@ -93,6 +94,8 @@ export type PadAct = Host.PadAct
 export type Motion = Host.Motion
 export type DialogOptions = Dialog.Options
 export type DialogHandle = Dialog.Dialog
+export type DialogSkinOptions = DialogSkin.Skin
+export type DialogLook = DialogSkin.Resolved
 export type DialogBottom = DialogGeometry.Bottom
 export type DialogFrame = DialogGeometry.Frame
 export type FocusOptions = Focus.Options
@@ -165,6 +168,8 @@ return {
 	Dialog = Dialog,
 	DialogColumn = DialogColumn,
 	DialogGeometry = DialogGeometry,
+	--- What a game's own dialog panel is instead of Roblox's: its fill, corner, scrim and shading.
+	DialogSkin = DialogSkin,
 	--- Where a gamepad's selection is, one panel at a time; its ring, where each way goes, the right
 	--- stick on its list, and the pure parts.
 	Focus = Focus,

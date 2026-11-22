@@ -6,6 +6,7 @@
 const DialogFooter = require("./DialogFooter")
 const DialogGeometry = require("./DialogGeometry")
 const DialogHeader = require("./DialogHeader")
+const DialogSkin = require("./DialogSkin")
 const Measure = require("./Measure")
 const Native = require("./Native")
 const SafeArea = require("./SafeArea")
@@ -28,6 +29,8 @@ export type Options = {
 	--- Room a sheet keeps at the right of its line for the game's own corner.
 	reserve: number,
 	minimumHit: number?,
+	--- The fill, corner, scrim and shading a game wants instead of Roblox's own panel.
+	skin: DialogSkin.Skin?,
 	--- Whether the reader reads right to left, which the footer's row follows.
 	rtl: boolean,
 	--- The ScreenGui's DisplayOrder, above a HUD at 0.
@@ -70,6 +73,12 @@ function DialogPanel.new(options: Options): Panel
 	const side = options.side
 	const above = options.above
 	const reserve = options.reserve
+	const skin = DialogSkin.resolve(options.skin, {
+		panel = Native.SURFACE,
+		panelTransparency = Native.MODAL_T,
+		corner = Native.CORNER,
+		backdropTransparency = Native.BACKDROP_T,
+	})
 	const gui = Instance.new("ScreenGui")
 	gui.Name = options.name
 	gui.ResetOnSpawn = false
@@ -94,7 +103,7 @@ function DialogPanel.new(options: Options): Panel
 	backdrop.Text = ""
 	backdrop.AutoButtonColor = false
 	backdrop.BackgroundColor3 = Color3.new(0, 0, 0)
-	backdrop.BackgroundTransparency = if page then 1 else Native.BACKDROP_T
+	backdrop.BackgroundTransparency = if page then 1 else skin.backdropTransparency
 	backdrop.Size = UDim2.fromScale(1, 1)
 	-- Neither it nor the blocker is a control: a gamepad never lands on them.
 	backdrop.Selectable = false
@@ -102,14 +111,22 @@ function DialogPanel.new(options: Options): Panel
 
 	const panel = Instance.new("Frame")
 	panel.Name = "Panel"
-	panel.BackgroundColor3 = Native.SURFACE
-	panel.BackgroundTransparency = Native.MODAL_T
+	panel.BackgroundColor3 = skin.panel
+	panel.BackgroundTransparency = skin.panelTransparency
 	panel.BorderSizePixel = 0
 	panel.Active = true
 	panel.Parent = gui
 	const round = Instance.new("UICorner")
-	round.CornerRadius = UDim.new(0, Native.CORNER)
+	round.CornerRadius = UDim.new(0, skin.corner)
 	round.Parent = panel
+	-- A skin's shading answers "where is the light" without a texture: one ramp, multiplied over the
+	-- fill, above nothing — a `UIGradient` on a `Frame` carries no order of its own.
+	if skin.gradient then
+		const shade = Instance.new("UIGradient")
+		shade.Color = skin.gradient
+		shade.Rotation = skin.gradientRotation
+		shade.Parent = panel
+	end
 	const scale = Instance.new("UIScale")
 	scale.Parent = panel
 	const pad = Instance.new("UIPadding")
@@ -161,7 +178,7 @@ function DialogPanel.new(options: Options): Panel
 		panel.Size = UDim2.fromOffset(frame.width, frame.height)
 		panel.Position = UDim2.new(0.5, 0, 0, frame.top)
 		-- A sheet is the screen's own edge: no corner to round off, and nothing above its line.
-		round.CornerRadius = UDim.new(0, if sheeted then 0 else Native.CORNER)
+		round.CornerRadius = UDim.new(0, if sheeted then 0 else skin.corner)
 		pad.PaddingTop = UDim.new(0, if sheeted or page then 0 else above)
 		-- A sheet's ink begins past the platform's capsules, and ends before the game's own corner;
 		-- the panel's own padding is already in front of it, so only the difference is a step.

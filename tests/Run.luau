@@ -2,7 +2,7 @@
 --- The suite: every spec file, in order. A spec file runs its specs as it loads.
 ---
 --- Only what needs no Roblox runs here: the arithmetic (`Layout`, `Clearance`, `Band`,
---- `DialogGeometry`, `Pick`, `Stack`), what a player's motion setting means (`Host`), when the world's prompts are held off (`PromptHold`), a badge's count, the backpack's order, taps, presses and a gamepad's "in the hands" button, the hotbar's cover, and when the top row's wrap is reported.
+--- `DialogGeometry`, `DialogSkin`, `Pick`, `Stack`), what a player's motion setting means (`Host`), when the world's prompts are held off (`PromptHold`), a badge's count, the backpack's order, taps, presses and a gamepad's "in the hands" button, the hotbar's cover, and when the top row's wrap is reported.
 --- Most modules that build Instances are type-checked against the Roblox API
 --- (`tests/consumer/` uses all of them) and are not run by this suite. Real UICorner instances are
 --- the exception: LuneBlox's Roblox library checks legacy property migration and model round-trips.
@@ -18,6 +18,7 @@ require("./unit/Host")
 require("./unit/Clearance")
 require("./unit/Band")
 require("./unit/DialogGeometry")
+require("./unit/DialogSkin")
 require("./unit/Pick")
 require("./unit/Stack")
 require("./unit/PromptHold")

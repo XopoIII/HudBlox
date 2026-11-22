@@ -239,6 +239,36 @@ const MUTANTS: { Mutant } = {
 		to = '\treturn if reduced then "Full" else "Reduced"',
 		breaks = "Roblox's Reduce Motion setting is honoured",
 	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "panelTransparency = (if skin then fraction(skin.panelTransparency) else nil) or defaults.panelTransparency,",
+		to = "panelTransparency = (if skin then fraction(skin.panelTransparency) else nil) or 0,",
+		breaks = "a skin that names no transparency is as open as the host's own panel",
+	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "corner = (if skin then length(skin.corner) else nil) or defaults.corner,",
+		to = "corner = (if skin then length(skin.corner) else nil) or 0,",
+		breaks = "a skin that names no corner keeps the panel's own",
+	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "\treturn math.clamp(value, 0, 1)",
+		to = "\treturn value",
+		breaks = "a share of the screen is clamped into it",
+	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "\treturn math.max(0, value)",
+		to = "\treturn value",
+		breaks = "a corner is never negative",
+	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "then rotation else DialogSkin.ROTATION",
+		to = "then rotation else 0",
+		breaks = "a skin with no direction shades down the screen",
+	},
 }
 
 -- The dialog's geometry, the gamepad's focus and the backpack keep theirs in files of their own.

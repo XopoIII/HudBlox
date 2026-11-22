@@ -9,8 +9,8 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **0.19.1.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
-> the hands" button are proven by specs that run on every push, and each of 314 small slips in them
+> **0.20.0.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
+> the hands" button are proven by specs that run on every push, and each of 319 small slips in them
 > makes the suite fail (`tests/Mutate.luau`). The modules that build Instances cannot run off
 > Roblox, so the suite does not run them; they are checked against the Roblox API by the type gate,
 > under both type solvers. The dialog's teardown was proven in a consuming game's cloud suite: the
@@ -38,9 +38,16 @@ in a live game before it became a package.
 Use the existing `Dialog`, `DialogColumn` and `Native` components for menu chrome and controls.
 [The complete consumer](<tests/consumer/Ui.luau>) and [demo module](<demo/Ui.luau>) show these additive APIs:
 
-- `Surface.mount(parent, { kind?, size?, position?, anchor?, padding? })` returns a styled
-  Frame; kinds are `plain`, `panel`, `tile`. `Surface.row(parent, { height?, gap? })` owns
-  horizontal flex layout (48 pixels and 12 pixels by default).
+- `Surface.mount(parent, { kind?, size?, position?, anchor?, padding?, fill?, fillTransparency?,
+  corner?, gradient?, gradientRotation? })` returns a styled Frame; kinds are `plain`, `panel`,
+  `tile`, and `fill`/`corner`/`gradient` paint a game's own plate instead of Roblox's.
+  `Surface.row(parent, { height?, gap? })` owns horizontal flex layout (48 pixels and 12 pixels by
+  default).
+- `Dialog` takes a `skin` (`{ panel?, panelTransparency?, corner?, backdropTransparency?,
+  gradient?, gradientRotation? }`): a dialog that is the game's own room rather than Roblox's
+  Escape-menu panel, with the corner left square on a sheet and the scrim, focus and close
+  behaviour unchanged. `DialogSkin.resolve(skin, defaults)` is the pure, clamped arithmetic behind
+  it, and it builds no Instance.
 - `Progress.mount(parent, { height?, color? })` returns `{ frame, set(fraction), destroy() }`.
   Finite values clamp to 0..1; NaN/infinity produce zero.
 - `Viewport.mount(parent)` returns an active transparent ViewportFrame. The host owns its
@@ -99,7 +106,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.19.1", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.20.0", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -516,7 +523,7 @@ have no verified enabled getter: restoration is best-effort Enable, **not** an e
 snapshot. Native discovery/signals and real device movement still require Roblox testing; plain
 protocol specs and type checks do not prove them.
 
-Install `=0.19.1` only after verifying its published package. The following is also type-checked
+Install `=0.20.0` only after verifying its published package. The following is also type-checked
 in the consumer fixture:
 
 ```luau
