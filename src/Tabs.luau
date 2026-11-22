@@ -102,6 +102,9 @@ export type Options = {
 	--- Whether a gamepad's bumpers turn the strip, with their pictures on its end tabs. True when
 	--- left out.
 	bumpers: boolean?,
+	--- When true, lays the tabs in a vertical rail on the reader's leading side instead of a top
+	--- row; the rail takes its parent's height and divides it through `TabFit.height`.
+	vertical: boolean?,
 	--- A tab's height, widest width, the gap between two and the size of its word; `TabFit`'s
 	--- when left out.
 	height: number?,
@@ -111,7 +114,8 @@ export type Options = {
 }
 
 export type Handle = {
-	--- The strip: as wide as its parent, one tab high. The game places it.
+	--- The strip: as wide as its parent, one tab high (or one rail wide and as tall as its parent
+	--- when `vertical` is true). The game places it.
 	frame: Frame,
 	--- Each tab by its key, for a game that pins a count to one.
 	buttons: { [string]: TextButton },
@@ -132,21 +136,32 @@ function Tabs.mount(parent: Instance, entries: { Entry }, options: Options?): Ha
 			faces = true
 		end
 	end
+	const vertical = (options and options.vertical) == true
 	const height = (options and options.height) or (if faces then TabFit.HEIGHT + TabFit.ICON else TabFit.HEIGHT)
-	const most = (options and options.width) or TabFit.WIDTH
+	const most = (options and options.width) or (if vertical then TabFit.RAIL_WIDTH else TabFit.WIDTH)
 	const gap = (options and options.gap) or TabFit.GAP
 	const reader = Host.rtl()
 
 	const frame = Instance.new("Frame")
 	frame.Name = (options and options.name) or "Tabs"
 	frame.BackgroundTransparency = 1
-	frame.Size = UDim2.new(1, 0, 0, height)
+	if vertical then
+		frame.Size = UDim2.new(0, most, 1, 0)
+		if reader.active() then
+			frame.AnchorPoint = Vector2.new(1, 0)
+			frame.Position = UDim2.fromScale(1, 0)
+		end
+	else
+		frame.Size = UDim2.new(1, 0, 0, height)
+	end
 	frame.Parent = parent
 	const row = Instance.new("UIListLayout")
-	row.FillDirection = Enum.FillDirection.Horizontal
+	row.FillDirection = if vertical then Enum.FillDirection.Vertical else Enum.FillDirection.Horizontal
 	row.SortOrder = Enum.SortOrder.LayoutOrder
 	row.Padding = UDim.new(0, gap)
-	row.HorizontalAlignment = if reader.active() then Enum.HorizontalAlignment.Right else Enum.HorizontalAlignment.Left
+	row.HorizontalAlignment = if not vertical and reader.active()
+		then Enum.HorizontalAlignment.Right
+		else Enum.HorizontalAlignment.Left
 	row.Parent = frame
 
 	const buttons: { [string]: TextButton } = {}
@@ -161,9 +176,16 @@ function Tabs.mount(parent: Instance, entries: { Entry }, options: Options?): Ha
 	end
 
 	const function fit()
-		const width = TabFit.width(frame.AbsoluteSize.X, #entries, gap, most)
-		for _, button in buttons do
-			button.Size = UDim2.fromOffset(width, height)
+		if vertical then
+			const h = TabFit.height(frame.AbsoluteSize.Y, #entries, gap, height)
+			for _, button in buttons do
+				button.Size = UDim2.fromOffset(most, h)
+			end
+		else
+			const width = TabFit.width(frame.AbsoluteSize.X, #entries, gap, most)
+			for _, button in buttons do
+				button.Size = UDim2.fromOffset(width, height)
+			end
 		end
 	end
 
@@ -184,7 +206,7 @@ function Tabs.mount(parent: Instance, entries: { Entry }, options: Options?): Ha
 		assert(not buttons[entry.key], `Tabs.mount: two tabs are called "{entry.key}"`)
 		const button = Native.button(frame, entry.label, "secondary")
 		button.Name = entry.key
-		button.LayoutOrder = reader.slot(i)
+		button.LayoutOrder = if vertical then i else reader.slot(i)
 		button.TextSize = (options and options.text) or (if entry.icon then TabFit.ICON_TEXT else TabFit.TEXT)
 		button.Size = UDim2.fromOffset(most, height)
 		if entry.icon then
@@ -221,19 +243,21 @@ function Tabs.mount(parent: Instance, entries: { Entry }, options: Options?): Ha
 		on = first
 	end
 	paint()
-	-- A strip not yet laid out reports no width: its tabs keep their widest until it has one.
+	-- A strip not yet laid out reports no span: its tabs keep their full size until it has one.
 	frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-		if frame.AbsoluteSize.X > 0 then
+		const span = if vertical then frame.AbsoluteSize.Y else frame.AbsoluteSize.X
+		if span > 0 then
 			fit()
 		end
 	end)
-	if frame.AbsoluteSize.X > 0 then
+	if (if vertical then frame.AbsoluteSize.Y else frame.AbsoluteSize.X) > 0 then
 		fit()
 	end
 
 	if #entries > 1 and not (options and options.bumpers == false) then
-		-- the left bumper goes left: back in reading order, on in a strip read from the right
-		const ahead = if reader.active() then -1 else 1
+		-- the left bumper goes left in a row (or up in a rail): back in reading order, on in a
+		-- horizontal strip read from the right
+		const ahead = if not vertical and reader.active() then -1 else 1
 		strips[frame] = function(by: number)
 			local place = 1
 			for i, entry in entries do
@@ -252,8 +276,8 @@ function Tabs.mount(parent: Instance, entries: { Entry }, options: Options?): Ha
 		frame.Destroying:Connect(function()
 			strips[frame] = nil
 		end)
-		const left = if reader.active() then entries[#entries] else entries[1]
-		const right = if reader.active() then entries[1] else entries[#entries]
+		const left = if not vertical and reader.active() then entries[#entries] else entries[1]
+		const right = if not vertical and reader.active() then entries[1] else entries[#entries]
 		const lb = PadGlyph.cap(buttons[left.key], Enum.KeyCode.ButtonL1, Tabs.CAP)
 		lb.AnchorPoint = Vector2.new(0.5, 0.5)
 		lb.Position = UDim2.fromOffset(4, 4)

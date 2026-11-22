@@ -43,6 +43,36 @@ const MUTANTS = {
 		to = "\treturn math.clamp",
 		breaks = "no tabs: where it was",
 	},
+	{
+		file = "src/TabFit.luau",
+		from = "(span - (count - 1) * gap)",
+		to = "(span - count * gap)",
+		breaks = "one vertical tab has no gap",
+	},
+	{
+		file = "src/TabFit.luau",
+		from = "math.min(TabFit.SHORTEST, most)",
+		to = "TabFit.SHORTEST",
+		breaks = "a tallest under the shortest is kept",
+	},
+	{
+		file = "src/TabFit.luau",
+		from = "const contentWidth = math.max(0, bodyWidth - railWidth - gap)",
+		to = "const contentWidth = bodyWidth - railWidth - gap",
+		breaks = "page width clamped to zero",
+	},
+	{
+		file = "src/TabFit.luau",
+		from = "railX = math.max(0, bodyWidth - railWidth)",
+		to = "railX = bodyWidth - railWidth",
+		breaks = "rtl rail clamped to zero in a narrow body",
+	},
+	{
+		file = "src/TabFit.luau",
+		from = "contentX = railWidth + gap",
+		to = "contentX = railWidth",
+		breaks = "ltr page after the rail and gap",
+	},
 }
 
 return MUTANTS

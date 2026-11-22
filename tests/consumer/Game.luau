@@ -75,12 +75,15 @@ const tabOptions: HudBlox.TabsOptions = {
 	picked = function(_key: string) end,
 	first = "eggs",
 	name = "Kinds",
-	height = HudBlox.TabFit.HEIGHT,
+	height = HudBlox.TabFit.height(252, 2, HudBlox.TabFit.GAP, HudBlox.TabFit.HEIGHT),
 	width = HudBlox.TabFit.width(712, 2, HudBlox.TabFit.GAP, HudBlox.TabFit.WIDTH),
 	gap = HudBlox.TabFit.GAP,
 	text = HudBlox.TabFit.TEXT,
 	bumpers = true,
+	vertical = false,
 }
+const _railSplit: HudBlox.TabRailSplit = HudBlox.TabFit.rail(420, HudBlox.TabFit.RAIL_WIDTH, HudBlox.TabFit.GAP, false)
+const _shortestTab: number = HudBlox.TabFit.SHORTEST
 const _next: number = HudBlox.TabFit.step(#tabEntries, 1, 1)
 const _tabsCap: number = HudBlox.Tabs.CAP
 const tabs: HudBlox.TabsHandle = HudBlox.Tabs.mount(gui, tabEntries, tabOptions)

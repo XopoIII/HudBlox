@@ -3,6 +3,31 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.21.0 - 2026-11-23
+
+A dialog's tabs can stand in a vertical rail on the reader's leading side.
+
+### Added
+
+- **`Tabs`' `vertical` option: a rail on the reader's side instead of a top row.** On a landscape
+  phone a horizontal tab strip takes a quarter of a sheet's body before the content begins; a
+  vertical rail (`vertical = true`) stands along the reader's leading edge (`TabFit.RAIL_WIDTH` 88
+  when `width` is left out, anchored to the right when `Host.rtl` is active), stacks its tabs from
+  top to bottom, and shares a shorter body's height through `TabFit.height`. Bumpers step the rail
+  top-to-bottom regardless of text direction.
+- **`TabFit.height` and `TabFit.rail`, the pure arithmetic behind a vertical rail.**
+  `TabFit.height(span, count, gap, most)` divides a rail's height evenly when the tabs do not fit
+  and never squeezes a tab under `TabFit.SHORTEST` (40); `TabFit.rail(bodyWidth, railWidth, gap,
+  rtl)` returns `{ railX, contentX, contentWidth }` for the rail and the page beside it, mirrored for
+  right-to-left readers and clamped so a narrow body never goes negative. Held by two new specs in
+  `tests/unit/Tabs.luau` and five new mutants in `tests/slips/Tabs.luau`.
+
+### Not done
+
+- A vertical rail's own Instance layout and right-to-left anchoring build Instances, so no spec
+  runs `Tabs.mount` off Roblox: the height sharing and rail split (`TabFit.height`, `TabFit.rail`)
+  are held by the specs and their mutants, and the rail is looked at in the game that asked for it.
+
 ## 0.20.0 - 2026-11-22
 
 A dialog can be the game's own room.
