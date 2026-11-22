@@ -57,6 +57,10 @@ export type Frame = {
 	top: number,
 	--- Whether the panel ends above the bottom band; if not, it covers it.
 	clearsBottom: boolean,
+	--- Whether the panel is laid flush, with only the tight margins a screen too short to frame a
+	--- dialog can spare, rather than framed with air round it. A dialog asked for a sheet fills the
+	--- whole screen exactly here (`Dialog`'s `sheet`).
+	tight: boolean,
 }
 
 --> The panel on a screen `width` by `height` (an edge-to-edge ScreenGui that ignores the gui inset)
@@ -91,6 +95,9 @@ function DialogGeometry.layout(
 	const margin = math.max(DialogGeometry.MARGIN_TOP_MIN, usableH * DialogGeometry.MARGIN_TOP_F)
 	local h: number
 	local top: number
+	-- Whether this screen is too short to frame the panel: it is laid flush instead. A sheet asks
+	-- exactly this.
+	local flush = false
 	if usableH - margin * 2 < maxH then
 		const below = viewH - strip - margin * 2
 		if below >= DialogGeometry.STRIP_CLEAR_MIN then
@@ -100,6 +107,7 @@ function DialogGeometry.layout(
 			const tight = DialogGeometry.TIGHT_MARGIN
 			h = math.max(viewH - tight * 2, DialogGeometry.CARD_H_MIN)
 			top = tight
+			flush = true
 		end
 	else
 		-- Centred on the device, not on the area under the strip: the strip is at the top only, and
@@ -119,6 +127,7 @@ function DialogGeometry.layout(
 		height = math.floor(h),
 		top = math.floor(top),
 		clearsBottom = clearsBottom,
+		tight = flush,
 	}
 end
 
@@ -143,12 +152,14 @@ function DialogGeometry.scaled(
 		height = frame.height,
 		top = math.floor(frame.top * s),
 		clearsBottom = frame.clearsBottom,
+		tight = frame.tight,
 	}
 end
 
 --> A page's panel: the whole of a screen `width` by `height`, less nothing, at `scale` — it begins
 --> at the device's own top edge and shares the line of Roblox's buttons, which is what a page is for.
---> The game's own line keeps clear of the capsules it does not own (`SafeArea.insetMinX`).
+--> The game's own line keeps clear of the capsules it does not own (`SafeArea.insetMinX`). A sheet's
+--> panel is the same rectangle: what it draws on the line is `Dialog`'s, not the arithmetic's.
 function DialogGeometry.page(width: number, height: number, scale: number): Frame
 	const divisor = if scale > 0 then scale else 1
 	return {
@@ -156,6 +167,7 @@ function DialogGeometry.page(width: number, height: number, scale: number): Fram
 		height = math.floor(height / divisor),
 		top = 0,
 		clearsBottom = true,
+		tight = true,
 	}
 end
 

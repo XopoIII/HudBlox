@@ -18,45 +18,56 @@ Spec.test("the row a panel keeps clear of is where the top bar's own buttons end
 end)
 
 Spec.test("a roomy screen frames the panel at its own size, centred above the bar", function()
-	Spec.equal(panel(1920, 1080, 58), { width = 760, height = 600, top = 199, clearsBottom = true })
+	Spec.equal(panel(1920, 1080, 58), { width = 760, height = 600, top = 199, clearsBottom = true, tight = false })
 	-- A tall phone: narrower than the dialog, so it keeps a tenth of the screen on each side.
-	Spec.equal(panel(390, 844, 58), { width = 312, height = 600, top = 81, clearsBottom = true })
+	Spec.equal(panel(390, 844, 58), { width = 312, height = 600, top = 81, clearsBottom = true, tight = false })
 end)
 
 Spec.test("a screen too short to frame it gives the panel what is left under the strip and the row", function()
-	Spec.equal(panel(835, 679, 36), { width = 668, height = 507, top = 64, clearsBottom = true })
-	Spec.equal(panel(1024, 768, 0), { width = 760, height = 579, top = 64, clearsBottom = true })
-	Spec.equal(panel(870, 639, 58), { width = 696, height = 454, top = 80, clearsBottom = true })
+	Spec.equal(panel(835, 679, 36), { width = 668, height = 507, top = 64, clearsBottom = true, tight = false })
+	Spec.equal(panel(1024, 768, 0), { width = 760, height = 579, top = 64, clearsBottom = true, tight = false })
+	Spec.equal(panel(870, 639, 58), { width = 696, height = 454, top = 80, clearsBottom = true, tight = false })
 end)
 
 Spec.test("a screen is roomy only when the dialog fits with its margins", function()
 	-- 760 tall: 620 are usable, which holds the 600 only without the two margins of 27.9. So the
 	-- panel is squeezed to what the margins leave, centred under the strip.
-	Spec.equal(panel(1000, 760, 58), { width = 760, height = 564, top = 85, clearsBottom = true })
-	Spec.equal(panel(1000, 780, 58), { width = 760, height = 582, top = 86, clearsBottom = true })
+	Spec.equal(panel(1000, 760, 58), { width = 760, height = 564, top = 85, clearsBottom = true, tight = false })
+	Spec.equal(panel(1000, 780, 58), { width = 760, height = 582, top = 86, clearsBottom = true, tight = false })
 end)
 
 Spec.test("under 440 below the strip a panel takes the tight margins and gives the row its height", function()
 	-- 518 tall: 418.6 would be left under the strip between the margins, short of the 440 that
 	-- makes a real panel there. It runs to 12 off the bottom and starts under the strip.
-	Spec.equal(panel(1000, 518, 58), { width = 760, height = 440, top = 66, clearsBottom = false })
+	Spec.equal(panel(1000, 518, 58), { width = 760, height = 440, top = 66, clearsBottom = false, tight = true })
 	Spec.equal(DialogGeometry.STRIP_CLEAR_MIN, 440, "the height")
 	-- And a little taller, where the bar still has its room, the same above the bar.
-	Spec.equal(panel(1000, 560, 58), { width = 760, height = 400, top = 66, clearsBottom = true })
-	Spec.equal(panel(1000, 540, 0), { width = 760, height = 382, top = 64, clearsBottom = true })
+	Spec.equal(panel(1000, 560, 58), { width = 760, height = 400, top = 66, clearsBottom = true, tight = true })
+	Spec.equal(panel(1000, 540, 0), { width = 760, height = 382, top = 64, clearsBottom = true, tight = true })
 end)
 
 Spec.test("a landscape phone takes the height under the row and covers the bar", function()
 	-- 801 x 392 with Roblox's 58 strip: under the strip and a gap, down to 12 off the bottom.
-	Spec.equal(panel(801, 392, 58), { width = 640, height = 314, top = 66, clearsBottom = false })
-	Spec.equal(panel(667, 375, 58), { width = 533, height = 297, top = 66, clearsBottom = false })
-	Spec.equal(panel(1366, 500, 70), { width = 760, height = 410, top = 78, clearsBottom = false })
+	Spec.equal(panel(801, 392, 58), { width = 640, height = 314, top = 66, clearsBottom = false, tight = true })
+	Spec.equal(panel(667, 375, 58), { width = 533, height = 297, top = 66, clearsBottom = false, tight = true })
+	Spec.equal(panel(1366, 500, 70), { width = 760, height = 410, top = 78, clearsBottom = false, tight = true })
 	const frame = panel(801, 392, 58)
 	Spec.equal(frame.top + frame.height, 392 - DialogGeometry.TIGHT_MARGIN, "its bottom edge")
 end)
 
+Spec.test("a sheet fills exactly the screens too short to frame the dialog", function()
+	-- The tight margins are the mark of a screen that cannot frame the panel: a dialog asked for a
+	-- sheet fills that screen, and nothing else is filled.
+	Spec.truthy(panel(801, 392, 58).tight, "a landscape phone")
+	Spec.truthy(panel(1000, 518, 58).tight, "a window too short for the panel")
+	Spec.truthy(DialogGeometry.layout(801, 392, 0, 760, 600).tight, "the same phone with no strip")
+	Spec.equal(panel(1920, 1080, 58).tight, false, "a roomy screen")
+	Spec.equal(panel(390, 844, 58).tight, false, "a tall phone")
+	Spec.equal(DialogGeometry.layout(801, 392, 58, 420, 300).tight, false, "a small dialog on that phone")
+end)
+
 Spec.test("a panel is never smaller than what its rows need", function()
-	Spec.equal(panel(280, 300, 58), { width = 280, height = 240, top = 66, clearsBottom = false })
+	Spec.equal(panel(280, 300, 58), { width = 280, height = 240, top = 66, clearsBottom = false, tight = true })
 	Spec.equal(DialogGeometry.CARD_W_MIN, 280, "the least width")
 	Spec.equal(DialogGeometry.CARD_H_MIN, 240, "the least height")
 	Spec.equal(panel(200, 260, 58).width, 280, "a screen narrower than that still gets it")
@@ -92,12 +103,14 @@ Spec.test("a game with nothing at the bottom gives the panel the whole height", 
 		height = 600,
 		top = 240,
 		clearsBottom = true,
+		tight = false,
 	}, "centred on the device")
 	Spec.equal(DialogGeometry.layout(870, 639, 58, 760, 600), {
 		width = 696,
 		height = 528,
 		top = 84,
 		clearsBottom = true,
+		tight = false,
 	}, "taller by the band it does not keep")
 	Spec.equal(DialogGeometry.layout(801, 392, 58, 760, 600).clearsBottom, true, "nothing to cover")
 	Spec.equal(DialogGeometry.layout(1024, 768, 0, 760, 600).top, 84, "framed, not squeezed")
@@ -106,7 +119,7 @@ end)
 Spec.test("a narrow dialog is centred with the air its width leaves", function()
 	-- 460 wide at most on an 870 screen: 205 a side.
 	const frame = DialogGeometry.layout(870, 639, 58, 460, 330, BAR)
-	Spec.equal(frame, { width = 460, height = 330, top = 113, clearsBottom = true })
+	Spec.equal(frame, { width = 460, height = 330, top = 113, clearsBottom = true, tight = false })
 	Spec.equal(DialogGeometry.layout(870, 639, 58, 620, 600, BAR).width, 620, "a wider one")
 end)
 
@@ -124,6 +137,10 @@ Spec.test("at Roblox's scale of its bar the panel is laid out in its points and 
 	Spec.equal(band.height, read.height, "the band read in points")
 	Spec.equal(band.top, math.floor(read.top * 1.5), "and the top under it in pixels")
 	Spec.equal(band.clearsBottom, read.clearsBottom, "cleared as in points")
+	-- A phone drawn at the bar's scale is still a screen too short to frame the dialog, and says so.
+	const phone = DialogGeometry.scaled(1200, 588, 87, 760, 600, nil, 1.5)
+	Spec.truthy(phone.tight, "tight at the bar's scale too")
+	Spec.equal(phone.top, math.floor(DialogGeometry.layout(800, 392, 58, 760, 600, nil).top * 1.5), "its top")
 end)
 
 Spec.test("at a computer's scale, or none read, the panel is laid out as it always was", function()
@@ -133,12 +150,24 @@ Spec.test("at a computer's scale, or none read, the panel is laid out as it alwa
 end)
 
 Spec.test("a page takes the whole screen, from its own top edge, at the bar's scale", function()
-	Spec.equal(DialogGeometry.page(1920, 1080, 1), { width = 1920, height = 1080, top = 0, clearsBottom = true })
+	Spec.equal(
+		DialogGeometry.page(1920, 1080, 1),
+		{ width = 1920, height = 1080, top = 0, clearsBottom = true, tight = true }
+	)
 	-- A television draws its bar half again as large, and the page is laid out in its own pixels
-	Spec.equal(DialogGeometry.page(1920, 1080, 1.5), { width = 1280, height = 720, top = 0, clearsBottom = true })
+	Spec.equal(
+		DialogGeometry.page(1920, 1080, 1.5),
+		{ width = 1280, height = 720, top = 0, clearsBottom = true, tight = true }
+	)
 	-- A tiny phone, and a scale that is nonsense: never a page divided by nothing
-	Spec.equal(DialogGeometry.page(666, 375, 1), { width = 666, height = 375, top = 0, clearsBottom = true })
-	Spec.equal(DialogGeometry.page(666, 375, 0), { width = 666, height = 375, top = 0, clearsBottom = true })
+	Spec.equal(
+		DialogGeometry.page(666, 375, 1),
+		{ width = 666, height = 375, top = 0, clearsBottom = true, tight = true }
+	)
+	Spec.equal(
+		DialogGeometry.page(666, 375, 0),
+		{ width = 666, height = 375, top = 0, clearsBottom = true, tight = true }
+	)
 end)
 
 return {}

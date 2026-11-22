@@ -189,6 +189,30 @@ const MUTANTS: { { file: string, from: string, to: string, breaks: string } } = 
 		to = "{ band = bottom.band, room = bottom.room }",
 		breaks = "the band is read in the panel's points",
 	},
+	{
+		file = "src/DialogGeometry.luau",
+		from = "			flush = true",
+		to = "			flush = false",
+		breaks = "a screen too short to frame the panel is not marked tight",
+	},
+	{
+		file = "src/DialogGeometry.luau",
+		from = "		tight = flush,",
+		to = "		tight = false,",
+		breaks = "a panel never says it is laid flush",
+	},
+	{
+		file = "src/DialogGeometry.luau",
+		from = "		tight = frame.tight,",
+		to = "		tight = false,",
+		breaks = "a tight panel is not tight once it is laid out at the bar's scale",
+	},
+	{
+		file = "src/DialogGeometry.luau",
+		from = "		top = 0,\n		clearsBottom = true,\n		tight = true,",
+		to = "		top = 0,\n		clearsBottom = true,\n		tight = false,",
+		breaks = "a page is not a panel laid flush",
+	},
 }
 
 return MUTANTS

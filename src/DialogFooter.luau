@@ -16,6 +16,9 @@ export type Footer = {
 	primary: (button: GuiButton?) -> (),
 	--- The button A accepts with now, which a gamepad's focus starts on.
 	accept: () -> GuiButton?,
+	--- Where the body's top edge is now, in the panel's units: a dialog that becomes a sheet has
+	--- its body higher and the footer's button says so too.
+	top: (at: number) -> (),
 }
 
 --> Builds the footer under `body` in `panel`, `body` giving up the footer's height once a button
@@ -37,10 +40,21 @@ function DialogFooter.mount(panel: Frame, body: Frame, top: number, page: boolea
 	row.Padding = UDim.new(0, 12)
 	row.Parent = footer
 
+	-- Where the body begins, and whether a button stands in the footer to take room from it.
+	local bodyTop = top
+	local standing = false
+	local function size()
+		if not standing or page then
+			return
+		end
+		body.Size = UDim2.new(1, 0, 1, -bodyTop - Native.BUTTON_H - Native.GAP)
+	end
+
 	footer.ChildAdded:Connect(function(child: Instance)
 		if child:IsA("GuiButton") and not page then
 			footer.Size = UDim2.new(1, 0, 0, Native.BUTTON_H)
-			body.Size = UDim2.new(1, 0, 1, -top - Native.BUTTON_H - Native.GAP)
+			standing = true
+			size()
 		end
 	end)
 
@@ -48,6 +62,10 @@ function DialogFooter.mount(panel: Frame, body: Frame, top: number, page: boolea
 	local cap: Frame? = nil
 	return {
 		frame = footer,
+		top = function(at: number)
+			bodyTop = at
+			size()
+		end,
 		primary = function(button: GuiButton?)
 			if cap then
 				cap:Destroy()

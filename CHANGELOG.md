@@ -3,6 +3,39 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.19.0 - 2026-11-22
+
+A phone's dialog fills the phone.
+
+### Added
+
+- **`Dialog`'s `sheet` option: a dialog that fills a screen too short to frame it.** Where
+  `DialogGeometry` takes the tight margins — a landscape phone, or a window squeezed until the
+  margins would eat the panel — the panel is the whole screen instead, from the device's own top
+  edge to its bottom, with its corner rounded off to nothing, and nothing above its line. Its header
+  stays: the X and the title stand on Roblox's own line, the title's ink beginning past the
+  platform's capsules (`SafeArea.insetMinX`, followed when a voice icon or a language load moves
+  them) and ending short of the game's own corner (`rightReserve`, in the kit's units at the bar's
+  scale, as `TopBar`'s). A screen with room keeps the framed dialog, and a page is never a sheet: a
+  game asks once and every phone-sized screen answers the same way, as a device emulator shows.
+- **`DialogGeometry`'s `Frame.tight`.** Whether a panel was laid flush — the branch whose margins
+  are `TIGHT_MARGIN` — rather than framed with air round it. A sheet fills exactly those screens and
+  no others. `DialogGeometry.page` answers `tight` too, a page being a panel with nothing round it.
+
+### Changed
+
+- **The panel a dialog draws in is its own module.** `DialogPanel` builds the backdrop, the panel
+  and its padding, the tap blocker, the title row, the body and the footer, and lays them out for a
+  frame of the screen; `Dialog` keeps the opening, the closing, the focus and the modal state.
+  `Dialog`'s own API is unchanged.
+
+### Not done
+
+- A sheet's own placement — the platform's line read at the bar's scale, the X moved onto it, and
+  the body beginning under it — builds Instances and reads `GuiService`, so no spec runs it: the
+  arithmetic it rests on (`DialogGeometry.tight`, `page`, and `scaled`'s pass-through) is held by
+  the specs and their mutants, and the placement was looked at only in the game that asked for it.
+
 ## 0.18.2 - 2026-11-18
 
 A game can paint its own sign.
