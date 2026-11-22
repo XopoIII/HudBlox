@@ -3,6 +3,24 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.22.0 - 2026-11-23
+
+A dialog's skin can tune its header height, title size and edge padding.
+
+### Added
+
+- **`DialogSkin`'s `sidePadding`, `topPadding`, `headerHeight` and `titleSize`.** A game whose panel
+  is tighter than Roblox's Escape menu (which gives 24 pixels to its sides and 48 to its header) can
+  name its own padding and header height through `skin`. `DialogSkin.resolve` clamps padding to at
+  least 0, `headerHeight` to at least 24 and `titleSize` to at least 10, falling back to the host's
+  defaults for non-numbers; `DialogHeader` sizes the close button inside the compact header and
+  centres it vertically. Held by a new spec in `tests/unit/DialogSkin.luau` and three new mutants.
+
+### Not done
+
+- The rendered header and padding build Instances, so they are looked at in the game that asked for
+  them; the resolver's clamping and fallbacks are held by `tests/unit/DialogSkin.luau`.
+
 ## 0.21.0 - 2026-11-23
 
 A dialog's tabs can stand in a vertical rail on the reader's leading side.
