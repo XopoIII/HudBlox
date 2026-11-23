@@ -40,10 +40,12 @@ function DialogHeader.mount(
 	minimumHit: number?,
 	room: number?,
 	headerHeight: number?,
-	titleSize: number?
+	titleSize: number?,
+	headerGap: number?
 ): Header
 	const air = room or 0
 	const framedH = headerHeight or Dialog.HEAD_H
+	const framedGap = headerGap or 0
 	const header = Instance.new("Frame")
 	header.Name = "Header"
 	header.BackgroundTransparency = 1
@@ -93,7 +95,10 @@ function DialogHeader.mount(
 		const place = close.Position
 		const y = if line then math.max(0, (height - hit) // 2) else framedTop
 		close.Position = UDim2.new(place.X.Scale, place.X.Offset, 0, y)
-		divider.Position = UDim2.fromOffset(-air, top + height)
+		-- A sheet's line is the platform's own: its divider hugs it as the menu's does. A framed
+		-- header may ask for air between its content and the divider, so the header's ink sits
+		-- between two equal margins instead of leaning on the line.
+		divider.Position = UDim2.fromOffset(-air, top + height + if line then 0 else framedGap)
 		divider.Size = UDim2.new(1, air * 2, 0, 1)
 	end
 

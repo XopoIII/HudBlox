@@ -3,6 +3,24 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.23.0 - 2026-11-23
+
+A framed header can ask for air between its content and the divider.
+
+### Added
+
+- **`DialogSkin`'s `headerGap`.** A framed dialog's divider sits directly under its header's ink, as
+  Roblox's own menu draws it — which reads as leaning on the line when a skin has also compacted the
+  header and padded the panel's top. `headerGap` (never negative, 0 when left out) moves the divider
+  that far down and starts the body below it, so a skin can give its header equal air above and below.
+  A sheet's header keeps the platform's own line, hugging it as before. Held by the resolver spec and
+  one new mutant.
+
+### Not done
+
+- The rendered divider spacing builds Instances, so it is looked at in the game that asked for it;
+  the resolver's clamping and fallback are held by `tests/unit/DialogSkin.luau`.
+
 ## 0.22.0 - 2026-11-23
 
 A dialog's skin can tune its header height, title size and edge padding.

@@ -33,6 +33,9 @@ export type Skin = {
 	headerHeight: number?,
 	--- The title's font size, in pixels. Never under 10.
 	titleSize: number?,
+	--- The air between a framed header's content and the divider under it, in pixels. Never
+	--- negative; 0 when left out, as the host's own menu draws it.
+	headerGap: number?,
 }
 
 --- What an unanswered field falls back to: the host's own panel, measured off Roblox's menu.
@@ -45,6 +48,7 @@ export type Defaults = {
 	topPadding: number?,
 	headerHeight: number?,
 	titleSize: number?,
+	headerGap: number?,
 }
 
 export type Resolved = {
@@ -58,6 +62,7 @@ export type Resolved = {
 	topPadding: number,
 	headerHeight: number,
 	titleSize: number,
+	headerGap: number,
 }
 
 const function finite(value: number): boolean
@@ -95,6 +100,7 @@ function DialogSkin.resolve(skin: Skin?, defaults: Defaults): Resolved
 	const defaultTop = if defaults.topPadding ~= nil then defaults.topPadding else 12
 	const defaultHeader = if defaults.headerHeight ~= nil then defaults.headerHeight else 48
 	const defaultTitle = if defaults.titleSize ~= nil then defaults.titleSize else 22
+	const defaultGap = if defaults.headerGap ~= nil then defaults.headerGap else 0
 	return {
 		panel = if skin and skin.panel then skin.panel else defaults.panel,
 		panelTransparency = (if skin then fraction(skin.panelTransparency) else nil) or defaults.panelTransparency,
@@ -107,6 +113,7 @@ function DialogSkin.resolve(skin: Skin?, defaults: Defaults): Resolved
 		topPadding = (if skin then length(skin.topPadding) else nil) or defaultTop,
 		headerHeight = (if skin then atLeast(skin.headerHeight, 24) else nil) or defaultHeader,
 		titleSize = (if skin then atLeast(skin.titleSize, 10) else nil) or defaultTitle,
+		headerGap = (if skin then length(skin.headerGap) else nil) or defaultGap,
 	}
 end
 
