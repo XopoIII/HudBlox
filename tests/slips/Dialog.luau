@@ -261,6 +261,12 @@ const MUTANTS: { { file: string, from: string, to: string, breaks: string } } = 
 		to = "sidePadding = defaultSide,",
 		breaks = "a skin's compact side padding is honoured",
 	},
+	{
+		file = "src/DialogSkin.luau",
+		from = "headerGap = (if skin then length(skin.headerGap) else nil) or defaultGap,",
+		to = "headerGap = defaultGap,",
+		breaks = "air between the header and its divider",
+	},
 }
 
 return MUTANTS

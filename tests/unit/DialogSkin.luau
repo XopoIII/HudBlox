@@ -36,6 +36,7 @@ Spec.test("no skin is the host's own panel, untouched", function()
 	Spec.equal(skin.topPadding, 12, "the host's top padding")
 	Spec.equal(skin.headerHeight, 48, "the host's header height")
 	Spec.equal(skin.titleSize, 22, "the host's title size")
+	Spec.equal(skin.headerGap, 0, "the host's divider hugs the header")
 end)
 
 Spec.test("a skin can compact the header, title and padding without going under the floors", function()
@@ -44,22 +45,26 @@ Spec.test("a skin can compact the header, title and padding without going under 
 		topPadding = 8,
 		headerHeight = 34,
 		titleSize = 18,
+		headerGap = 8,
 	}, HOST)
 	Spec.equal(compact.sidePadding, 12, "compact side padding")
 	Spec.equal(compact.topPadding, 8, "compact top padding")
 	Spec.equal(compact.headerHeight, 34, "compact header height")
 	Spec.equal(compact.titleSize, 18, "compact title size")
+	Spec.equal(compact.headerGap, 8, "air between the header and its divider")
 
 	const clamped = DialogSkin.resolve({
 		sidePadding = -6,
 		topPadding = -4,
 		headerHeight = 12,
 		titleSize = 4,
+		headerGap = -9,
 	}, HOST)
 	Spec.equal(clamped.sidePadding, 0, "side padding never negative")
 	Spec.equal(clamped.topPadding, 0, "top padding never negative")
 	Spec.equal(clamped.headerHeight, 24, "header height never under 24")
 	Spec.equal(clamped.titleSize, 10, "title size never under 10")
+	Spec.equal(clamped.headerGap, 0, "header gap never negative")
 end)
 
 Spec.test("a skin that asks for everything gets exactly what it asked for", function()
