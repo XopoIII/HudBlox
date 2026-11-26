@@ -3,6 +3,26 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.23.1 - 2026-11-26
+
+Scaled strips and short dialogs stay inside their available space; safe-area listeners release with their owner.
+
+### Fixed
+
+- Tabs convert measured pixels to layout points through their fixed cross axis before fitting.
+- Tight dialogs yield their preferred minimum height to the real viewport and honor the caller's height cap.
+- SafeArea.follow and SafeArea.bind stop on destruction as well as explicit unmount, invalidating queued callbacks first.
+
+### Evidence
+
+- Two new arithmetic cases and two new mutants cover fitting and scaled viewport bounds.
+- Isolated Studio Edit probes reproduced 672 pixels of tabs in a 450-pixel strip and an offscreen footer at 1.5 and 2 times scale.
+- A real TopbarInset connection stayed connected after its GUI was destroyed before the fix; the fixed follow probe disconnects it.
+
+### Not done
+
+- Full rendered focus, gamepad and device-matrix checks remain consumer acceptance work; these are not claimed by the arithmetic suite.
+
 ## 0.23.0 - 2026-11-23
 
 A framed header can ask for air between its content and the divider.

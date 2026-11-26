@@ -101,8 +101,8 @@ const MUTANTS: { { file: string, from: string, to: string, breaks: string } } = 
 	},
 	{
 		file = "src/DialogGeometry.luau",
-		from = "h = math.max(viewH - tight * 2, DialogGeometry.CARD_H_MIN)",
-		to = "h = math.max(viewH - tight, DialogGeometry.CARD_H_MIN)",
+		from = "h = math.min(math.max(viewH - tight * 2, 0), maxH)",
+		to = "h = math.min(math.max(viewH - tight, 0), maxH)",
 		breaks = "a full-height panel ends a tight margin off the bottom",
 	},
 	{
@@ -125,13 +125,13 @@ const MUTANTS: { { file: string, from: string, to: string, breaks: string } } = 
 	},
 	{
 		file = "src/DialogGeometry.luau",
-		from = "h = math.max(h - (clear - top), DialogGeometry.CARD_H_MIN)",
-		to = "h = math.max(h, DialogGeometry.CARD_H_MIN)",
+		from = "h = math.max(h - (clear - top), 0)",
+		to = "h = math.max(h, 0)",
 		breaks = "a panel moved under the row keeps its bottom edge",
 	},
 	{
 		file = "src/DialogGeometry.luau",
-		from = "h = math.max(h - (clear - top), DialogGeometry.CARD_H_MIN)",
+		from = "h = math.max(h - (clear - top), 0)",
 		to = "h = h - (clear - top)",
 		breaks = "a panel moved under the row is never shorter than its rows need",
 	},
