@@ -5,7 +5,8 @@
 --- `DialogGeometry`, `DialogSkin`, `Pick`, `Stack`), what a player's motion setting means (`Host`), when the world's prompts are held off (`PromptHold`), a badge's count, the backpack's order, taps, presses and a gamepad's "in the hands" button, the hotbar's cover, and when the top row's wrap is reported.
 --- Most modules that build Instances are type-checked against the Roblox API
 --- (`tests/consumer/` uses all of them) and are not run by this suite. Real UICorner instances are
---- the exception: LuneBlox's Roblox library checks legacy property migration and model round-trips.
+--- an exception: LuneBlox's Roblox library checks legacy property migration and model round-trips.
+--- Real TextButtons also hold extracted tab text configuration, without pretending to render it.
 ---
 --- Run from the repository root: `luneblox run tests/Run --yes` (or `sh scripts/run-tests.sh`).
 const Runtime = require("./Runtime")
@@ -29,6 +30,7 @@ require("./unit/BackpackRest")
 require("./unit/HotbarCover")
 require("./unit/Badge")
 require("./unit/Tabs")
+require("./unit/TabText")
 require("./unit/PadChord")
 require("./unit/PadGlyph")
 require("./unit/PadScroll")

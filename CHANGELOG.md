@@ -3,6 +3,25 @@
 Every release is listed here, newest first. The format follows Keep a Changelog, and versions follow
 semantic versioning.
 
+## 0.23.2 - 2026-11-26
+
+Vertical tab labels wrap at their configured text size, without shrinking the font or touch target.
+
+### Fixed
+
+- Vertical Tabs set TextWrapped; horizontal strips keep single-line labels. No new compact skin, font scaling or height policy is enabled.
+
+### Evidence
+
+- A consuming client measured a 103-by-20-pixel label in an 88-pixel rail, spilling 15 pixels before this fix.
+- One source-configuration regression executes the shipped text assignments on real LuneBlox TextButtons, checking vertical and horizontal modes, default and custom text size, and unchanged icon text.
+- Two property mutants must fail that exact named configuration assertion. This is not a fake renderer or a claim that Tabs.mount runs outside Roblox.
+
+### Not done
+
+- Rendered text wrapping, long translations, badges and gamepad focus remain consumer Studio acceptance work.
+- A short scaled dialog can leave less body height than a single 40-point tab needs. This release does not introduce a sheet policy or independently scrolling rail; those need an explicit host choice.
+
 ## 0.23.1 - 2026-11-26
 
 Scaled strips and short dialogs stay inside their available space; safe-area listeners release with their owner.
