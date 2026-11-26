@@ -104,7 +104,8 @@ export type Options = {
 	--- left out.
 	bumpers: boolean?,
 	--- When true, lays the tabs in a vertical rail on the reader's leading side instead of a top
-	--- row; the rail takes its parent's height and divides it through `TabFit.height`.
+	--- row; the rail takes its parent's height and divides it through `TabFit.height`. Vertical
+	--- labels wrap at their configured text size; horizontal labels remain single-line.
 	vertical: boolean?,
 	--- A tab's height, widest width, the gap between two and the size of its word; `TabFit`'s
 	--- when left out.
@@ -199,6 +200,7 @@ function Tabs.mount(parent: Instance, entries: { Entry }, options: Options?): Ha
 		button.Name = entry.key
 		button.LayoutOrder = if vertical then i else reader.slot(i)
 		button.TextSize = (options and options.text) or (if entry.icon then TabFit.ICON_TEXT else TabFit.TEXT)
+		button.TextWrapped = vertical
 		button.Size = UDim2.fromOffset(most, height)
 		if entry.icon then
 			-- the word goes to the tab's foot and the picture stands over it, in a holder the game

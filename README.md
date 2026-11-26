@@ -9,11 +9,12 @@ leave room: never under a notch, never under Roblox's buttons, never under the t
 sizes were not designed: they were read off a live client's top bar, and the kit was built and used
 in a live game before it became a package.
 
-> **0.23.1.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
-> the hands" button are proven by specs that run on every push, and each of 330 small slips in them
-> makes the suite fail (`tests/Mutate.luau`). The modules that build Instances cannot run off
+> **0.23.2.** The placement arithmetic, the backpack's order and taps and a gamepad's "in
+> the hands" button are proven by specs that run on every push, and each of 332 small slips in them
+> makes the suite fail (`tests/Mutate.luau`). Most modules that build Instances cannot run off
 > Roblox, so the suite does not run them; they are checked against the Roblox API by the type gate,
-> under both type solvers. The dialog's teardown was proven in a consuming game's cloud suite: the
+> under both type solvers. Extracted tab text assignments run on real LuneBlox TextButtons; their
+> configured properties are proven, not rendered text fit. The dialog's teardown was proven in a consuming game's cloud suite: the
 > same specs warned ten times under 0.16.0 (`The Parent property of ... is locked`) and are silent
 > under this release.
 >
@@ -106,7 +107,7 @@ or pin it exactly in `pesde.toml`:
 
 ```toml
 [dependencies]
-HudBlox = { name = "xopoiii/hudblox", version = "=0.23.1", target = "roblox" }
+HudBlox = { name = "xopoiii/hudblox", version = "=0.23.2", target = "roblox" }
 ```
 
 HudBlox runs on the client. It has no dependencies.
@@ -530,7 +531,7 @@ have no verified enabled getter: restoration is best-effort Enable, **not** an e
 snapshot. Native discovery/signals and real device movement still require Roblox testing; plain
 protocol specs and type checks do not prove them.
 
-Install `=0.23.1` only after verifying its published package. The following is also type-checked
+Install `=0.23.2` only after verifying its published package. The following is also type-checked
 in the consumer fixture:
 
 ```luau

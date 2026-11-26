@@ -6,6 +6,18 @@ export type Mutant = { file: string, from: string, to: string, breaks: string }
 
 const MUTANTS: { Mutant } = {
 	{
+		file = "src/Tabs.luau",
+		from = "button.TextWrapped = vertical",
+		to = "button.TextWrapped = false",
+		breaks = "vertical tab labels wrap without shrinking while horizontal labels stay single-line",
+	},
+	{
+		file = "src/Tabs.luau",
+		from = "button.TextWrapped = vertical",
+		to = "button.TextWrapped = true",
+		breaks = "vertical tab labels wrap without shrinking while horizontal labels stay single-line",
+	},
+	{
 		file = "src/TabFit.luau",
 		from = "then span * cross / drawnCross else span",
 		to = "then span else span",

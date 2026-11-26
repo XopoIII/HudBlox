@@ -39,6 +39,7 @@ const function suitePasses(work: string, mutant: Mutant?): boolean
 			or string.find(mutant.file, "/UiRules", 1, true)
 			or string.find(mutant.file, "/ModalState", 1, true)
 			or string.find(mutant.file, "/PointerState", 1, true)
+			or mutant.file == "src/Tabs.luau"
 		)
 	then
 		const text = string.gsub(result.stderr, "\27%[[%d;]*m", "")
@@ -51,6 +52,7 @@ const function suitePasses(work: string, mutant: Mutant?): boolean
 					block,
 					if string.find(mutant.file, "/Control", 1, true)
 						then "tests/unit/Control"
+						elseif mutant.file == "src/Tabs.luau" then "tests/unit/TabText"
 						else "tests/unit/UiOwnership",
 					1,
 					true
