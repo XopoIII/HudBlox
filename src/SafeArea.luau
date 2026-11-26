@@ -45,9 +45,13 @@ end
 --> stands beside the bar and should match it: a column of round buttons down the screen's edge (a
 --> whole ScreenGui), or a card drawn by hand over the middle of the screen (the card itself, which
 --> grows round its anchor; a UIScale on its ScreenGui would move it off the middle). Returns the
---> function that stops it.
+--> function that stops it; destroying the followed object stops it too.
 function SafeArea.follow(gui: GuiBase2d): () -> ()
+	local dead = false
 	const function apply()
+		if dead then
+			return
+		end
 		const scale = SafeArea.chromeScale()
 		local made = gui:FindFirstChild("ChromeScale")
 		if not made and scale ~= 1 then
@@ -62,9 +66,16 @@ function SafeArea.follow(gui: GuiBase2d): () -> ()
 	end
 	apply()
 	const watch = game:GetService("GuiService"):GetPropertyChangedSignal("TopbarInset"):Connect(apply)
-	return function()
+	local destruction: RBXScriptConnection? = nil
+	const function stop()
+		dead = true
 		watch:Disconnect()
+		if destruction then
+			destruction:Disconnect()
+		end
 	end
+	destruction = gui.Destroying:Connect(stop)
+	return stop
 end
 
 --> X in `gui` where the top line's free span begins, right of Roblox's own buttons.
@@ -95,16 +106,29 @@ function SafeArea.y(gui: GuiBase2d, fraction: number): UDim
 end
 
 --> Runs `place` now and whenever the area changes: a turned phone, a resized window, a platform
---> change. Returns the function that stops it, and a surface that can be unmounted must call it.
+--> change. Returns the function that stops it; destroying the bound object stops it too.
 function SafeArea.bind(gui: GuiBase2d, place: () -> ()): () -> ()
+	local dead = false
+	const function apply()
+		if not dead then
+			place()
+		end
+	end
 	-- Both matter: the size moves the bottom edge, the position moves the top strip.
-	const size = gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(place)
-	const position = gui:GetPropertyChangedSignal("AbsolutePosition"):Connect(place)
-	place()
-	return function()
+	const size = gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(apply)
+	const position = gui:GetPropertyChangedSignal("AbsolutePosition"):Connect(apply)
+	local destruction: RBXScriptConnection? = nil
+	const function stop()
+		dead = true
 		size:Disconnect()
 		position:Disconnect()
+		if destruction then
+			destruction:Disconnect()
+		end
 	end
+	destruction = gui.Destroying:Connect(stop)
+	apply()
+	return stop
 end
 
 return SafeArea

@@ -6,6 +6,18 @@ export type Mutant = { file: string, from: string, to: string, breaks: string }
 
 const MUTANTS: { Mutant } = {
 	{
+		file = "src/TabFit.luau",
+		from = "then span * cross / drawnCross else span",
+		to = "then span else span",
+		breaks = "measured tab spans return to layout points before sharing",
+	},
+	{
+		file = "src/DialogGeometry.luau",
+		from = "h = math.min(math.max(viewH - tight * 2, 0), maxH)",
+		to = "h = math.max(viewH - tight * 2, 0)",
+		breaks = "short scaled dialogs keep their footer on the screen and honor the caller cap",
+	},
+	{
 		file = "src/Layout.luau",
 		from = "then free + Measure.GAP * s else",
 		to = "then free else",

@@ -26,6 +26,7 @@ const Native = require("./Native")
 const PadGlyph = require("./PadGlyph")
 const PadPage = require("./PadPage")
 const TabFit = require("./TabFit")
+const TabsFit = require("./TabsFit")
 
 const Tabs = {}
 
@@ -176,17 +177,7 @@ function Tabs.mount(parent: Instance, entries: { Entry }, options: Options?): Ha
 	end
 
 	const function fit()
-		if vertical then
-			const h = TabFit.height(frame.AbsoluteSize.Y, #entries, gap, height)
-			for _, button in buttons do
-				button.Size = UDim2.fromOffset(most, h)
-			end
-		else
-			const width = TabFit.width(frame.AbsoluteSize.X, #entries, gap, most)
-			for _, button in buttons do
-				button.Size = UDim2.fromOffset(width, height)
-			end
-		end
+		TabsFit.apply(frame, buttons, vertical, #entries, gap, height, most)
 	end
 
 	const function pick(key: string): boolean

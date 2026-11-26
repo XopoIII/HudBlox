@@ -73,4 +73,14 @@ Spec.test("a vertical rail splits the body from the reader's leading side and ne
 	Spec.equal(tiny.contentWidth, 0, "page width clamped to zero")
 end)
 
+Spec.test("measured tab spans return to layout points before sharing", function()
+	Spec.equal(TabFit.points(450, 60, 40), 300, "horizontal at one and a half")
+	Spec.equal(TabFit.width(TabFit.points(450, 60, 40), 3, 8, 150), 94, "three in 300 points")
+	Spec.equal(TabFit.points(192, 132, 88), 128, "vertical at one and a half")
+	Spec.equal(TabFit.height(TabFit.points(192, 132, 88), 2, 8, 60), 60, "two in 128 points")
+	Spec.equal(TabFit.points(300, 40, 40), 300, "unit scale")
+	Spec.equal(TabFit.points(300, 0, 40), 300, "before the cross axis is measured")
+	Spec.equal(TabFit.points(300, 60, 0), 300, "a zero requested cross axis")
+end)
+
 return nil

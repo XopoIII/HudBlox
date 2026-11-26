@@ -66,8 +66,8 @@ Spec.test("a sheet fills exactly the screens too short to frame the dialog", fun
 	Spec.equal(DialogGeometry.layout(801, 392, 58, 420, 300).tight, false, "a small dialog on that phone")
 end)
 
-Spec.test("a panel is never smaller than what its rows need", function()
-	Spec.equal(panel(280, 300, 58), { width = 280, height = 240, top = 66, clearsBottom = false, tight = true })
+Spec.test("a preferred minimum yields to the physical screen below the row", function()
+	Spec.equal(panel(280, 300, 58), { width = 280, height = 222, top = 66, clearsBottom = false, tight = true })
 	Spec.equal(DialogGeometry.CARD_W_MIN, 280, "the least width")
 	Spec.equal(DialogGeometry.CARD_H_MIN, 240, "the least height")
 	Spec.equal(panel(200, 260, 58).width, 280, "a screen narrower than that still gets it")
@@ -168,6 +168,20 @@ Spec.test("a page takes the whole screen, from its own top edge, at the bar's sc
 		DialogGeometry.page(666, 375, 0),
 		{ width = 666, height = 375, top = 0, clearsBottom = true, tight = true }
 	)
+end)
+
+Spec.test("short scaled dialogs keep their footer on the screen and honor the caller cap", function()
+	const one = DialogGeometry.scaled(812, 375, 58, 624, 382, nil, 1.5)
+	Spec.equal(one.top, 96, "one and a half: top row clear")
+	Spec.equal(one.height, 174, "one and a half: remaining points")
+	Spec.equal(one.top + one.height * 1.5, 357, "footer above bottom margin")
+	const two = DialogGeometry.scaled(812, 375, 58, 624, 382, nil, 2)
+	Spec.equal(two.top, 128, "double: top row clear")
+	Spec.equal(two.height, 111, "double: remaining points")
+	Spec.equal(two.top + two.height * 2, 350, "double: footer above bottom margin")
+	Spec.equal(DialogGeometry.layout(812, 375, 58, 624, 150).height, 150, "small caller cap")
+	Spec.equal(DialogGeometry.layout(812, 375, 58, 624, 300).height, 246, "tight caller cap")
+	Spec.equal(DialogGeometry.layout(280, 40, 70, 624, 382).height, 0, "no negative body")
 end)
 
 return {}

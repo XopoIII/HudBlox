@@ -75,4 +75,9 @@ function TabFit.step(count: number, on: number, by: number): number
 	return math.clamp(on + by, 1, count)
 end
 
+-- > Convert a measured span to layout points using the strip's fixed cross axis as a reference.
+function TabFit.points(span: number, drawnCross: number, cross: number): number
+	return if drawnCross > 0 and cross > 0 then span * cross / drawnCross else span
+end
+
 return TabFit

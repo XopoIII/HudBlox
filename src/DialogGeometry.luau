@@ -105,7 +105,7 @@ function DialogGeometry.layout(
 			top = strip + (viewH - strip - h) * 0.5
 		else
 			const tight = DialogGeometry.TIGHT_MARGIN
-			h = math.max(viewH - tight * 2, DialogGeometry.CARD_H_MIN)
+			h = math.min(math.max(viewH - tight * 2, 0), maxH)
 			top = tight
 			flush = true
 		end
@@ -118,7 +118,7 @@ function DialogGeometry.layout(
 
 	-- Below the strip and the row: the bottom edge stays where it was.
 	if top < clear then
-		h = math.max(h - (clear - top), DialogGeometry.CARD_H_MIN)
+		h = math.max(h - (clear - top), 0)
 		top = clear
 	end
 
